@@ -91,7 +91,8 @@ static struct {
 
 /*****************************************************************************/
 
-static BOOL open_classes(void)
+/* also used by find.c */
+BOOL prefs_open_classes(void)
 {
     static const struct { struct Library **base; const char *name; } cl[] = {
         { &ListBrowserBase, "gadgets/listbrowser.gadget" },
@@ -415,7 +416,7 @@ int prefs_dialog(struct Settings *s)
     int rc = PREFS_CANCEL;
     BOOL done = FALSE;
 
-    if (!open_classes()) return PREFS_CANCEL;
+    if (!prefs_open_classes()) return PREFS_CANCEL;
     memset(&pw, 0, sizeof(pw));
     if (!(pw.root = build(s))) goto out;
 

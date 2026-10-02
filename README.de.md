@@ -53,6 +53,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   und vor dem Überschreiben.
 * Ausschneiden/Kopieren/Einfügen/Rückgängig/Wiederholen, alles markieren; Markierungen in der
   Vorschau lassen sich ebenfalls kopieren.
+* Suchen und Ersetzen (*Edit/Find...*, Amiga-F): ein Fenster neben dem Editor mit Groß-/Klein-
+  schreibung, ganzen Wörtern, rückwärts und Umlauf; „Replace all“ ist ein Rückgängig-Schritt.
+  *Find next* (Amiga-G) wiederholt die letzte Suche.
+* Hilfe-Bubbles an den Toolbar-Knöpfen.
 * Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
 * Ikonifizieren (Gadget in der Titelleiste oder *Project/Iconify*): Das MDEdit-Icon erscheint auf

@@ -49,6 +49,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 * Headings get GitHub style anchors (`## Two Words` → `#two-words`), so tables of contents work.
 * Open, Save, Save as, Export HTML; asks before discarding changes or replacing files.
 * Cut/Copy/Paste/Undo/Redo, select all; text selected in the preview can be copied, too.
+* Find and replace (*Edit/Find...*, Amiga-F): a window next to the editor with case sensitive,
+  whole words, backwards and wrap around; Replace all is one undo step. *Find next* (Amiga-G)
+  repeats the last search.
+* Help bubbles on the toolbar buttons.
 * Status line with the cursor position, mouse wheel scrolls the pane under the pointer.
 * AppWindow: drop a Markdown icon on the window to open it.
 * Iconify (gadget in the title bar or *Project/Iconify*): the MDEdit icon appears on the

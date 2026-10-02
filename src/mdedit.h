@@ -18,7 +18,7 @@
 enum {
     CMD_NEW = 1, CMD_OPEN, CMD_SAVE, CMD_SAVEAS, CMD_EXPORT, CMD_ABOUT, CMD_QUIT,
     CMD_CUT, CMD_COPY, CMD_PASTE, CMD_UNDO, CMD_REDO, CMD_SELECTALL, CMD_HIGHLIGHT,
-    CMD_LINENUMBERS, CMD_SETTINGS, CMD_ICONIFY,
+    CMD_LINENUMBERS, CMD_SETTINGS, CMD_ICONIFY, CMD_FIND, CMD_FINDNEXT,
     CMD_REFRESH, CMD_AUTOREFRESH, CMD_SYNCSCROLL, CMD_COPYPREVIEW
 };
 
@@ -59,12 +59,23 @@ void gui_icon_title(CONST_STRPTR title);
 void gui_iconify(void);
 BOOL gui_uniconify(void);
 
+/* mdedit.c: the text was changed from outside the editor (find.c) */
+void editor_changed(void);
+
+/* find.c */
+void find_open(void);
+void find_next(void);
+ULONG find_sigmask(void);
+void find_handle(void);
+void find_cleanup(BOOL dispose);
+
 /* dialog.c */
 LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL centred);
 
 /* prefswin.c */
 enum { PREFS_CANCEL, PREFS_USE, PREFS_SAVE };
 int prefs_dialog(struct Settings *s);
+BOOL prefs_open_classes(void);
 void prefs_cleanup(void);
 
 /* highlight.c */

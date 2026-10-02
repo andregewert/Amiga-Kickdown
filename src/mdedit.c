@@ -85,6 +85,7 @@ static char lastdir[PATHLEN];
 static char dropped[PATHLEN];       /* set by the AppWindow hook */
 
 static BOOL open_document(CONST_STRPTR name);
+static void update_preview(void);
 
 /*****************************************************************************/
 
@@ -203,6 +204,12 @@ static BOOL poll_changes(void)
         update_title();
     }
     return TRUE;
+}
+
+/* the text was changed by find.c: the editor's window gets no ticks then */
+void editor_changed(void)
+{
+    if (poll_changes() && set.autorefresh) update_preview();
 }
 
 /*****************************************************************************/
@@ -626,7 +633,9 @@ static BOOL command(ULONG cmd)
         set_linenumbers();
         break;
     case CMD_SETTINGS:    edit_settings(); break;
-    case CMD_ICONIFY:     gui_iconify(); break;
+    case CMD_ICONIFY:     find_cleanup(FALSE); gui_iconify(); break;
+    case CMD_FIND:        find_open(); break;
+    case CMD_FINDNEXT:    find_next(); break;
     case CMD_COPYPREVIEW: copy_preview(); break;
     }
     return FALSE;
@@ -832,7 +841,7 @@ int main(void)
         ULONG sig;
         /* after iconifying the window has a new port: ask every time */
         GetAttr(WINDOW_SigMask, gui.winobj, &sigmask);
-        sig = Wait(sigmask | appsig | SIGBREAKF_CTRL_C);
+        sig = Wait(sigmask | appsig | find_sigmask() | SIGBREAKF_CTRL_C);
         if (sig & SIGBREAKF_CTRL_C) break;
         while ((result = DoMethod(gui.winobj, WM_HANDLEINPUT, &code)) != WMHI_LASTMSG) {
             switch (result & WMHI_CLASSMASK) {
@@ -864,6 +873,7 @@ int main(void)
                 sync_reset();
                 break;
             case WMHI_ICONIFY:
+                find_cleanup(FALSE);
                 gui_iconify();
                 break;
             case WMHI_UNICONIFY:
@@ -879,6 +889,7 @@ int main(void)
             }
             if (done) break;
         }
+        if (!done) find_handle();
         if (dropped[0] && !done) {
             char name[PATHLEN];
             strcpy(name, dropped);
@@ -891,6 +902,7 @@ int main(void)
     rc = RETURN_OK;
 
 out:
+    find_cleanup(TRUE);
     gui_close();
     sync_free();
     prefs_cleanup();

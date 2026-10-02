@@ -27,6 +27,8 @@ MDEdit
  - open, save, save as, export to HTML (with your own page template)
  - cut, copy, paste, undo, redo; text selected in the preview can be
    copied as well
+ - find and replace (case sensitive, whole words, backwards, wrap
+   around, replace all as one undo step)
  - toolbar with AISS images (TBIMAGES:), text buttons if they are
    missing
  - AppWindow: drop a Markdown icon on the window to open it; iconify

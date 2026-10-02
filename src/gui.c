@@ -63,6 +63,9 @@ static struct NewMenu menus[] = {
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Select all",      0, 0, 0, (APTR)CMD_SELECTALL },
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
+    { NM_ITEM,  (STRPTR)"Find...",         (STRPTR)"F", 0, 0, (APTR)CMD_FIND },
+    { NM_ITEM,  (STRPTR)"Find next",       (STRPTR)"G", 0, 0, (APTR)CMD_FINDNEXT },
+    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Syntax highlighting", 0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_HIGHLIGHT },
     { NM_ITEM,  (STRPTR)"Line numbers",    0, CHECKIT | MENUTOGGLE, 0, (APTR)CMD_LINENUMBERS },
     { NM_TITLE, (STRPTR)"Preview",         0, 0, 0, 0 },
@@ -73,6 +76,9 @@ static struct NewMenu menus[] = {
     { NM_ITEM,  (STRPTR)"Copy selection",  0, 0, 0, (APTR)CMD_COPYPREVIEW },
     { NM_END,   0, 0, 0, 0, 0 }
 };
+
+/* help bubbles of the speedbar buttons (window.class), see make_buttons() */
+static struct HintInfo hints[MAXTOOLS + 1];
 
 /* Speedbar buttons. The images come from AISS (TBIMAGES:<name>, the
  * selected state from <name>_s); a missing image falls back to the label. */
@@ -90,6 +96,7 @@ static const struct {
     { CMD_PASTE,   0, "paste",    "Paste",   "Paste from the clipboard" },
     { CMD_UNDO,    8, "undo",     "Undo",    "Undo the last change" },
     { CMD_REDO,    0, "redo",     "Redo",    "Redo the last undone change" },
+    { CMD_FIND,    8, "find",     "Find",    "Find and replace" },
     { CMD_REFRESH, 8, "refresh",  "Refresh", "Refresh the HTML preview" },
     { CMD_EXPORT,  0, "copyfile", "Export",  "Export the document as HTML file" },
     { CMD_SETTINGS, 8, "prefs",   "Settings", "Settings" },
@@ -146,14 +153,18 @@ static BOOL make_buttons(void)
         Object *img = gui.images[i] = load_image(tools[i].image);
         node = AllocSpeedButtonNode(tools[i].cmd,
             img ? SBNA_Image : SBNA_Text, img ? (ULONG)img : (ULONG)tools[i].label,
-            SBNA_Help,      (ULONG)tools[i].help,
             SBNA_Enabled,   TRUE,
             SBNA_Spacing,   tools[i].spacing,
             SBNA_Highlight, SBH_RECESS,
             TAG_DONE);
         if (!node) return FALSE;
         AddTail(&gui.buttons, node);
+        hints[i].hi_GadgetID = GID_TOOLBAR;
+        hints[i].hi_Code = tools[i].cmd;
+        hints[i].hi_Text = (STRPTR)tools[i].help;
+        hints[i].hi_Flags = 0;
     }
+    hints[i].hi_GadgetID = hints[i].hi_Code = -1;
     return TRUE;
 }
 
@@ -331,6 +342,8 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         /* iconifying needs the AppPort for the AppIcon */
         appport ? WINDOW_IconifyGadget : TAG_IGNORE, TRUE,
         WINDOW_IconTitle,   (ULONG)APPNAME,
+        WINDOW_HintInfo,    (ULONG)hints,
+        WINDOW_GadgetHelp,  TRUE,
         WINDOW_ParentGroup, (ULONG)gui.layout,
         TAG_DONE);
     if (!gui.winobj) return FALSE;              /* gui_close() disposes the layout */
