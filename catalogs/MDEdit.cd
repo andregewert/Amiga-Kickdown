@@ -250,7 +250,7 @@ Export HTML file
 ;
 ; program name, version, parser, gadget name, gadget version
 MSG_ABOUT (//)
-%s %s\nMarkdown editor with HTML preview\n\nCopyright (c) 2026 André Gewert\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
+%s %s\nMarkdown editor with HTML preview\n\nCopyright (c) 2026 André Gewert\nwww.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
 ;
 MSG_UNKNOWN_DIALECT (//)
 Unknown dialect "%s", using GitHub.

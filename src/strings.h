@@ -234,7 +234,7 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Open Markdown file",
     "Save Markdown file",
     "Export HTML file",
-    "%s %s\nMarkdown editor with HTML preview\n\nCopyright (c) 2026 Andr\351 Gewert\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld",
+    "%s %s\nMarkdown editor with HTML preview\n\nCopyright (c) 2026 Andr\351 Gewert\nwww.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld",
     "Unknown dialect \"%s\", using GitHub.",
     "Could not read the template %s.",
     "Renderer and fonts take effect at the next start",
