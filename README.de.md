@@ -71,6 +71,15 @@ Hinweis: Die Pascal-Version hatte Unix-Optionen (`-f`, `-o`, `-t` …). Diese Ve
 HTML-Datei mit den Platzhaltern `$title$`, `$encoding$` (oder `$charset$`) und `$body$`, siehe
 `test/template.html`. MDEdit verwendet das Template für Vorschau und Export.
 
+## Icons
+
+Das Archiv hat klassische Icons; vollständige Sätze im **GlowIcons**- und **NewIcons**-Stil
+liegen in `Icons/` (Doppelklick auf `UseGlowIcons`, `UseNewIcons` oder `UseClassic`).
+`tools/icons.py` zeichnet sie mit dem Icon-Werkzeug von html.gadget
+(`html_gadget/tools/mkicons.py`).
+
+![Icon-Stile: klassisch, GlowIcons, NewIcons (normal und ausgewählt)](icons/preview.png)
+
 ## Bauen
 
 Benötigt [bebbos amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) unter `/opt/amiga` (mit NDK 3.2).
@@ -80,7 +89,8 @@ git submodule update --init
 make                # bin/MDEdit, bin/mdtohtml
 make check          # Konverter- und Scroll-Sync-Tests auf dem Host (mit AddressSanitizer)
 make check-update   # gewollte Ausgabeänderungen als neue Referenz übernehmen
-make dist           # dist/Amiga-MDTools.lha
+make dist           # Aminet-Archiv dist/MDTools.lha (+ MDTools.readme)
+make icons          # Beispiel-Icons aller Stile in icons/, Vorschau in icons/preview.png
 ```
 
 Alle Amiga-Quellen und Testdateien sind **ISO-8859-1** kodiert; `make` bricht bei UTF-8 ab.

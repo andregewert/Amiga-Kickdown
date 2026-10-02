@@ -1,0 +1,100 @@
+Short:        Markdown editor with HTML preview
+Author:       André Gewert <agewert@ubergeek.de>
+Uploader:     André Gewert <agewert@ubergeek.de>
+Type:         text/edit
+Version:      1.0
+Architecture: m68k-amigaos >= 3.2.0
+Requires:     AmigaOS 3.2, dev/gui/html_gadget.lha, AISS (toolbar)
+Distribution: Aminet
+
+MDEdit is a Markdown editor for AmigaOS 3.2 with a live HTML preview,
+built with ReAction. mdtohtml converts Markdown files to HTML pages from
+the Shell. Both use md4c, a fast CommonMark compliant parser written in
+C, and understand GitHub flavoured Markdown: tables, strikethrough, task
+lists, autolinks and footnotes.
+
+MDEdit
+------
+ - editor (texteditor.gadget) and preview (html.gadget) side by side,
+   the bar between them adjusts the split
+ - the preview follows half a second after you stop typing and keeps
+   its scroll position; editor and preview scroll together
+ - headings get anchors, so "#anchor" links and tables of contents
+   work; links to other .md files open them in the editor
+ - pictures with relative paths are loaded from the document's drawer
+ - open, save, save as, export to HTML (with your own page template)
+ - cut, copy, paste, undo, redo; text selected in the preview can be
+   copied as well
+ - toolbar with AISS images (TBIMAGES:), text buttons if they are
+   missing
+ - AppWindow: drop a Markdown icon on the window to open it
+ - options as tool types or Shell arguments:
+   MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
+          [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
+   TTF uses htmlttf.gadget (anti-aliased TrueType fonts) for the preview.
+
+mdtohtml
+--------
+   mdtohtml [FROM] <file.md> [TO <file.html>] [TEMPLATE <file>]
+            [CHARSET <name>] [TITLE <text>] [DIALECT GitHub|CommonMark]
+
+Without FROM the text is read from standard input, without TO the page
+goes to standard output. The title defaults to the first heading. The
+charset is only written into the page: UTF-8 if the text is valid UTF-8,
+otherwise ISO-8859-1. Raw HTML in the text is passed through.
+
+A template is an HTML file with the placeholders $title$, $encoding$ and
+$body$, see Template.html.
+
+Installation
+------------
+Copy MDEdit (with its icon) and C/mdtohtml wherever you like, e.g. to
+SYS:Tools and C:. html.gadget must be installed in SYS:Classes/Gadgets/
+or lie next to MDEdit. Example.md has MDEdit as default tool; set the
+default tool of your Markdown icons to MDEdit to open them with a
+double click.
+
+Contents
+--------
+ MDEdit               the editor
+ C/mdtohtml           the Shell converter
+ Example.md           Markdown example
+ Template.html        example page template
+ Docs/                documentation (English ReadMe.md, German
+                      LiesMich.md)
+ Icons/               the archive's icons as GlowIcons and NewIcons (and
+                      the classic ones); double click UseGlowIcons,
+                      UseNewIcons or UseClassic to switch
+ Source/              complete source code (C, cross compiled with
+                      bebbo's amiga-gcc and NDK 3.2), including md4c
+
+History
+-------
+1.0 (02.10.2026)
+ - first release
+
+License
+-------
+MIT License, see LICENSE.
+md4c: Copyright (c) 2016-2026 Martin Mitas, MIT License, see
+Source/md4c/LICENSE.md.
+
+Deutsch
+-------
+MDEdit ist ein Markdown-Editor für AmigaOS 3.2 mit Live-HTML-Vorschau,
+gebaut mit ReAction; mdtohtml wandelt Markdown-Dateien in der Shell in
+HTML-Seiten um. Beide verstehen GitHub-Markdown mit Tabellen,
+Durchstreichen, Aufgabenlisten, Autolinks und Fußnoten.
+
+Editor und Vorschau stehen nebeneinander, die Vorschau folgt beim
+Schreiben, beide scrollen gemeinsam. Überschriften erhalten Anker, Links
+auf andere .md-Dateien öffnen diese im Editor, Bilder werden relativ zur
+Schublade des Dokuments geladen. Export als HTML mit eigenem Template.
+Voraussetzungen: AmigaOS 3.2, html.gadget (Aminet dev/gui/html_gadget.lha)
+und AISS für die Toolbar-Bilder. Ausführliche deutsche Dokumentation:
+Docs/LiesMich.md.
+
+Versionsgeschichte
+------------------
+1.0 (02.10.2026)
+ - erste Veröffentlichung

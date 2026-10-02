@@ -14,8 +14,10 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 - `md4c/`: Git-Submodule, auf ein Release-Tag gepinnt. Nicht verändern; Anpassungen gehören
   nach `mdconv.c`. `src/entity_stub.c` ersetzt md4cs `entity.c` (Entities bleiben wörtlich
   stehen, `MD_HTML_FLAG_VERBATIM_ENTITIES`).
-- `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget), auf ein Release-Tag gepinnt; benutzt werden
-  nur die Header aus `html_gadget/include`. Braucht MDEdit neue Attribute, das Submodule auf
+- `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget); benutzt werden die Header aus
+  `html_gadget/include` und das Icon-Werkzeug `html_gadget/tools/mkicons.py`. Zur Zeit auf
+  einem Commit nach `v1.0` (mkicons.py gibt es erst seitdem); sobald html_gadget 1.1
+  getaggt ist, auf das Tag setzen. Braucht MDEdit neue Attribute, das Submodule auf
   ein neueres Tag/Commit setzen (`git -C html_gadget checkout <tag>`, dann `git add html_gadget`).
   Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
 
@@ -48,6 +50,18 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 - GUI-Tests auf dem Amiga (Amiberry) macht der Benutzer selbst; Amiberry nicht mit seiner
   Konfiguration oder seinem Festplatten-Image starten. Ungetestete Annahmen über
   ReAction-Klassen im Commit/Bericht kennzeichnen.
+
+## Icons und Aminet-Paket
+
+- `tools/icons.py` registriert die Motive von MDEdit und Markdown-Dokumenten in
+  `html_gadget/tools/mkicons.py` (Stile, Dateiformat, Vorschau kommen von dort). Die Dateien in
+  `icons/` sind Beispiele und werden mit `make icons` erzeugt, nie von Hand bearbeitet.
+- `tools/mkdist.py` (`make dist`) baut `dist/MDTools.lha` samt Icons, Doku (README*.md nach
+  ISO-8859-1) und Quellen (inkl. md4c und html.gadget-Headern, `md4c/VERSION`). Die Quellen im
+  Archiv müssen ohne Git bauen.
+- `package/MDTools.readme` ist die Aminet-Readme: ISO-8859-1, Zeilen höchstens 78 Zeichen.
+  Für Anwender sichtbare Änderungen englisch (`History`) und deutsch (`Versionsgeschichte`)
+  unter der Version aus `VERSION_TEXT` eintragen und `Version:` anpassen.
 
 ## Versionen
 

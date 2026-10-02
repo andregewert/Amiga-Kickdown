@@ -10,7 +10,8 @@ O       := bin
 
 # md4c (git submodule) works byte by byte: Latin-1 and UTF-8 pass unchanged
 MD4C    := md4c/src
-MD4CVER := $(shell git -C md4c describe --tags 2>/dev/null | sed 's/^release-//;s/^v//')
+# md4c/VERSION exists in the source archive (no git there)
+MD4CVER := $(shell cat md4c/VERSION 2>/dev/null || git -C md4c describe --tags 2>/dev/null | sed 's/^release-//;s/^v//')
 MDDEFS  := -DMD4C_USE_ASCII -I$(MD4C) '-DMD4C_VERSION_STR="$(MD4CVER)"'
 
 # public headers of html.gadget (git submodule)
@@ -52,7 +53,8 @@ $(O)/mdtohtml: $(TOOLOBJ)
 	$(STRIP) -o $@ $@.debug
 
 # Amiga sources and texts must be ISO-8859-1: refuse UTF-8 sequences.
-# Not checked: README*.md, CLAUDE.md, test/utf8.* (UTF-8) and the submodules.
+# Not checked: README*.md, CLAUDE.md, tools/*.py, test/utf8.* (UTF-8) and the
+# submodules.
 LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h test/*.md test/*.html test/*.expected \
            package/* LICENSE Makefile))
 charcheck:
@@ -89,19 +91,18 @@ check-update: test/hostconv
 		./test/hostconv $$f test/template.html > test/$$n.expected && echo "updated test/$$n.expected"; \
 	done
 
-# Aminet style archive dist/Amiga-MDTools.lha; needs an LhA that can
-# create archives: jlha (Debian: jlha-utils) or lha for UNIX
-LHA     ?= $(shell which jlha 2>/dev/null || echo lha)
+# sample icons of every style (icons/<Style>/*.info) and icons/preview.png
+icons:
+	python3 tools/icons.py
+
+md4cversion:
+	@echo $(MD4CVER)
+
+# Aminet archive dist/MDTools.lha (+ MDTools.readme), see tools/mkdist.py
 dist: all
-	rm -rf $(B)/dist dist
-	mkdir -p $(B)/dist/Amiga-MDTools dist
-	cp $(O)/MDEdit $(O)/mdtohtml $(B)/dist/Amiga-MDTools/
-	cp test/template.html $(B)/dist/Amiga-MDTools/template.html
-	cp test/features.md $(B)/dist/Amiga-MDTools/Example.md
-	cp LICENSE $(B)/dist/Amiga-MDTools/
-	cd $(B)/dist && $(LHA) ao5q ../../dist/Amiga-MDTools.lha Amiga-MDTools
+	python3 tools/mkdist.py
 
 clean:
 	rm -rf $(B) $(O) dist test/hostconv test/hostsync
 
-.PHONY: all clean check check-update charcheck dist
+.PHONY: all clean check check-update charcheck dist icons md4cversion

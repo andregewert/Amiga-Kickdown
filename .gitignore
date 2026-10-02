@@ -9,3 +9,6 @@ test/hostsync
 
 # UAE files
 *.uaem
+
+# Python
+__pycache__/

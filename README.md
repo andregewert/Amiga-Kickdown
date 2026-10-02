@@ -72,6 +72,14 @@ A template is an HTML file with the placeholders `$title$`, `$encoding$` (or `$c
 `$body$` (case is ignored), see `test/template.html`. Without a template a minimal HTML 4 frame
 is used. MDEdit uses the template for the preview and the export.
 
+## Icons
+
+The archive comes with classic icons; complete sets in the **GlowIcons** and **NewIcons**
+style are in `Icons/` (double click `UseGlowIcons`, `UseNewIcons` or `UseClassic`).
+`tools/icons.py` draws them with the icon writer of html.gadget (`html_gadget/tools/mkicons.py`).
+
+![Icon styles: classic, GlowIcons, NewIcons (normal and selected)](icons/preview.png)
+
 ## Building
 
 Requires [bebbo's amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) in `/opt/amiga` (with NDK 3.2).
@@ -81,7 +89,8 @@ git clone --recursive <repository>     # or: git submodule update --init
 make                # bin/MDEdit, bin/mdtohtml
 make check          # converter and scroll sync tests on the host (with AddressSanitizer)
 make check-update   # accept intended output changes as new reference
-make dist           # dist/Amiga-MDTools.lha
+make dist           # Aminet archive dist/MDTools.lha (+ MDTools.readme)
+make icons          # sample icons of all styles in icons/, preview in icons/preview.png
 ```
 
 All Amiga sources and test files are **ISO-8859-1** encoded; `make` refuses UTF-8 (`make charcheck`).
