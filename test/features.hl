@@ -1,0 +1,220 @@
+# Markdown-Beispiel für MDEdit
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+
+
+
+
+Dieses Dokument zeigt, was **MDEdit** und `mdtohtml` darstellen.
+...........................MM......MM.....CCCCCCCCCC............
+.............................bbbbbb.............................
+
+Umlaute (äöü ÄÖÜ ß) bleiben in ISO-8859-1 erhalten, Entities wie &copy; und &#228; auch.
+.................................................................TTTTTT.....TTTTTT......
+........................................................................................
+
+
+
+
+
+## Textauszeichnung
+HHHHHHHHHHHHHHHHHHH
+bbbbbbbbbbbbbbbbbbb
+
+
+
+
+
+*kursiv*, **fett**, ***beides***, ~~durchgestrichen~~ und `Code`.
+M......M..MM....MM..MMM......MMM..MMQQQQQQQQQQQQQQQMM.....CCCCCC.
+.iiiiii.....bbbb.......BBBBBB....................................
+
+Ein Zeilenumbruch mit zwei Leerzeichen  
+........................................
+........................................
+
+am Zeilenende.
+..............
+..............
+
+
+
+
+
+## Listen
+HHHHHHHHH
+bbbbbbbbb
+
+
+
+
+
+* Punkt eins
+M...........
+b...........
+
+* Punkt zwei
+M...........
+b...........
+
+  1. verschachtelt
+..MM..............
+..bb..............
+
+  2. nummeriert
+..MM...........
+..bb...........
+
+* Punkt drei
+M...........
+b...........
+
+
+
+
+
+- [x] erledigt
+M.MMM.........
+b.............
+
+- [ ] offen
+M.MMM......
+b..........
+
+
+
+
+
+## Zitat und Code
+HHHHHHHHHHHHHHHHH
+bbbbbbbbbbbbbbbbb
+
+
+
+
+
+> Ein Zitat
+MMQQQQQQQQQ
+bb.........
+
+> über zwei Zeilen.
+MMQQQQQQQQQQQQQQQQQ
+bb.................
+
+
+
+
+
+```c
+CCCC
+....
+  [in code fence]
+int main(void)
+CCCCCCCCCCCCCC
+..............
+  [in code fence]
+{
+C
+.
+  [in code fence]
+    return 0;
+CCCCCCCCCCCCC
+.............
+  [in code fence]
+}
+C
+.
+  [in code fence]
+```
+CCC
+...
+
+
+
+
+
+    eingerückter Code
+.....................
+.....................
+
+
+
+
+
+## Tabelle
+HHHHHHHHHH
+bbbbbbbbbb
+
+
+
+
+
+| Links | Mitte | Rechts |
+M.......M.......M........M
+..........................
+
+|:------|:-----:|-------:|
+MMMMMMMMMMMMMMMMMMMMMMMMMM
+..........................
+
+| a     | b     | c      |
+M.......M.......M........M
+..........................
+
+| 1     | 2     | 3      |
+M.......M.......M........M
+..........................
+
+
+
+
+
+## Links und Bilder
+HHHHHHHHHHHHHHHHHHH
+bbbbbbbbbbbbbbbbbbb
+
+
+
+
+
+[Aminet](http://aminet.net), <https://www.ubergeek.de>, www.amiga.org,
+LLLLLLLLUUUUUUUUUUUUUUUUUUU..UUUUUUUUUUUUUUUUUUUUUUUUU..UUUUUUUUUUUUU.
+________....................._________________________.._____________.
+
+[Anker](#tabelle) und ein Bild: ![Boing](boing.gif)
+LLLLLLLUUUUUUUUUU...............LLLLLLLLUUUUUUUUUUU
+_______.........................________...........
+
+
+
+
+
+Fußnote[^1].
+.......LLLL.
+.......____.
+
+
+
+
+
+[^1]: Der Text der Fußnote.
+LLLLL......................
+...........................
+
+
+
+
+
+---
+MMM
+bbb
+
+
+
+
+
+<p align="center">Eingebettetes <b>HTML</b> wird durchgereicht.</p>
+TTTTTTTTTTTTTTTTTT..............TTT....TTTT....................TTTT
+...................................................................
+

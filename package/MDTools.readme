@@ -17,6 +17,8 @@ MDEdit
 ------
  - editor (texteditor.gadget) and preview (html.gadget) side by side,
    the bar between them adjusts the split
+ - syntax highlighting of headings, emphasis, code, quotes, lists, links,
+   tables and HTML in the editor
  - the preview follows half a second after you stop typing and keeps
    its scroll position; editor and preview scroll together
  - headings get anchors, so "#anchor" links and tables of contents
@@ -31,6 +33,7 @@ MDEdit
  - options as tool types or Shell arguments:
    MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
           [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
+          [NOHIGHLIGHT]
    TTF uses htmlttf.gadget (anti-aliased TrueType fonts) for the preview.
 
 mdtohtml
@@ -86,8 +89,9 @@ gebaut mit ReAction; mdtohtml wandelt Markdown-Dateien in der Shell in
 HTML-Seiten um. Beide verstehen GitHub-Markdown mit Tabellen,
 Durchstreichen, Aufgabenlisten, Autolinks und Fußnoten.
 
-Editor und Vorschau stehen nebeneinander, die Vorschau folgt beim
-Schreiben, beide scrollen gemeinsam. Überschriften erhalten Anker, Links
+Editor und Vorschau stehen nebeneinander, der Editor hebt die
+Markdown-Syntax farbig hervor, die Vorschau folgt beim Schreiben, beide
+scrollen gemeinsam. Überschriften erhalten Anker, Links
 auf andere .md-Dateien öffnen diese im Editor, Bilder werden relativ zur
 Schublade des Dokuments geladen. Export als HTML mit eigenem Template.
 Voraussetzungen: AmigaOS 3.2, html.gadget (Aminet dev/gui/html_gadget.lha)

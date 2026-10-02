@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="ISO-8859-1" />
+        <title>Edge cases for the syntax highlighting</title>
+    </head>
+    <body>
+<h1 id="edge-cases-for-the-syntax-highlighting">Edge cases for the syntax highlighting</h1>
+<p>snake_case_names stay plain, 2<em>3</em>4 is emphasis, <em>a <strong>b</strong> c</em> nests.
+Unmatched ** markers and a lone * star, *escaped* too.
+Code <code>with ` backtick</code> and <code>*no emphasis* &lt;b&gt;inside&lt;/b&gt;</code>.
+Mail <a href="mailto:someone@example.com">someone@example.com</a>, entity &amp; and a <a href="http://example.com" title="Title">ref link</a>.</p>
+<pre><code>inside a tilde fence: **not bold**
+```
+still inside
+</code></pre>
+<pre><code>indented code (not highlighted)
+</code></pre>
+<blockquote>
+<p>quote with <strong>bold</strong> and <code>code</code></p>
+<blockquote>
+<p>nested quote</p>
+</blockquote>
+</blockquote>
+<ol>
+<li>other list marker</li>
+</ol>
+<ol start="10">
+<li>two digits</li>
+</ol>
+<h1 id="setext-heading">Setext heading</h1>
+<h2 id="setext-h2">Setext h2</h2>
+
+    </body>
+</html>

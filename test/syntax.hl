@@ -1,0 +1,116 @@
+# Edge cases for the syntax highlighting
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+
+
+
+
+snake_case_names stay plain, 2*3*4 is emphasis, *a **b** c* nests.
+..............................M.M...............M..MM.MM..M.......
+...............................i.................iiiiBiiii........
+
+Unmatched ** markers and a lone * star, \*escaped\* too.
+........................................................
+........................................................
+
+Code ``with ` backtick`` and `*no emphasis* <b>inside</b>`.
+.....CCCCCCCCCCCCCCCCCCC.....CCCCCCCCCCCCCCCCCCCCCCCCCCCCC.
+...........................................................
+
+Mail <someone@example.com>, entity &amp; and a [ref link][ref].
+.....UUUUUUUUUUUUUUUUUUUUU.........TTTTT.......LLLLLLLLLLUUUUU.
+....._____________________.....................__________......
+
+
+
+
+
+~~~
+CCC
+...
+  [in code fence]
+inside a tilde fence: **not bold**
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+..................................
+  [in code fence]
+```
+CCC
+...
+  [in code fence]
+still inside
+CCCCCCCCCCCC
+............
+  [in code fence]
+~~~
+CCC
+...
+
+
+
+
+
+    indented code (not highlighted)
+...................................
+...................................
+
+
+
+
+
+> quote with **bold** and `code`
+MMQQQQQQQQQQQMMQQQQMMQQQQQCCCCCC
+bb.............bbbb.............
+
+>> nested quote
+MMMQQQQQQQQQQQQ
+bbb............
+
+
+
+
+
+1) other list marker
+MM..................
+bb..................
+
+10. two digits
+MMM...........
+bbb...........
+
+
+
+
+
+Setext heading
+..............
+..............
+
+==============
+HHHHHHHHHHHHHH
+bbbbbbbbbbbbbb
+
+
+
+
+
+Setext h2
+.........
+.........
+
+---
+MMM
+bbb
+
+
+
+
+
+[ref]: http://example.com "Title"
+LLLLLLUUUUUUUUUUUUUUUUUUUUUUUUUUU
+.................................
+
+[^note]: footnote with *emphasis*
+LLLLLLLL...............M........M
+........................iiiiiiii.
+

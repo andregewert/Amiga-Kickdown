@@ -57,7 +57,7 @@ def main():
     # sources in the same layout as the repository, so "make" works there
     src = os.path.join(PKG, 'Source')
     for d in ('src', 'test', 'tools', 'package'):
-        copytree(b(d), os.path.join(src, d), ignore=('__pycache__', 'hostconv', 'hostsync'))
+        copytree(b(d), os.path.join(src, d), ignore=('__pycache__', 'hostconv', 'hostsync', 'hosthl'))
     for f in ('Makefile', 'README.md', 'README.de.md', 'LICENSE', 'CLAUDE.md'):
         copy(b(f), os.path.join(src, f))
     copytree(b('md4c', 'src'), os.path.join(src, 'md4c', 'src'), ignore=('*.pc.in', '*.cmake', 'CMakeLists.txt'))
@@ -75,7 +75,7 @@ def main():
     icons = [('MDEdit', 'mdedit', WBTOOL,
               dict(stack=65536, tooltypes=('(TEMPLATE=Template.html)', '(DIALECT=GitHub)',
                                            '(CHARSET=ISO-8859-1)', '(TTF)',
-                                           '(NOAUTOREFRESH)', '(NOSYNC)'))),
+                                           '(NOAUTOREFRESH)', '(NOSYNC)', '(NOHIGHLIGHT)'))),
              ('Example.md', 'markdown', WBPROJECT, dict(default_tool='MDEdit')),
              ('Template.html', 'readme', WBPROJECT, dict(default_tool=mv)),
              (NAME + '.readme', 'readme', WBPROJECT, dict(default_tool=mv)),

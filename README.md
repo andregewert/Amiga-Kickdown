@@ -25,13 +25,16 @@ Free Pascal based `mdtohtml` from [PubAmiga](https://github.com/andregewert/PubA
 ## MDEdit
 
 ```
-MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
+MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT]
 ```
 
 * Editor (`texteditor.gadget`, fixed width font) on the left, HTML preview (`html.gadget`) on the
   right, the weight bar between them adjusts the split.
 * The preview follows the text half a second after you stop typing (*Preview/Auto refresh*,
   can be switched off), *Preview/Refresh* (Amiga-R) updates it at once. The scroll position is kept.
+* Syntax highlighting in the editor (*Edit/Syntax highlighting*, needs texteditor.gadget V47):
+  headings, emphasis, code spans and fenced code blocks, quotes, list markers, links, URLs,
+  tables, HTML tags and entities.
 * Editor and preview scroll together (*Preview/Synchronize scrolling*, both directions). Headings
   are the fixed points, positions between them are interpolated.
 * Relative image paths are resolved against the document's drawer.
@@ -44,7 +47,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 * AppWindow: drop a Markdown icon on the window to open it.
 
 From the Workbench the same options are read from the tool types (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`); a relative `TEMPLATE` is relative to the icon's drawer.
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`); a relative `TEMPLATE` is relative to the icon's drawer.
 Set MDEdit as default tool of your `.md` icons to open them by double click.
 
 ## mdtohtml
@@ -87,7 +90,7 @@ Requires [bebbo's amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) in `/opt/amig
 ```
 git clone --recursive <repository>     # or: git submodule update --init
 make                # bin/MDEdit, bin/mdtohtml
-make check          # converter and scroll sync tests on the host (with AddressSanitizer)
+make check          # converter, scroll sync and highlighting tests on the host (AddressSanitizer)
 make check-update   # accept intended output changes as new reference
 make dist           # Aminet archive dist/MDTools.lha (+ MDTools.readme)
 make icons          # sample icons of all styles in icons/, preview in icons/preview.png

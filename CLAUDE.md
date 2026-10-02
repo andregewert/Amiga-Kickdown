@@ -10,7 +10,13 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 - `src/mdtohtml.c`: CLI (ReadArgs, dos.library). `src/fileio.c`: Datei-I/O für beide Programme.
 - `src/mdedit.c`: Programmlogik des Editors, `src/gui.c`: Fenster, Menü, Speedbar,
   `src/sync.c`: Scroll-Synchronisation (Überschriften als Fixpunkte, Umbruch des Editors wird
-  geschätzt und an `GA_TEXTEDITOR_Prop_Entries` kalibriert).
+  geschätzt und an `GA_TEXTEDITOR_Prop_Entries` kalibriert), `src/highlight.c`: Syntax-Hook.
+- Syntax-Hook (`GA_TEXTEDITOR_HighlighterHook`, V47): läuft beim Tippen im input.device-Kontext,
+  also kein DOS, kein malloc, wenig Stack. `HighlightSetFormat(obj, pos, end, style)`: `end`
+  exklusiv, Stile werden verodert, eine Farbe (`TBSTYLE_SETCOLOR | n << 8`, n = Eintrag n-1 von
+  `GA_TEXTEDITOR_ColorMap`) ersetzt die vorige. Der Rückgabewert des Hooks ist der Status der
+  Zeile (offene Code-Umzäunung); ändert er sich, ruft die Klasse den Hook für die Folgezeilen
+  auf. Das wurde im Maschinencode der OS3.2-Klasse nachgesehen, die Autodocs sagen es nicht.
 - `md4c/`: Git-Submodule, auf ein Release-Tag gepinnt. Nicht verändern; Anpassungen gehören
   nach `mdconv.c`. `src/entity_stub.c` ersetzt md4cs `entity.c` (Entities bleiben wörtlich
   stehen, `MD_HTML_FLAG_VERBATIM_ENTITIES`).
@@ -43,7 +49,8 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
   `TextFieldBase`.
 - `make check`: Konverter auf dem Host (ASan/UBSan), vergleicht `test/<name>.md` mit
   `test/<name>.expected`. Zusätzlich läuft `test/hostsync` (bindet `src/sync.c` mit den
-  Gadget-Attrappen aus `test/hoststubs.h` und den leeren Headern in `test/hostinc/` ein).
+  Gadget-Attrappen aus `test/hoststubs.h` und den leeren Headern in `test/hostinc/` ein) und
+  `test/hosthl` (Highlighting, Vergleich mit `test/<name>.hl`).
   Gewollte Änderungen mit `make check-update` übernehmen und den Diff prüfen. Neue
   `test/*.md` werden automatisch mitgetestet.
 - Vor einem Commit: `make` und `make check`.

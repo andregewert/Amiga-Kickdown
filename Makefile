@@ -22,7 +22,7 @@ CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter 
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
-EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(CONVOBJ)
+EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(CONVOBJ)
 TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
 all: charcheck $(O)/MDEdit $(O)/mdtohtml
@@ -55,7 +55,7 @@ $(O)/mdtohtml: $(TOOLOBJ)
 # Amiga sources and texts must be ISO-8859-1: refuse UTF-8 sequences.
 # Not checked: README*.md, CLAUDE.md, tools/*.py, test/utf8.* (UTF-8) and the
 # submodules.
-LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h test/*.md test/*.html test/*.expected \
+LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h test/*.md test/*.html test/*.expected test/*.hl \
            package/* LICENSE Makefile))
 charcheck:
 	@if LC_ALL=C grep -lP '[\xC2-\xF4][\x80-\xBF]' $(LATIN1); then \
@@ -72,9 +72,13 @@ test/hostsync: test/hostsync.c test/hoststubs.h src/sync.c src/mdconv.c src/mdco
 	cc -g -Wall -fsanitize=address,undefined -Isrc -Itest/hostinc $(MDDEFS) -o $@ \
 		test/hostsync.c src/mdconv.c src/entity_stub.c $(MD4C)/md4c.c $(MD4C)/md4c-html.c
 
+# host test of the syntax highlighting (src/highlight.c with stubs)
+test/hosthl: test/hosthl.c src/highlight.c
+	cc -g -Wall -fsanitize=address,undefined -Itest/hostinc -o $@ test/hosthl.c
+
 CHECKS  := $(wildcard test/*.md)
 
-check: test/hostconv test/hostsync
+check: test/hostconv test/hostsync test/hosthl
 	@mkdir -p $(B)/test; fail=0; \
 	for f in $(CHECKS); do n=$$(basename $$f .md); \
 		if ./test/hostconv $$f test/template.html > $(B)/test/$$n.out && \
@@ -83,12 +87,15 @@ check: test/hostconv test/hostsync
 		if ./test/hostsync $$f > $(B)/test/$$n.sync && ./test/hostsync $$f 500 > /dev/null; \
 		then echo "ok   $$f (sync, $$(head -1 $(B)/test/$$n.sync))"; \
 		else echo "FAIL $$f (sync)"; fail=1; fi; \
+		if ./test/hosthl $$f > $(B)/test/$$n.hl && diff -u test/$$n.hl $(B)/test/$$n.hl; \
+		then echo "ok   $$f (highlighting)"; else echo "FAIL $$f (highlighting)"; fail=1; fi; \
 	done; exit $$fail
 
 # accept the current output as reference after an intended change
-check-update: test/hostconv
+check-update: test/hostconv test/hosthl
 	@for f in $(CHECKS); do n=$$(basename $$f .md); \
 		./test/hostconv $$f test/template.html > test/$$n.expected && echo "updated test/$$n.expected"; \
+		./test/hosthl $$f > test/$$n.hl && echo "updated test/$$n.hl"; \
 	done
 
 # sample icons of every style (icons/<Style>/*.info) and icons/preview.png
@@ -103,6 +110,6 @@ dist: all
 	python3 tools/mkdist.py
 
 clean:
-	rm -rf $(B) $(O) dist test/hostconv test/hostsync
+	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl
 
 .PHONY: all clean check check-update charcheck dist icons md4cversion

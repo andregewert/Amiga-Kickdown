@@ -25,13 +25,16 @@ aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
 ## MDEdit
 
 ```
-MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
+MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT]
 ```
 
 * Links der Editor (`texteditor.gadget`, Festbreitenschrift), rechts die Vorschau (`html.gadget`),
   dazwischen ein verschiebbarer Balken.
 * Die Vorschau folgt eine halbe Sekunde nach der letzten Eingabe (*Preview/Auto refresh*,
   abschaltbar), *Preview/Refresh* (Amiga-R) aktualisiert sofort. Die Scrollposition bleibt erhalten.
+* Syntax-Hervorhebung im Editor (*Edit/Syntax highlighting*, braucht texteditor.gadget V47):
+  Überschriften, Hervorhebungen, Code (auch Codeblöcke), Zitate, Listenzeichen, Links, URLs,
+  Tabellen, HTML-Tags und Entities.
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
 * Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
@@ -47,7 +50,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
 
 Von der Workbench werden dieselben Optionen aus den Tooltypes gelesen (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`).
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`).
 
 ## mdtohtml
 
@@ -87,7 +90,7 @@ Benötigt [bebbos amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) unter `/opt/a
 ```
 git submodule update --init
 make                # bin/MDEdit, bin/mdtohtml
-make check          # Konverter- und Scroll-Sync-Tests auf dem Host (mit AddressSanitizer)
+make check          # Konverter-, Scroll-Sync- und Highlighting-Tests auf dem Host (ASan)
 make check-update   # gewollte Ausgabeänderungen als neue Referenz übernehmen
 make dist           # Aminet-Archiv dist/MDTools.lha (+ MDTools.readme)
 make icons          # Beispiel-Icons aller Stile in icons/, Vorschau in icons/preview.png

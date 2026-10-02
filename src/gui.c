@@ -58,6 +58,8 @@ static struct NewMenu menus[] = {
     { NM_ITEM,  (STRPTR)"Redo",            (STRPTR)"Y", 0, 0, (APTR)CMD_REDO },
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Select all",      0, 0, 0, (APTR)CMD_SELECTALL },
+    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
+    { NM_ITEM,  (STRPTR)"Syntax highlighting", 0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_HIGHLIGHT },
     { NM_TITLE, (STRPTR)"Preview",         0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Refresh",         (STRPTR)"R", 0, 0, (APTR)CMD_REFRESH },
     { NM_ITEM,  (STRPTR)"Auto refresh",    0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_AUTOREFRESH },
@@ -150,7 +152,7 @@ static BOOL make_buttons(void)
 }
 
 BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
-              BOOL autorefresh, BOOL syncscroll)
+              BOOL autorefresh, BOOL syncscroll, BOOL highlight)
 {
     struct NewMenu *nm;
 
@@ -160,7 +162,8 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
 
     for (nm = menus; nm->nm_Type != NM_END; nm++)
         if ((nm->nm_UserData == (APTR)CMD_AUTOREFRESH && !autorefresh) ||
-            (nm->nm_UserData == (APTR)CMD_SYNCSCROLL && !syncscroll))
+            (nm->nm_UserData == (APTR)CMD_SYNCSCROLL && !syncscroll) ||
+            (nm->nm_UserData == (APTR)CMD_HIGHLIGHT && !(highlight && highlight_hook())))
             nm->nm_Flags &= ~CHECKED;
 
     gui.toolbar = NewObject(SPEEDBAR_GetClass(), NULL,
@@ -169,11 +172,14 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         SPEEDBAR_Orientation, SBORIENT_HORIZ,
         SPEEDBAR_Buttons,     (ULONG)&gui.buttons,
         TAG_DONE);
+    highlight_colours(gui.screen);
     gui.editor = NewObject(TEXTEDITOR_GetClass(), NULL,
         GA_ID,                    GID_EDITOR,
         GA_RelVerify,             TRUE,
         GA_TEXTEDITOR_FixedFont,  TRUE,
         GA_TEXTEDITOR_Contents,   (ULONG)"",
+        highlight && highlight_hook() ? GA_TEXTEDITOR_HighlighterHook : TAG_IGNORE,
+                                  (ULONG)highlight_hook(),
         TAG_DONE);
     gui.escroll = NewObject(SCROLLER_GetClass(), NULL,
         GA_ID,                GID_ESCROLL,
@@ -322,6 +328,7 @@ void gui_close(void)
     }
     for (i = 0; i < MAXTOOLS; i++)
         if (gui.images[i]) DisposeObject(gui.images[i]);
+    highlight_release();                            /* after the editor is gone */
     if (gui.screen) UnlockPubScreen(NULL, gui.screen);
     memset(&gui, 0, sizeof(gui));
 }
