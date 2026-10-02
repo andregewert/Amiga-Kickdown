@@ -3,11 +3,13 @@
  *
  *   MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
  *          [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
- *          [NOHIGHLIGHT] [LINENUMBERS]
+ *          [NOHIGHLIGHT] [LINENUMBERS] [FONTSET Vera|DejaVu|Noto] [SIZE n]
  *
- * From the Workbench the options are read from the tool types; a project
- * icon with MDEdit as default tool is opened, icons dropped on the window
- * as well. The preview uses html.gadget (htmlttf.gadget with TTF), the
+ * The settings are the tool types of the program icon (also when started
+ * from the Shell), Shell arguments or the tool types of a project icon
+ * take precedence. Project/Settings edits them and saves them back into
+ * the program icon. A project icon with MDEdit as default tool is opened,
+ * icons dropped on the window as well. The preview uses html.gadget (htmlttf.gadget with TTF), the
  * speedbar the AISS images in TBIMAGES:.
  *
  * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
@@ -41,6 +43,7 @@
 #include "mdedit.h"
 #include "mdconv.h"
 #include "fileio.h"
+#include "settings.h"
 
 #define VERSION_TEXT "1.0 (02.10.2026)"
 static const char version[] = "$VER: " APPNAME " " VERSION_TEXT;
@@ -65,20 +68,11 @@ extern struct WBStartup *_WBenchMsg;
 /* intuiticks (about 1/10 s) without typing until the preview follows */
 #define REFRESH_DELAY 5
 
-#define PATHLEN 512
-
-/* options from the command line or the tool types */
-static struct {
-    char file[PATHLEN];
-    char template[PATHLEN];
-    char charset[40];
-    char dialect[20];
-    BOOL ttf;
-    BOOL noautorefresh;
-    BOOL nosync;
-    BOOL nohighlight;
-    BOOL linenumbers;
-} opt;
+/* settings: tool types of the program icon, then of a project icon or
+ * the Shell arguments                                                   */
+static struct Settings set;
+static char startfile[PATHLEN];     /* document from the Shell or the Workbench */
+static char iconname[PATHLEN];      /* "PROGDIR:MDEdit", where the settings are saved */
 
 static struct MDConvOptions conv;
 static STRPTR template_text;
@@ -492,6 +486,86 @@ static void copy_preview(void)
     } else gui_status((CONST_STRPTR)"Nothing selected in the preview");
 }
 
+/*****************************************************************************/
+/* settings                                                                  */
+
+/* conversion options from the settings; reads the template */
+static void setup_conversion(void)
+{
+    if (template_text) FreeVec(template_text);
+    template_text = NULL;
+    conv.flags = mdconv_default_flags();
+    if (set.dialect[0] && !mdconv_dialect(set.dialect, &conv.flags))
+        message((CONST_STRPTR)"Unknown dialect \"%s\", using GitHub.", (CONST_STRPTR)set.dialect);
+    conv.charset = set.charset[0] ? set.charset : NULL;
+    conv.tmpl = NULL;
+    if (set.template[0]) {
+        if ((template_text = read_file((CONST_STRPTR)set.template, NULL)))
+            conv.tmpl = (const char *)template_text;
+        else
+            message((CONST_STRPTR)"Could not read the template %s.", (CONST_STRPTR)set.template);
+    }
+}
+
+/* setting the hook (or NULL) formats the whole text anew */
+static void set_highlighting(void)
+{
+    SetGadgetAttrs((struct Gadget *)gui.editor, gui.win, NULL, GA_TEXTEDITOR_HighlighterHook,
+                   set.highlight ? (ULONG)highlight_hook() : 0, TAG_DONE);
+}
+
+static void set_linenumbers(void)
+{
+    SetGadgetAttrs((struct Gadget *)gui.editor, gui.win, NULL,
+                   GA_TEXTEDITOR_ShowLineNumbers, set.linenumbers, TAG_DONE);
+    /* the text gets narrower or wider: other line breaks for the sync */
+    update_preview();
+    sync_reset();
+}
+
+/* takes over changed settings while the program runs */
+static void apply_settings(const struct Settings *n)
+{
+    struct Settings old = set;
+    BOOL colours = memcmp(old.colours, n->colours, sizeof(old.colours)) != 0;
+
+    set = *n;
+    if (colours) highlight_colours(gui.screen, set.colours);
+    if (colours || old.highlight != set.highlight) {
+        gui_set_checked(CMD_HIGHLIGHT, set.highlight);
+        set_highlighting();
+    }
+    gui_set_checked(CMD_AUTOREFRESH, set.autorefresh);
+    gui_set_checked(CMD_SYNCSCROLL, set.syncscroll);
+    if (old.syncscroll != set.syncscroll) sync_reset();
+    if (old.linenumbers != set.linenumbers) {
+        gui_set_checked(CMD_LINENUMBERS, set.linenumbers);
+        set_linenumbers();
+    }
+    if (strcmp(old.dialect, set.dialect) || strcmp(old.charset, set.charset) ||
+        strcmp(old.template, set.template)) {
+        setup_conversion();
+        update_preview();
+    }
+    if (old.ttf != set.ttf || strcmp(old.fontset, set.fontset) || old.fontsize != set.fontsize)
+        gui_status((CONST_STRPTR)"Renderer and fonts take effect at the next start");
+}
+
+static void edit_settings(void)
+{
+    struct Settings n = set;
+    int r = prefs_dialog(&n);
+
+    if (r == PREFS_CANCEL) return;
+    apply_settings(&n);
+    if (r == PREFS_SAVE) {
+        if (settings_save_icon(&set, (CONST_STRPTR)iconname))
+            gui_status((CONST_STRPTR)"Settings saved");
+        else
+            dos_error((CONST_STRPTR)"Could not save the settings to", (CONST_STRPTR)iconname);
+    }
+}
+
 /* returns TRUE to quit */
 static BOOL command(ULONG cmd)
 {
@@ -514,20 +588,22 @@ static BOOL command(ULONG cmd)
         editor_cmd((CONST_STRPTR)"POSITION EOF");
         break;
     case CMD_REFRESH:     update_preview(); break;
-    case CMD_AUTOREFRESH: if (gui_checked(CMD_AUTOREFRESH)) update_preview(); break;
-    case CMD_SYNCSCROLL:  sync_reset(); break;
-    case CMD_HIGHLIGHT:
-        /* setting the hook (or NULL) formats the whole text anew */
-        SetGadgetAttrs((struct Gadget *)gui.editor, gui.win, NULL, GA_TEXTEDITOR_HighlighterHook,
-                       gui_checked(CMD_HIGHLIGHT) ? (ULONG)highlight_hook() : 0, TAG_DONE);
+    case CMD_AUTOREFRESH:
+        if ((set.autorefresh = gui_checked(CMD_AUTOREFRESH))) update_preview();
         break;
-    case CMD_LINENUMBERS:
-        SetGadgetAttrs((struct Gadget *)gui.editor, gui.win, NULL, GA_TEXTEDITOR_ShowLineNumbers,
-                       gui_checked(CMD_LINENUMBERS), TAG_DONE);
-        /* the text gets narrower or wider: other line breaks for the sync */
-        update_preview();
+    case CMD_SYNCSCROLL:
+        set.syncscroll = gui_checked(CMD_SYNCSCROLL);
         sync_reset();
         break;
+    case CMD_HIGHLIGHT:
+        set.highlight = gui_checked(CMD_HIGHLIGHT);
+        set_highlighting();
+        break;
+    case CMD_LINENUMBERS:
+        set.linenumbers = gui_checked(CMD_LINENUMBERS);
+        set_linenumbers();
+        break;
+    case CMD_SETTINGS:    edit_settings(); break;
     case CMD_COPYPREVIEW: copy_preview(); break;
     }
     return FALSE;
@@ -539,8 +615,8 @@ static void tick(void)
     ULONG x = 0, y = 0;
 
     if (poll_changes()) pending = REFRESH_DELAY;
-    else if (pending && --pending == 0 && gui_checked(CMD_AUTOREFRESH)) update_preview();
-    if (gui_checked(CMD_SYNCSCROLL)) sync_poll();
+    else if (pending && --pending == 0 && set.autorefresh) update_preview();
+    if (set.syncscroll) sync_poll();
 
     GetAttr(GA_TEXTEDITOR_CursorX, gui.editor, &x);
     GetAttr(GA_TEXTEDITOR_CursorY, gui.editor, &y);
@@ -594,65 +670,69 @@ static struct Hook apphook = { { NULL, NULL }, (APTR)HookEntry, (APTR)appmsg_fun
 /*****************************************************************************/
 /* startup                                                                   */
 
-static void copy_opt(char *dst, ULONG size, CONST_STRPTR src)
+static void copy_str(char *dst, ULONG size, CONST_STRPTR src)
 {
     strncpy(dst, (const char *)src, size - 1);
     dst[size - 1] = 0;
 }
 
-/* Workbench start: tool types of MDEdit.info and a project argument */
+/* the program icon holds the settings: PROGDIR:<program name> */
+static void set_iconname(CONST_STRPTR program)
+{
+    strcpy(iconname, "PROGDIR:");
+    AddPart((STRPTR)iconname, FilePart((STRPTR)program), sizeof(iconname));
+}
+
+/* Workbench start: tool types of MDEdit.info, then of a project icon */
 static void wb_options(struct WBStartup *wbs)
 {
     struct WBArg *wa = wbs->sm_ArgList;
     struct DiskObject *dob;
-    LONG i;
     BPTR old;
 
-    for (i = 0; i < wbs->sm_NumArgs && i < 2; i++) {
-        if (!wa[i].wa_Lock) continue;
-        old = CurrentDir(wa[i].wa_Lock);
-        if ((dob = GetDiskObject(wa[i].wa_Name))) {
-            CONST_STRPTR *tt = (CONST_STRPTR *)dob->do_ToolTypes;
-            STRPTR v;
-            /* the template is relative to the icon's drawer */
-            if ((v = FindToolType(tt, (STRPTR)"TEMPLATE")) &&
-                NameFromLock(wa[i].wa_Lock, (STRPTR)opt.template, sizeof(opt.template)))
-                AddPart((STRPTR)opt.template, v, sizeof(opt.template));
-            if ((v = FindToolType(tt, (STRPTR)"CHARSET"))) copy_opt(opt.charset, sizeof(opt.charset), v);
-            if ((v = FindToolType(tt, (STRPTR)"DIALECT"))) copy_opt(opt.dialect, sizeof(opt.dialect), v);
-            if (FindToolType(tt, (STRPTR)"TTF")) opt.ttf = TRUE;
-            if (FindToolType(tt, (STRPTR)"NOAUTOREFRESH")) opt.noautorefresh = TRUE;
-            if (FindToolType(tt, (STRPTR)"NOSYNC")) opt.nosync = TRUE;
-            if (FindToolType(tt, (STRPTR)"NOHIGHLIGHT")) opt.nohighlight = TRUE;
-            if (FindToolType(tt, (STRPTR)"LINENUMBERS")) opt.linenumbers = TRUE;
+    set_iconname(wa[0].wa_Name);
+    settings_load_icon(&set, (CONST_STRPTR)iconname);
+    if (wbs->sm_NumArgs > 1 && wa[1].wa_Lock) {
+        old = CurrentDir(wa[1].wa_Lock);
+        if ((dob = GetDiskObject(wa[1].wa_Name))) {
+            settings_from_tooltypes(&set, (CONST_STRPTR *)dob->do_ToolTypes, wa[1].wa_Lock);
             FreeDiskObject(dob);
         }
         CurrentDir(old);
+        if (NameFromLock(wa[1].wa_Lock, (STRPTR)startfile, sizeof(startfile)))
+            AddPart((STRPTR)startfile, wa[1].wa_Name, sizeof(startfile));
     }
-    if (wbs->sm_NumArgs > 1 && wa[1].wa_Lock &&
-        NameFromLock(wa[1].wa_Lock, (STRPTR)opt.file, sizeof(opt.file)))
-        AddPart((STRPTR)opt.file, wa[1].wa_Name, sizeof(opt.file));
 }
 
+/* Shell start: tool types of the program icon, then the arguments */
 static BOOL shell_options(void)
 {
-    LONG args[9] = { 0 };
-    struct RDArgs *rda = ReadArgs((STRPTR)"FILE,TEMPLATE/K,CHARSET/K,DIALECT/K,TTF/S,NOAUTOREFRESH/S,"
-                                  "NOSYNC/S,NOHIGHLIGHT/S,LINENUMBERS/S",
-                                  args, NULL);
-    if (!rda) {
+    enum { A_FILE, A_TEMPLATE, A_CHARSET, A_DIALECT, A_TTF, A_FONTSET, A_SIZE,
+           A_NOAUTOREFRESH, A_NOSYNC, A_NOHIGHLIGHT, A_LINENUMBERS, A_COUNT };
+    LONG args[A_COUNT] = { 0 };
+    char program[PATHLEN];
+    struct RDArgs *rda;
+
+    if (!GetProgramName((STRPTR)program, sizeof(program))) strcpy(program, APPNAME);
+    set_iconname((CONST_STRPTR)program);
+    if (IconBase) settings_load_icon(&set, (CONST_STRPTR)iconname);
+
+    if (!(rda = ReadArgs((STRPTR)"FILE,TEMPLATE/K,CHARSET/K,DIALECT/K,TTF/S,FONTSET/K,SIZE/K/N,"
+                         "NOAUTOREFRESH/S,NOSYNC/S,NOHIGHLIGHT/S,LINENUMBERS/S", args, NULL))) {
         PrintFault(IoErr(), (STRPTR)APPNAME);
         return FALSE;
     }
-    if (args[0]) copy_opt(opt.file, sizeof(opt.file), (CONST_STRPTR)args[0]);
-    if (args[1]) copy_opt(opt.template, sizeof(opt.template), (CONST_STRPTR)args[1]);
-    if (args[2]) copy_opt(opt.charset, sizeof(opt.charset), (CONST_STRPTR)args[2]);
-    if (args[3]) copy_opt(opt.dialect, sizeof(opt.dialect), (CONST_STRPTR)args[3]);
-    opt.ttf = args[4] != 0;
-    opt.noautorefresh = args[5] != 0;
-    opt.nosync = args[6] != 0;
-    opt.nohighlight = args[7] != 0;
-    opt.linenumbers = args[8] != 0;
+    if (args[A_FILE]) copy_str(startfile, sizeof(startfile), (CONST_STRPTR)args[A_FILE]);
+    if (args[A_TEMPLATE]) copy_str(set.template, sizeof(set.template), (CONST_STRPTR)args[A_TEMPLATE]);
+    if (args[A_CHARSET]) copy_str(set.charset, sizeof(set.charset), (CONST_STRPTR)args[A_CHARSET]);
+    if (args[A_DIALECT]) copy_str(set.dialect, sizeof(set.dialect), (CONST_STRPTR)args[A_DIALECT]);
+    if (args[A_TTF]) set.ttf = TRUE;
+    if (args[A_FONTSET]) copy_str(set.fontset, sizeof(set.fontset), (CONST_STRPTR)args[A_FONTSET]);
+    if (args[A_SIZE]) set.fontsize = *(LONG *)args[A_SIZE];
+    if (args[A_NOAUTOREFRESH]) set.autorefresh = FALSE;
+    if (args[A_NOSYNC]) set.syncscroll = FALSE;
+    if (args[A_NOHIGHLIGHT]) set.highlight = FALSE;
+    if (args[A_LINENUMBERS]) set.linenumbers = TRUE;
     FreeArgs(rda);
     return TRUE;
 }
@@ -687,6 +767,7 @@ int main(void)
     BOOL done = FALSE;
     int rc = RETURN_FAIL;
 
+    settings_default(&set);
     IconBase = OpenLibrary((STRPTR)"icon.library", 37);
     if (_WBenchMsg) {
         if (IconBase) wb_options(_WBenchMsg);
@@ -700,30 +781,19 @@ int main(void)
         !(SpeedBarBase = open_class((CONST_STRPTR)"gadgets/speedbar.gadget", 44)) ||
         !(BitMapBase = open_class((CONST_STRPTR)"images/bitmap.image", 44)) ||
         !(TextFieldBase = open_class((CONST_STRPTR)"gadgets/texteditor.gadget", 45)) ||
-        !(HTMLBase = open_html(opt.ttf)))
+        !(HTMLBase = open_html(set.ttf)))
         goto out;
 
-    /* conversion options */
-    conv.flags = mdconv_default_flags();
-    if (opt.dialect[0] && !mdconv_dialect(opt.dialect, &conv.flags))
-        message((CONST_STRPTR)"Unknown dialect \"%s\", using GitHub.", (CONST_STRPTR)opt.dialect);
-    if (opt.charset[0]) conv.charset = opt.charset;
-    if (opt.template[0]) {
-        if ((template_text = read_file((CONST_STRPTR)opt.template, NULL)))
-            conv.tmpl = (const char *)template_text;
-        else
-            message((CONST_STRPTR)"Could not read the template %s.", (CONST_STRPTR)opt.template);
-    }
+    setup_conversion();
 
     appport = CreateMsgPort();
-    if (!gui_open(HTML_GetClass(), appport, appport ? &apphook : NULL,
-                  !opt.noautorefresh, !opt.nosync, !opt.nohighlight, opt.linenumbers)) {
+    if (!gui_open(HTML_GetClass(), appport, appport ? &apphook : NULL, &set)) {
         message((CONST_STRPTR)"Could not open the window.", NULL);
         goto out;
     }
     update_title();
 
-    if (opt.file[0]) load_document((CONST_STRPTR)opt.file);
+    if (startfile[0]) load_document((CONST_STRPTR)startfile);
     else update_preview();
 
     GetAttr(WINDOW_SigMask, gui.winobj, &sigmask);
@@ -781,6 +851,7 @@ int main(void)
 out:
     gui_close();
     sync_free();
+    prefs_cleanup();
     if (appport) DeleteMsgPort(appport);
     if (template_text) FreeVec(template_text);
     if (HTMLBase) CloseLibrary(HTMLBase);

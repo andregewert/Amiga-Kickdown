@@ -18,7 +18,7 @@
 enum {
     CMD_NEW = 1, CMD_OPEN, CMD_SAVE, CMD_SAVEAS, CMD_EXPORT, CMD_ABOUT, CMD_QUIT,
     CMD_CUT, CMD_COPY, CMD_PASTE, CMD_UNDO, CMD_REDO, CMD_SELECTALL, CMD_HIGHLIGHT,
-    CMD_LINENUMBERS,
+    CMD_LINENUMBERS, CMD_SETTINGS,
     CMD_REFRESH, CMD_AUTOREFRESH, CMD_SYNCSCROLL, CMD_COPYPREVIEW
 };
 
@@ -41,8 +41,9 @@ struct GUI {
 extern struct GUI gui;
 
 /* gui.c */
+struct Settings;
 BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
-              BOOL autorefresh, BOOL syncscroll, BOOL highlight, BOOL linenumbers);
+              const struct Settings *set);
 void gui_close(void);
 void gui_status(CONST_STRPTR text);
 void gui_position(ULONG line, ULONG col);
@@ -50,9 +51,16 @@ void gui_title(CONST_STRPTR title);
 void gui_sync_hscroll(void);
 void gui_activate_editor(void);
 BOOL gui_checked(ULONG cmd);
+void gui_set_checked(ULONG cmd, BOOL on);
+void gui_busy(BOOL on);
+
+/* prefswin.c */
+enum { PREFS_CANCEL, PREFS_USE, PREFS_SAVE };
+int prefs_dialog(struct Settings *s);
+void prefs_cleanup(void);
 
 /* highlight.c */
-void highlight_colours(struct Screen *scr);
+void highlight_colours(struct Screen *scr, const ULONG *rgb);
 void highlight_release(void);
 struct Hook *highlight_hook(void);
 

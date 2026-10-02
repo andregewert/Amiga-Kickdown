@@ -26,6 +26,7 @@ Free Pascal based `mdtohtml` from [PubAmiga](https://github.com/andregewert/PubA
 
 ```
 MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT] [LINENUMBERS]
+       [FONTSET Vera|DejaVu|Noto] [SIZE n]
 ```
 
 * Editor (`texteditor.gadget`, fixed width font) on the left, HTML preview (`html.gadget`) on the
@@ -36,6 +37,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
   headings, emphasis, code spans and fenced code blocks, quotes, list markers, links, URLs,
   tables, HTML tags and entities.
 * Line numbers can be shown in the editor (*Edit/Line numbers*).
+* Settings window (*Project/Settings...*): categories Editor, Preview (renderer, TrueType fonts,
+  refresh, scrolling), Markdown (dialect, charset, page template) and Colours (syntax
+  highlighting). *Save* writes them into the tool types of the MDEdit icon, *Use* keeps them for
+  this session; other tool types of the icon are left alone.
 * Editor and preview scroll together (*Preview/Synchronize scrolling*, both directions). Headings
   are the fixed points, positions between them are interpolated.
 * Relative image paths are resolved against the document's drawer.
@@ -47,8 +52,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 * Status line with the cursor position, mouse wheel scrolls the pane under the pointer.
 * AppWindow: drop a Markdown icon on the window to open it.
 
-From the Workbench the same options are read from the tool types (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`); a relative `TEMPLATE` is relative to the icon's drawer.
+The settings are read from the tool types of the MDEdit icon, also when MDEdit is started from
+the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
+`FONTSET=`, `SIZE=`, `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`); a relative `TEMPLATE` is relative to the icon's drawer.
 Set MDEdit as default tool of your `.md` icons to open them by double click.
 
 ## mdtohtml

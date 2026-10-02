@@ -21,6 +21,8 @@ typedef unsigned char UBYTE;
 typedef short BOOL;
 typedef void *APTR;
 typedef unsigned char *STRPTR;
+typedef const unsigned char *CONST_STRPTR;
+typedef long BPTR;
 #define TRUE 1
 #define FALSE 0
 #define TAG_DONE 0UL
@@ -66,7 +68,11 @@ static void HighlightSetFormat(APTR o, ULONG pos, ULONG end, ULONG style)
     }
 }
 
+#include "../src/settings.h"
 #include "../src/highlight.c"
+
+/* settings.c is not linked, its colour table is all the host test needs */
+const ULONG default_colours[NUMCOLOURS] = { 0 };
 
 int main(int argc, char **argv)
 {
@@ -75,7 +81,7 @@ int main(int argc, char **argv)
     ULONG status = 0, i;
 
     if (argc < 2 || !(f = fopen(argv[1], "rb"))) return 1;
-    highlight_colours(&screen);
+    highlight_colours(&screen, default_colours);
     while (fgets(line, sizeof(line), f)) {
         struct HighlightMessage msg = { 0, (STRPTR)line, status };
         for (linelen = 0; line[linelen] && line[linelen] != '\n'; linelen++) ;

@@ -5,6 +5,7 @@ dist/
 test/hostconv
 test/hostsync
 test/hosthl
+test/hostset
 *.o
 *.debug
 

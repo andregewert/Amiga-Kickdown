@@ -26,6 +26,7 @@ aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
 
 ```
 MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT] [LINENUMBERS]
+       [FONTSET Vera|DejaVu|Noto] [SIZE n]
 ```
 
 * Links der Editor (`texteditor.gadget`, Festbreitenschrift), rechts die Vorschau (`html.gadget`),
@@ -36,6 +37,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   Überschriften, Hervorhebungen, Code (auch Codeblöcke), Zitate, Listenzeichen, Links, URLs,
   Tabellen, HTML-Tags und Entities.
 * Zeilennummern im Editor einblendbar (*Edit/Line numbers*).
+* Einstellungsfenster (*Project/Settings...*) mit den Kategorien Editor, Preview (Renderer,
+  TrueType-Schriften, Aktualisierung, Scrollen), Markdown (Dialekt, Zeichensatz, Template) und
+  Colours (Farben der Syntax-Hervorhebung). *Save* schreibt sie in die Tooltypes des
+  MDEdit-Icons, *Use* gilt für die laufende Sitzung; andere Tooltypes bleiben unverändert.
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
 * Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
@@ -50,8 +55,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
 * Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
 
-Von der Workbench werden dieselben Optionen aus den Tooltypes gelesen (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`).
+Die Einstellungen kommen aus den Tooltypes des MDEdit-Icons, auch beim Start aus der Shell;
+Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
+`FONTSET=`, `SIZE=`, `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`).
 
 ## mdtohtml
 

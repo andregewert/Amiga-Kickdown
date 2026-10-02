@@ -33,25 +33,13 @@
 #include <clib/alib_protos.h>
 
 #include "mdedit.h"
+#include "settings.h"
 
-/* colours, see colours[] */
-enum { C_HEADING, C_CODE, C_QUOTE, C_MARKER, C_LINK, C_URL, C_HTML, NUMCOLOURS };
-
-static const UBYTE colours[NUMCOLOURS][3] = {
-    { 0x0a, 0x2a, 0x8a },           /* headings: navy */
-    { 0x0a, 0x52, 0x1e },           /* code: dark green */
-    { 0x3a, 0x4a, 0x66 },           /* block quotes: slate */
-    { 0x8c, 0x18, 0x10 },           /* list and emphasis markers, rules: dark red */
-    { 0x00, 0x38, 0xc0 },           /* link texts: blue */
-    { 0x00, 0x52, 0x66 },           /* URLs: petrol */
-    { 0x7a, 0x1f, 0x6e },           /* HTML tags and entities: plum */
-};
-
-static UBYTE pens[NUMCOLOURS];      /* screen pens for colours[] */
+static UBYTE pens[NUMCOLOURS];      /* screen pens of the colours (settings.h) */
 static LONG obtained[NUMCOLOURS];   /* pens from ObtainBestPen(), -1: none */
+static struct ColorMap *pencm;
 
 #define COLOUR(c)   (TBSTYLE_SETCOLOR | (ULONG)pens[c] << 8)
-static struct ColorMap *pencm;
 
 /* status of a line: an open code fence (char and length) or nothing */
 #define ST_FENCE        0x01000000UL
@@ -61,18 +49,32 @@ static struct ColorMap *pencm;
 /*****************************************************************************/
 /* pens                                                                      */
 
-/* gets the pens for the colours on the editor's screen */
-void highlight_colours(struct Screen *scr)
+static void release_pens(struct ColorMap *cm, LONG *got)
+{
+    int i;
+    for (i = 0; i < NUMCOLOURS; i++)
+        if (cm && got[i] >= 0) {
+            ReleasePen(cm, got[i]);
+            got[i] = -1;
+        }
+}
+
+/* Gets the pens for the colours (0xRRGGBB) on the editor's screen. Also
+ * for a change of colours: the old pens are released afterwards, the
+ * text has to be formatted anew (set the hook again).                 */
+void highlight_colours(struct Screen *scr, const ULONG *rgb)
 {
     struct DrawInfo *dri = GetScreenDrawInfo(scr);
     UWORD bg = dri ? dri->dri_Pens[BACKGROUNDPEN] : 0, text = dri ? dri->dri_Pens[TEXTPEN] : 1;
+    struct ColorMap *oldcm = pencm;
+    LONG old[NUMCOLOURS];
     int i;
 
+    for (i = 0; i < NUMCOLOURS; i++) old[i] = oldcm ? obtained[i] : -1;
     pencm = scr->ViewPort.ColorMap;
     for (i = 0; i < NUMCOLOURS; i++) {
-        LONG pen = ObtainBestPen(pencm,
-                                 colours[i][0] * 0x01010101UL, colours[i][1] * 0x01010101UL,
-                                 colours[i][2] * 0x01010101UL,
+        ULONG r = rgb[i] >> 16 & 0xff, g = rgb[i] >> 8 & 0xff, b = rgb[i] & 0xff;
+        LONG pen = ObtainBestPen(pencm, r * 0x01010101UL, g * 0x01010101UL, b * 0x01010101UL,
                                  OBP_Precision, PRECISION_IMAGE, TAG_DONE);
         obtained[i] = pen;
         /* few colours: rather the text pen than an invisible one */
@@ -80,16 +82,12 @@ void highlight_colours(struct Screen *scr)
         pens[i] = (UBYTE)pen;
     }
     if (dri) FreeScreenDrawInfo(scr, dri);
+    release_pens(oldcm, old);
 }
 
 void highlight_release(void)
 {
-    int i;
-    for (i = 0; i < NUMCOLOURS; i++)
-        if (pencm && obtained[i] >= 0) {
-            ReleasePen(pencm, obtained[i]);
-            obtained[i] = -1;
-        }
+    release_pens(pencm, obtained);
     pencm = NULL;
 }
 

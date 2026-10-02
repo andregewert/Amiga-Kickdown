@@ -30,10 +30,13 @@ MDEdit
  - toolbar with AISS images (TBIMAGES:), text buttons if they are
    missing
  - AppWindow: drop a Markdown icon on the window to open it
+ - settings window: editor, preview (renderer, TrueType fonts), Markdown
+   dialect, charset, page template and the highlighting colours; saved
+   as tool types of the MDEdit icon
  - options as tool types or Shell arguments:
    MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
           [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
-          [NOHIGHLIGHT] [LINENUMBERS]
+          [NOHIGHLIGHT] [LINENUMBERS] [FONTSET Vera|DejaVu|Noto] [SIZE n]
    TTF uses htmlttf.gadget (anti-aliased TrueType fonts) for the preview.
 
 mdtohtml

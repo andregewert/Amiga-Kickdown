@@ -22,7 +22,7 @@ CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter 
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
-EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(CONVOBJ)
+EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(CONVOBJ)
 TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
 all: charcheck $(O)/MDEdit $(O)/mdtohtml
@@ -38,7 +38,7 @@ $(B)/md4c-html.o: $(MD4C)/md4c-html.c $(MD4C)/md4c-html.h $(MD4C)/md4c.h
 	@mkdir -p $(B)
 	$(CC) $(MD4CFLAGS) -c $< -o $@
 
-$(B)/%.o: src/%.c src/mdedit.h src/mdconv.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
+$(B)/%.o: src/%.c src/mdedit.h src/settings.h src/mdconv.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
 	@mkdir -p $(B)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -76,9 +76,13 @@ test/hostsync: test/hostsync.c test/hoststubs.h src/sync.c src/mdconv.c src/mdco
 test/hosthl: test/hosthl.c src/highlight.c
 	cc -g -Wall -fsanitize=address,undefined -Itest/hostinc -o $@ test/hosthl.c
 
+# host test of the settings in tool types (src/settings.c with stubs)
+test/hostset: test/hostset.c src/settings.c src/settings.h
+	cc -g -Wall -Wno-unused-function -fsanitize=address,undefined -Itest/hostinc -o $@ test/hostset.c
+
 CHECKS  := $(wildcard test/*.md)
 
-check: test/hostconv test/hostsync test/hosthl
+check: test/hostconv test/hostsync test/hosthl test/hostset
 	@mkdir -p $(B)/test; fail=0; \
 	for f in $(CHECKS); do n=$$(basename $$f .md); \
 		if ./test/hostconv $$f test/template.html > $(B)/test/$$n.out && \
@@ -89,7 +93,10 @@ check: test/hostconv test/hostsync test/hosthl
 		else echo "FAIL $$f (sync)"; fail=1; fi; \
 		if ./test/hosthl $$f > $(B)/test/$$n.hl && diff -u test/$$n.hl $(B)/test/$$n.hl; \
 		then echo "ok   $$f (highlighting)"; else echo "FAIL $$f (highlighting)"; fail=1; fi; \
-	done; exit $$fail
+	done; \
+	if ./test/hostset > $(B)/test/settings.out; then echo "ok   settings in tool types"; \
+	else cat $(B)/test/settings.out; echo "FAIL settings in tool types"; fail=1; fi; \
+	exit $$fail
 
 # accept the current output as reference after an intended change
 check-update: test/hostconv test/hosthl
@@ -110,6 +117,6 @@ dist: all
 	python3 tools/mkdist.py
 
 clean:
-	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl
+	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl test/hostset
 
 .PHONY: all clean check check-update charcheck dist icons md4cversion

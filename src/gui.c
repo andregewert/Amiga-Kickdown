@@ -16,6 +16,7 @@
 #include <gadgets/speedbar.h>
 #include <gadgets/texteditor.h>
 #include <gadgets/html.h>
+#include <gadgets/htmlttf.h>
 #include <images/bitmap.h>
 
 #include <proto/exec.h>
@@ -34,6 +35,7 @@
 #include <string.h>
 
 #include "mdedit.h"
+#include "settings.h"
 
 struct GUI gui;
 
@@ -46,6 +48,7 @@ static struct NewMenu menus[] = {
     { NM_ITEM,  (STRPTR)"Save as...",      (STRPTR)"A", 0, 0, (APTR)CMD_SAVEAS },
     { NM_ITEM,  (STRPTR)"Export HTML...",  (STRPTR)"E", 0, 0, (APTR)CMD_EXPORT },
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
+    { NM_ITEM,  (STRPTR)"Settings...",     (STRPTR)",", 0, 0, (APTR)CMD_SETTINGS },
     { NM_ITEM,  (STRPTR)"About...",        (STRPTR)"?", 0, 0, (APTR)CMD_ABOUT },
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Quit",            (STRPTR)"Q", 0, 0, (APTR)CMD_QUIT },
@@ -88,7 +91,8 @@ static const struct {
     { CMD_REDO,    0, "redo",     "Redo",    "Redo the last undone change" },
     { CMD_REFRESH, 8, "refresh",  "Refresh", "Refresh the HTML preview" },
     { CMD_EXPORT,  0, "copyfile", "Export",  "Export the document as HTML file" },
-    { CMD_ABOUT,   8, "info",     "About",   "About MDEdit" },
+    { CMD_SETTINGS, 8, "prefs",   "Settings", "Settings" },
+    { CMD_ABOUT,   0, "info",     "About",   "About MDEdit" },
 };
 #define NUMTOOLS (sizeof(tools) / sizeof(tools[0]))
 
@@ -153,8 +157,9 @@ static BOOL make_buttons(void)
 }
 
 BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
-              BOOL autorefresh, BOOL syncscroll, BOOL highlight, BOOL linenumbers)
+              const struct Settings *set)
 {
+    BOOL highlight = set->highlight && highlight_hook();
     struct NewMenu *nm;
 
     /* the tool images are remapped for this screen */
@@ -162,11 +167,11 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
     if (!make_buttons()) return FALSE;
 
     for (nm = menus; nm->nm_Type != NM_END; nm++) {
-        if (nm->nm_UserData == (APTR)CMD_LINENUMBERS && linenumbers)
+        if (nm->nm_UserData == (APTR)CMD_LINENUMBERS && set->linenumbers)
             nm->nm_Flags |= CHECKED;
-        if ((nm->nm_UserData == (APTR)CMD_AUTOREFRESH && !autorefresh) ||
-            (nm->nm_UserData == (APTR)CMD_SYNCSCROLL && !syncscroll) ||
-            (nm->nm_UserData == (APTR)CMD_HIGHLIGHT && !(highlight && highlight_hook())))
+        if ((nm->nm_UserData == (APTR)CMD_AUTOREFRESH && !set->autorefresh) ||
+            (nm->nm_UserData == (APTR)CMD_SYNCSCROLL && !set->syncscroll) ||
+            (nm->nm_UserData == (APTR)CMD_HIGHLIGHT && !highlight))
             nm->nm_Flags &= ~CHECKED;
     }
 
@@ -176,14 +181,14 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         SPEEDBAR_Orientation, SBORIENT_HORIZ,
         SPEEDBAR_Buttons,     (ULONG)&gui.buttons,
         TAG_DONE);
-    highlight_colours(gui.screen);
+    highlight_colours(gui.screen, set->colours);
     gui.editor = NewObject(TEXTEDITOR_GetClass(), NULL,
         GA_ID,                    GID_EDITOR,
         GA_RelVerify,             TRUE,
         GA_TEXTEDITOR_FixedFont,  TRUE,
-        GA_TEXTEDITOR_ShowLineNumbers, linenumbers,
+        GA_TEXTEDITOR_ShowLineNumbers, set->linenumbers,
         GA_TEXTEDITOR_Contents,   (ULONG)"",
-        highlight && highlight_hook() ? GA_TEXTEDITOR_HighlighterHook : TAG_IGNORE,
+        highlight ? GA_TEXTEDITOR_HighlighterHook : TAG_IGNORE,
                                   (ULONG)highlight_hook(),
         TAG_DONE);
     gui.escroll = NewObject(SCROLLER_GetClass(), NULL,
@@ -199,6 +204,9 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         GA_ID,                GID_HTML,
         GA_RelVerify,         TRUE,
         HTML_Text,            (ULONG)"",
+        /* htmlttf.gadget only, html.gadget ignores them */
+        set->ttf && set->fontset[0] ? HTMLTTF_FontSet : TAG_IGNORE, (ULONG)set->fontset,
+        set->ttf && set->fontsize > 0 ? HTMLTTF_Size : TAG_IGNORE, set->fontsize,
         TAG_DONE);
     gui.vscroll = NewObject(SCROLLER_GetClass(), NULL,
         GA_ID,                GID_VSCROLL,
@@ -375,6 +383,38 @@ void gui_sync_hscroll(void)
 void gui_activate_editor(void)
 {
     ActivateLayoutGadget((struct Gadget *)gui.layout, gui.win, NULL, (ULONG)gui.editor);
+}
+
+static struct MenuItem *find_item(ULONG cmd)
+{
+    struct Menu *menu;
+    struct MenuItem *item;
+
+    for (menu = gui.win->MenuStrip; menu; menu = menu->NextMenu)
+        for (item = menu->FirstItem; item; item = item->NextItem)
+            if (GTMENUITEM_USERDATA(item) == (APTR)cmd) return item;
+    return NULL;
+}
+
+/* sets a checkmark menu item, e.g. after the settings were changed */
+void gui_set_checked(ULONG cmd, BOOL on)
+{
+    struct MenuItem *item;
+    struct Menu *strip;
+
+    if (!gui.win || !(item = find_item(cmd))) return;
+    if (!(item->Flags & CHECKED) == !on) return;
+    strip = gui.win->MenuStrip;
+    ClearMenuStrip(gui.win);
+    if (on) item->Flags |= CHECKED;
+    else item->Flags &= ~CHECKED;
+    ResetMenuStrip(gui.win, strip);
+}
+
+/* busy pointer; with a modal dialog the window ignores its input */
+void gui_busy(BOOL on)
+{
+    SetAttrs(gui.winobj, WA_BusyPointer, on, TAG_DONE);
 }
 
 /* state of a checkmark menu item */

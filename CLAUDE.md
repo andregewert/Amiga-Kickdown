@@ -10,7 +10,14 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 - `src/mdtohtml.c`: CLI (ReadArgs, dos.library). `src/fileio.c`: Datei-I/O für beide Programme.
 - `src/mdedit.c`: Programmlogik des Editors, `src/gui.c`: Fenster, Menü, Speedbar,
   `src/sync.c`: Scroll-Synchronisation (Überschriften als Fixpunkte, Umbruch des Editors wird
-  geschätzt und an `GA_TEXTEDITOR_Prop_Entries` kalibriert), `src/highlight.c`: Syntax-Hook.
+  geschätzt und an `GA_TEXTEDITOR_Prop_Entries` kalibriert), `src/highlight.c`: Syntax-Hook,
+  `src/settings.c`: Einstellungen in den Tooltypes des Programm-Icons, `src/prefswin.c`:
+  Einstellungsfenster (listbrowser + page.gadget). Gruppen dort komplett per Tagliste bauen:
+  `CHILD_Label` gilt nur für das Kind in derselben Tagliste, `LAYOUT_AddChild` per OM_SET erst
+  ab V47. Gadgets auf verdeckten Seiten mit `SetPageGadgetAttrs()` ändern.
+- Neue Einstellung: Feld in `struct Settings`, Standard in `settings_default()`, Tooltype in
+  `settings_from_tooltypes()` und `settings_save_icon()`, Gadget in `prefswin.c`, Übernahme in
+  `apply_settings()` (mdedit.c), Test in `test/hostset.c`.
 - Syntax-Hook (`GA_TEXTEDITOR_HighlighterHook`, V47): läuft beim Tippen im input.device-Kontext,
   also kein DOS, kein malloc, wenig Stack. `HighlightSetFormat(obj, pos, end, style)`: `end`
   exklusiv, Stile werden verodert, eine Farbe (`TBSTYLE_SETCOLOR | n << 8`, n = Eintrag n-1 von
@@ -50,7 +57,8 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 - `make check`: Konverter auf dem Host (ASan/UBSan), vergleicht `test/<name>.md` mit
   `test/<name>.expected`. Zusätzlich läuft `test/hostsync` (bindet `src/sync.c` mit den
   Gadget-Attrappen aus `test/hoststubs.h` und den leeren Headern in `test/hostinc/` ein) und
-  `test/hosthl` (Highlighting, Vergleich mit `test/<name>.hl`).
+  `test/hosthl` (Highlighting, Vergleich mit `test/<name>.hl`) und `test/hostset` (Schreiben und
+  Lesen der Tooltypes: fremde Einträge und NewIcons-Block müssen erhalten bleiben).
   Gewollte Änderungen mit `make check-update` übernehmen und den Diff prüfen. Neue
   `test/*.md` werden automatisch mitgetestet.
 - Vor einem Commit: `make` und `make check`.
