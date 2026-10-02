@@ -1,0 +1,11 @@
+# build results
+build/
+bin/
+dist/
+test/hostconv
+test/hostsync
+*.o
+*.debug
+
+# UAE files
+*.uaem

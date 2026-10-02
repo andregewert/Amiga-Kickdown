@@ -1,0 +1,90 @@
+# Amiga-MDTools
+
+*[English version](README.md)*
+
+Markdown-Werkzeuge für AmigaOS 3.2 in C:
+
+* **MDEdit** – ReAction-basierter Markdown-Editor mit Live-HTML-Vorschau
+* **mdtohtml** – Kommandozeilen-Konverter von Markdown nach HTML
+
+Beide nutzen denselben Konvertierungskern (`src/mdconv.c`) auf Basis von
+[md4c](https://github.com/mity/md4c), einem schnellen, CommonMark-konformen Parser in C
+(als Git-Submodule eingebunden). Sie lösen den ARexx/MUI-Editor und das Free-Pascal-`mdtohtml`
+aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
+
+## Voraussetzungen
+
+* AmigaOS 3.2 (ReAction-Klassen ab V44, `texteditor.gadget`, `speedbar.gadget`, `bitmap.image`)
+* [html.gadget](https://github.com/andregewert/Amiga-HTML-Gadget) in `SYS:Classes/Gadgets/` oder neben MDEdit
+  (optional `htmlttf.gadget`)
+* [AISS](http://masonicons.info/) für die Toolbar-Bilder (Assign `TBIMAGES:`). Fehlende Bilder
+  werden durch Text-Buttons ersetzt.
+
+`mdtohtml` braucht nur die dos.library.
+
+## MDEdit
+
+```
+MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
+```
+
+* Links der Editor (`texteditor.gadget`, Festbreitenschrift), rechts die Vorschau (`html.gadget`),
+  dazwischen ein verschiebbarer Balken.
+* Die Vorschau folgt eine halbe Sekunde nach der letzten Eingabe (*Preview/Auto refresh*,
+  abschaltbar), *Preview/Refresh* (Amiga-R) aktualisiert sofort. Die Scrollposition bleibt erhalten.
+* Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
+  Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
+* Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
+* Links: `#anker` scrollen die Vorschau, Links auf `.md`-Dateien öffnen diese im Editor, andere
+  Links erscheinen in der Statuszeile.
+* Überschriften erhalten Anker wie auf GitHub (`## Zwei Worte` → `#zwei-worte`), damit
+  Inhaltsverzeichnisse funktionieren.
+* Öffnen, Speichern, Speichern als, HTML exportieren; Rückfrage vor dem Verwerfen von Änderungen
+  und vor dem Überschreiben.
+* Ausschneiden/Kopieren/Einfügen/Rückgängig/Wiederholen, alles markieren; Markierungen in der
+  Vorschau lassen sich ebenfalls kopieren.
+* Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
+* AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
+
+Von der Workbench werden dieselben Optionen aus den Tooltypes gelesen (`TEMPLATE=`, `CHARSET=`,
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`).
+
+## mdtohtml
+
+```
+mdtohtml [FROM|FILE] <datei.md> [TO|OUTFILE <datei.html>] [TEMPLATE <datei>]
+         [CHARSET|ENCODING <name>] [TITLE <text>] [DIALECT|MODE GitHub|CommonMark]
+```
+
+* Ohne `FROM` wird von der Standardeingabe gelesen, ohne `TO` auf die Standardausgabe geschrieben.
+* `DIALECT`: `GitHub` (Standard; Tabellen, Durchstreichen, Aufgabenlisten, Autolinks, Fußnoten)
+  oder `CommonMark`.
+* `CHARSET` landet nur im `<meta>`-Tag, der Text wird nicht umkodiert. Standard: `UTF-8`, wenn
+  die Eingabe gültiges UTF-8 mit Nicht-ASCII-Zeichen ist, sonst `ISO-8859-1`.
+* `TITLE`: Standard ist die erste `#`-Überschrift, sonst der Dateiname.
+
+Hinweis: Die Pascal-Version hatte Unix-Optionen (`-f`, `-o`, `-t` …). Diese Version benutzt die
+übliche AmigaDOS-Schablone; `FILE`, `OUTFILE`, `ENCODING` und `MODE` bleiben als Aliase erhalten.
+
+### Templates
+
+HTML-Datei mit den Platzhaltern `$title$`, `$encoding$` (oder `$charset$`) und `$body$`, siehe
+`test/template.html`. MDEdit verwendet das Template für Vorschau und Export.
+
+## Bauen
+
+Benötigt [bebbos amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) unter `/opt/amiga` (mit NDK 3.2).
+
+```
+git submodule update --init
+make                # bin/MDEdit, bin/mdtohtml
+make check          # Konverter- und Scroll-Sync-Tests auf dem Host (mit AddressSanitizer)
+make check-update   # gewollte Ausgabeänderungen als neue Referenz übernehmen
+make dist           # dist/Amiga-MDTools.lha
+```
+
+Alle Amiga-Quellen und Testdateien sind **ISO-8859-1** kodiert; `make` bricht bei UTF-8 ab.
+
+## Lizenz
+
+MIT, siehe [LICENSE](LICENSE). md4c steht ebenfalls unter MIT (`md4c/LICENSE.md`).

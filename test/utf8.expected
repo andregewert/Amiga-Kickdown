@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Grüße aus Köln</title>
+    </head>
+    <body>
+<h1 id="grüße-aus-köln">Grüße aus Köln</h1>
+<p>Setext-Überschrift, UTF-8 kodiert: Straße, été, € 5.</p>
+
+    </body>
+</html>

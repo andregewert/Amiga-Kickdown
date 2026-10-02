@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="ISO-8859-1" />
+        <title>Markdown-Beispiel für MDEdit</title>
+    </head>
+    <body>
+<h1 id="markdown-beispiel-für-mdedit">Markdown-Beispiel für MDEdit</h1>
+<p>Dieses Dokument zeigt, was <strong>MDEdit</strong> und <code>mdtohtml</code> darstellen.
+Umlaute (äöü ÄÖÜ ß) bleiben in ISO-8859-1 erhalten, Entities wie &copy; und &#228; auch.</p>
+<h2 id="textauszeichnung">Textauszeichnung</h2>
+<p><em>kursiv</em>, <strong>fett</strong>, <em><strong>beides</strong></em>, <del>durchgestrichen</del> und <code>Code</code>.
+Ein Zeilenumbruch mit zwei Leerzeichen<br>
+am Zeilenende.</p>
+<h2 id="listen">Listen</h2>
+<ul>
+<li>Punkt eins</li>
+<li>Punkt zwei<ol>
+<li>verschachtelt</li>
+<li>nummeriert</li>
+</ol>
+</li>
+<li>Punkt drei</li>
+</ul>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>erledigt</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled>offen</li>
+</ul>
+<h2 id="zitat-und-code">Zitat und Code</h2>
+<blockquote>
+<p>Ein Zitat
+über zwei Zeilen.</p>
+</blockquote>
+<pre><code class="language-c">int main(void)
+{
+    return 0;
+}
+</code></pre>
+<pre><code>eingerückter Code
+</code></pre>
+<h2 id="tabelle">Tabelle</h2>
+<table>
+<thead>
+<tr>
+<th align="left">Links</th>
+<th align="center">Mitte</th>
+<th align="right">Rechts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a</td>
+<td align="center">b</td>
+<td align="right">c</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="center">2</td>
+<td align="right">3</td>
+</tr>
+</tbody>
+</table>
+<h2 id="links-und-bilder">Links und Bilder</h2>
+<p><a href="http://aminet.net">Aminet</a>, <a href="https://www.ubergeek.de">https://www.ubergeek.de</a>, <a href="http://www.amiga.org">www.amiga.org</a>,
+<a href="#tabelle">Anker</a> und ein Bild: <img src="boing.gif" alt="Boing"></p>
+<p>Fußnote<sup><a href="#fn-1" id="fnref-1-1">1</a></sup>.</p>
+<hr>
+<p align="center">Eingebettetes <b>HTML</b> wird durchgereicht.</p>
+<section class="footnotes">
+<ol>
+<li id="fn-1">
+Der Text der Fußnote.<a href="#fnref-1-1" class="footnote-backref">&#8617;</a>
+</li>
+</ol>
+</section>
+
+    </body>
+</html>
