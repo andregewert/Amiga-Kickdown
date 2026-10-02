@@ -209,6 +209,23 @@ static void add_heading_ids(struct buf *out, const char *html)
     free(used.data);
 }
 
+/* Task list items without a list marker, the checkbox takes its place:
+ * type="none" is what the HTML standard maps to list-style-type: none,
+ * browsers and html.gadget (1.1 and up) follow it.                   */
+static void plain_task_items(struct buf *out, const char *html)
+{
+    static const char item[] = "<li class=\"task-list-item\">";
+    static const char plain[] = "<li class=\"task-list-item\" type=\"none\">";
+    const char *p = html, *q;
+
+    while ((q = strstr(p, item))) {
+        buf_add(out, p, q - p);
+        buf_add(out, plain, sizeof(plain) - 1);
+        p = q + sizeof(item) - 1;
+    }
+    buf_add(out, p, strlen(p));
+}
+
 /* Text of the first <h1> without tags, or NULL. Entities stay as they
  * are, they are valid in <title>.                                       */
 static char *first_heading(const char *html)
@@ -250,7 +267,8 @@ static void add_escaped(struct buf *b, const char *s)
 
 char *mdconv_html(const char *md, size_t size, const struct MDConvOptions *opt, size_t *len)
 {
-    struct buf raw = { NULL, 0, 0, 0 }, body = { NULL, 0, 0, 0 }, page = { NULL, 0, 0, 0 };
+    struct buf raw = { NULL, 0, 0, 0 }, tasks = { NULL, 0, 0, 0 }, body = { NULL, 0, 0, 0 },
+               page = { NULL, 0, 0, 0 };
     const char *tmpl = opt->tmpl ? opt->tmpl : default_template;
     const char *charset = opt->charset ? opt->charset : mdconv_guess_charset(md, size);
     char *heading = NULL;
@@ -258,9 +276,12 @@ char *mdconv_html(const char *md, size_t size, const struct MDConvOptions *opt, 
 
     buf_add(&raw, "", 0);
     if (md_html(md, (MD_SIZE)size, md_output, &raw, opt->flags, RENDER_FLAGS) == 0 && !raw.failed)
-        add_heading_ids(&body, raw.data);
+        plain_task_items(&tasks, raw.data);
+    if (tasks.data && !tasks.failed)
+        add_heading_ids(&body, tasks.data);
     free(raw.data);
-    if (!body.data || raw.failed || body.failed) {
+    free(tasks.data);
+    if (!body.data || raw.failed || tasks.failed || body.failed) {
         free(body.data);
         return NULL;
     }

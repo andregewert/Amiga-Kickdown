@@ -76,6 +76,8 @@ mdtohtml [FROM|FILE] <datei.md> [TO|OUTFILE <datei.html>] [TEMPLATE <datei>]
 * `CHARSET` landet nur im `<meta>`-Tag, der Text wird nicht umkodiert. Standard: `UTF-8`, wenn
   die Eingabe gültiges UTF-8 mit Nicht-ASCII-Zeichen ist, sonst `ISO-8859-1`.
 * `TITLE`: Standard ist die erste `#`-Überschrift, sonst der Dateiname.
+* Aufgabenpunkte erhalten `type="none"`: kein Aufzählungszeichen, das Kästchen steht an seiner
+  Stelle (Browser und html.gadget 1.1).
 
 Hinweis: Die Pascal-Version hatte Unix-Optionen (`-f`, `-o`, `-t` …). Diese Version benutzt die
 übliche AmigaDOS-Schablone; `FILE`, `OUTFILE`, `ENCODING` und `MODE` bleiben als Aliase erhalten.

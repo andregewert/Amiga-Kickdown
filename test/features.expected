@@ -23,8 +23,8 @@ am Zeilenende.</p>
 <li>Punkt drei</li>
 </ul>
 <ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>erledigt</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled>offen</li>
+<li class="task-list-item" type="none"><input type="checkbox" class="task-list-item-checkbox" disabled checked>erledigt</li>
+<li class="task-list-item" type="none"><input type="checkbox" class="task-list-item-checkbox" disabled>offen</li>
 </ul>
 <h2 id="zitat-und-code">Zitat und Code</h2>
 <blockquote>

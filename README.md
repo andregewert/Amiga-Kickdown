@@ -75,6 +75,8 @@ mdtohtml [FROM|FILE] <file.md> [TO|OUTFILE <file.html>] [TEMPLATE <file>]
   the input is valid UTF-8 with non-ASCII characters, otherwise `ISO-8859-1`.
 * `TITLE`: default is the first `#` heading, otherwise the file name.
 * Raw HTML in the Markdown text is passed through.
+* Task list items get `type="none"`: no list marker, the checkbox takes its place (browsers and
+  html.gadget 1.1).
 
 Note: the Free Pascal version used Unix style options (`-f`, `-o`, `-t` ...). This version uses
 the usual AmigaDOS template; `FILE`, `OUTFILE`, `ENCODING` and `MODE` are kept as aliases.
