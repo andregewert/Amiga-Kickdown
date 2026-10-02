@@ -14,12 +14,14 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 - `md4c/`: Git-Submodule, auf ein Release-Tag gepinnt. Nicht verändern; Anpassungen gehören
   nach `mdconv.c`. `src/entity_stub.c` ersetzt md4cs `entity.c` (Entities bleiben wörtlich
   stehen, `MD_HTML_FLAG_VERBATIM_ENTITIES`).
-- `include/`: Kopien der öffentlichen html.gadget-Header aus `~/Dokumente/html_gadget/include`.
-  Bei neuen html.gadget-Attributen von dort neu kopieren, nicht hier ändern.
+- `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget), auf ein Release-Tag gepinnt; benutzt werden
+  nur die Header aus `html_gadget/include`. Braucht MDEdit neue Attribute, das Submodule auf
+  ein neueres Tag/Commit setzen (`git -C html_gadget checkout <tag>`, dann `git add html_gadget`).
+  Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
 
 ## Zeichenkodierung: ISO-8859-1
 
-- Amiga-Quellen und Testdateien (`src/`, `include/`, `test/`, `Makefile`, `LICENSE`) sind
+- Amiga-Quellen und Testdateien (`src/`, `test/`, `Makefile`, `LICENSE`) sind
   **ISO-8859-1**. Ausnahmen (UTF-8): `README*.md`, `CLAUDE.md` und `test/utf8.*` (testet die
   Zeichensatzerkennung).
 - In C-Kommentaren und -Strings ASCII verwenden. Dateien mit Umlauten mit Python schreiben

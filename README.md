@@ -85,7 +85,8 @@ make dist           # dist/Amiga-MDTools.lha
 ```
 
 All Amiga sources and test files are **ISO-8859-1** encoded; `make` refuses UTF-8 (`make charcheck`).
-The headers in `include/` are copies of the public html.gadget headers.
+md4c and the html.gadget headers come as git submodules (`md4c/`, `html_gadget/`), both pinned
+to a release tag.
 
 ## License
 

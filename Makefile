@@ -13,8 +13,11 @@ MD4C    := md4c/src
 MD4CVER := $(shell git -C md4c describe --tags 2>/dev/null | sed 's/^release-//;s/^v//')
 MDDEFS  := -DMD4C_USE_ASCII -I$(MD4C) '-DMD4C_VERSION_STR="$(MD4CVER)"'
 
+# public headers of html.gadget (git submodule)
+HTMLINC := html_gadget/include
+
 CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter \
-           -Wno-pointer-sign -Iinclude -Isrc $(MDDEFS)
+           -Wno-pointer-sign -I$(HTMLINC) -Isrc $(MDDEFS)
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
@@ -23,8 +26,8 @@ TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
 all: charcheck $(O)/MDEdit $(O)/mdtohtml
 
-$(MD4C)/md4c.c:
-	@echo "*** md4c is missing: git submodule update --init"; exit 1
+$(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h:
+	@echo "*** submodules are missing: git submodule update --init"; exit 1
 
 $(B)/md4c.o: $(MD4C)/md4c.c $(MD4C)/md4c.h
 	@mkdir -p $(B)
@@ -34,7 +37,7 @@ $(B)/md4c-html.o: $(MD4C)/md4c-html.c $(MD4C)/md4c-html.h $(MD4C)/md4c.h
 	@mkdir -p $(B)
 	$(CC) $(MD4CFLAGS) -c $< -o $@
 
-$(B)/%.o: src/%.c src/mdedit.h src/mdconv.h src/fileio.h $(MD4C)/md4c.c
+$(B)/%.o: src/%.c src/mdedit.h src/mdconv.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
 	@mkdir -p $(B)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -49,8 +52,8 @@ $(O)/mdtohtml: $(TOOLOBJ)
 	$(STRIP) -o $@ $@.debug
 
 # Amiga sources and texts must be ISO-8859-1: refuse UTF-8 sequences.
-# Not checked: README*.md, CLAUDE.md, test/utf8.* (UTF-8) and md4c.
-LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h include/*/*.h test/*.md test/*.html test/*.expected \
+# Not checked: README*.md, CLAUDE.md, test/utf8.* (UTF-8) and the submodules.
+LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h test/*.md test/*.html test/*.expected \
            package/* LICENSE Makefile))
 charcheck:
 	@if LC_ALL=C grep -lP '[\xC2-\xF4][\x80-\xBF]' $(LATIN1); then \

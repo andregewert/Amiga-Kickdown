@@ -84,6 +84,8 @@ make dist           # dist/Amiga-MDTools.lha
 ```
 
 Alle Amiga-Quellen und Testdateien sind **ISO-8859-1** kodiert; `make` bricht bei UTF-8 ab.
+md4c und die Header von html.gadget sind Git-Submodules (`md4c/`, `html_gadget/`), beide auf ein
+Release-Tag gepinnt.
 
 ## Lizenz
 
