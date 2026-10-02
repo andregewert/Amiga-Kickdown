@@ -21,6 +21,7 @@
 #include <gadgets/layout.h>
 #include <gadgets/button.h>
 #include <images/label.h>
+#include <images/bevel.h>
 
 #include <proto/exec.h>
 #include <proto/intuition.h>
@@ -45,6 +46,8 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
 {
     char labels[MAXBUTTONS][40];
     struct TagItem tags[4 + 2 * MAXBUTTONS];
+    struct DrawInfo *dri;
+    WORD fillpen = 2;
     Object *winobj, *row, *b;
     struct Window *win;
     ULONG sig = 0, mainsig = 0, result, n = 0, i, t;
@@ -98,6 +101,13 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
     tags[t].ti_Tag = TAG_DONE;
     if (!(row = NewObjectA(LAYOUT_GetClass(), NULL, tags))) return -1;
 
+    /* light background of the text: the screen's shine pen (white on
+     * the Workbench), so it follows the user's colours               */
+    if ((dri = GetScreenDrawInfo(gui.screen))) {
+        fillpen = dri->dri_Pens[SHINEPEN];
+        FreeScreenDrawInfo(gui.screen, dri);
+    }
+
     winobj = NewObject(WINDOW_GetClass(), NULL,
         WA_Title,           (ULONG)title,
         WA_PubScreen,       (ULONG)gui.screen,
@@ -111,15 +121,27 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
         WINDOW_ParentGroup, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation,   LAYOUT_ORIENT_VERT,
             LAYOUT_SpaceOuter,    TRUE,
-            LAYOUT_LeftSpacing,   12,
-            LAYOUT_RightSpacing,  12,
+            LAYOUT_LeftSpacing,   8,
+            LAYOUT_RightSpacing,  8,
             LAYOUT_TopSpacing,    8,
             LAYOUT_BottomSpacing, 6,
-            LAYOUT_InnerSpacing,  10,
-            LAYOUT_AddImage, (ULONG)NewObject(LABEL_GetClass(), NULL,
-                LABEL_Underscore,    0,     /* file names may contain '_' */
-                LABEL_Justification, centred ? LJ_CENTRE : LJ_LEFT,
-                LABEL_Text,          (ULONG)text,
+            LAYOUT_InnerSpacing,  8,
+            /* the text in a recessed field with a light background */
+            LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
+                LAYOUT_Orientation,     LAYOUT_ORIENT_VERT,
+                LAYOUT_BevelStyle,      BVS_FIELD,
+                LAYOUT_FillPen,         fillpen,
+                LAYOUT_HorizAlignment,  centred ? LALIGN_CENTER : LALIGN_LEFT,
+                LAYOUT_SpaceOuter,      TRUE,
+                LAYOUT_LeftSpacing,     12,
+                LAYOUT_RightSpacing,    12,
+                LAYOUT_TopSpacing,      8,
+                LAYOUT_BottomSpacing,   8,
+                LAYOUT_AddImage, (ULONG)NewObject(LABEL_GetClass(), NULL,
+                    LABEL_Underscore,    0,     /* file names may contain '_' */
+                    LABEL_Justification, centred ? LJ_CENTRE : LJ_LEFT,
+                    LABEL_Text,          (ULONG)text,
+                    TAG_DONE),
                 TAG_DONE),
             LAYOUT_AddChild, (ULONG)row,
             CHILD_WeightedHeight, 0,
