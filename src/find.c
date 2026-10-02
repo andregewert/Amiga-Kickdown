@@ -72,7 +72,8 @@ static Object *checkbox(ULONG id, const char *text, BOOL on)
 static Object *button(ULONG id, const char *text)
 {
     return NewObject(BUTTON_GetClass(), NULL,
-        GA_ID, id, GA_RelVerify, TRUE, GA_Text, (ULONG)text, TAG_DONE);
+        GA_ID, id, GA_RelVerify, TRUE, GA_Text, (ULONG)text,
+        BUTTON_TextPadding, TRUE, TAG_DONE);
 }
 
 static Object *string(ULONG id)
@@ -148,13 +149,18 @@ static BOOL build(void)
             CHILD_WeightedHeight, 0,
             LAYOUT_AddChild, (ULONG)fw.status,
             CHILD_WeightedHeight, 0,
+            /* the actions left, Close right, each as wide as its text */
             LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
-                LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
-                LAYOUT_EvenSize,    TRUE,
-                LAYOUT_AddChild,    (ULONG)button(FG_DOFIND, S(MSG_FIND_DOFIND)),
-                LAYOUT_AddChild,    (ULONG)button(FG_DOREPLACE, S(MSG_FIND_REPLACE)),
-                LAYOUT_AddChild,    (ULONG)button(FG_REPLACEALL, S(MSG_FIND_REPLACEALL)),
-                LAYOUT_AddChild,    (ULONG)button(FG_CLOSE, S(MSG_FIND_CLOSE)),
+                LAYOUT_Orientation,  LAYOUT_ORIENT_HORIZ,
+                LAYOUT_AddChild,     (ULONG)button(FG_DOFIND, S(MSG_FIND_DOFIND)),
+                CHILD_WeightedWidth, 0,
+                LAYOUT_AddChild,     (ULONG)button(FG_DOREPLACE, S(MSG_FIND_REPLACE)),
+                CHILD_WeightedWidth, 0,
+                LAYOUT_AddChild,     (ULONG)button(FG_REPLACEALL, S(MSG_FIND_REPLACEALL)),
+                CHILD_WeightedWidth, 0,
+                LAYOUT_AddChild,     (ULONG)NewObject(LAYOUT_GetClass(), NULL, TAG_DONE),
+                LAYOUT_AddChild,     (ULONG)button(FG_CLOSE, S(MSG_FIND_CLOSE)),
+                CHILD_WeightedWidth, 0,
                 TAG_DONE),
             CHILD_WeightedHeight, 0,
             TAG_DONE)),

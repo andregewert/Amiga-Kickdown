@@ -152,7 +152,8 @@ static Object *chooser(ULONG id, STRPTR *labels, ULONG selected, BOOL disabled)
 static Object *button(ULONG id, const char *text)
 {
     return NewObject(BUTTON_GetClass(), NULL,
-        GA_ID, id, GA_RelVerify, TRUE, GA_Text, (ULONG)text, TAG_DONE);
+        GA_ID, id, GA_RelVerify, TRUE, GA_Text, (ULONG)text,
+        BUTTON_TextPadding, TRUE, TAG_DONE);
 }
 
 static ULONG find_label(STRPTR *labels, const char *text)
@@ -361,12 +362,16 @@ static Object *build(const struct Settings *s)
             CHILD_MinWidth,      gui.screen->RastPort.TxWidth * 12,
             LAYOUT_AddChild,     (ULONG)pw.page,
             TAG_DONE),
+        /* positive actions left, negative right, each as wide as its text */
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
-            LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
-            LAYOUT_EvenSize,    TRUE,
-            LAYOUT_AddChild,    (ULONG)button(PG_SAVE, S(MSG_SET_SAVE)),
-            LAYOUT_AddChild,    (ULONG)button(PG_USE, S(MSG_SET_USE)),
-            LAYOUT_AddChild,    (ULONG)button(PG_CANCEL, S(MSG_SET_CANCEL)),
+            LAYOUT_Orientation,  LAYOUT_ORIENT_HORIZ,
+            LAYOUT_AddChild,     (ULONG)button(PG_SAVE, S(MSG_SET_SAVE)),
+            CHILD_WeightedWidth, 0,
+            LAYOUT_AddChild,     (ULONG)button(PG_USE, S(MSG_SET_USE)),
+            CHILD_WeightedWidth, 0,
+            LAYOUT_AddChild,     (ULONG)filler(),
+            LAYOUT_AddChild,     (ULONG)button(PG_CANCEL, S(MSG_SET_CANCEL)),
+            CHILD_WeightedWidth, 0,
             TAG_DONE),
         CHILD_WeightedHeight, 0,
         TAG_DONE);

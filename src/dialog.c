@@ -7,6 +7,10 @@
  * numbered the same way: 1, 2, ..., the last one 0. Return selects the
  * first button, Esc and the close gadget the last one.
  *
+ * Buttons are as wide as their text. The first one (the positive answer)
+ * is on the left, the others (negative ones) on the right; a single
+ * button of a centred text (About) is centred as well.
+ *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
@@ -40,7 +44,7 @@ extern struct Library *LabelBase;   /* prefswin.c, closed by prefs_cleanup() */
 LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL centred)
 {
     char labels[MAXBUTTONS][40];
-    struct TagItem tags[3 + MAXBUTTONS];
+    struct TagItem tags[4 + 2 * MAXBUTTONS];
     Object *winobj, *row, *b;
     struct Window *win;
     ULONG sig = 0, mainsig = 0, result, n = 0, i, t;
@@ -62,19 +66,34 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
         if (*p == '|') p++;
     }
 
-    /* the button row, all buttons the same width; the tag list is built
-     * here as LAYOUT_AddChild with OM_SET needs layout.gadget V47     */
+    /* the button row; the tag list is built here as LAYOUT_AddChild with
+     * OM_SET needs layout.gadget V47. Empty groups take the free space:
+     * after the first button, or on both sides of a centred one.     */
     t = 0;
     tags[t].ti_Tag = LAYOUT_Orientation; tags[t++].ti_Data = LAYOUT_ORIENT_HORIZ;
-    tags[t].ti_Tag = LAYOUT_EvenSize;    tags[t++].ti_Data = TRUE;
+    if (centred && n == 1) {
+        tags[t].ti_Tag = LAYOUT_AddChild;
+        tags[t++].ti_Data = (ULONG)NewObject(LAYOUT_GetClass(), NULL, TAG_DONE);
+    }
     for (i = 0; i < n; i++) {
         /* EasyRequest numbering: 1, 2, ..., last = 0 */
         ULONG id = GID_BUTTON + (i + 1 == n ? 0 : i + 1);
         if ((b = NewObject(BUTTON_GetClass(), NULL,
-                GA_ID, id, GA_RelVerify, TRUE, GA_Text, (ULONG)labels[i], TAG_DONE))) {
+                GA_ID, id, GA_RelVerify, TRUE, GA_Text, (ULONG)labels[i],
+                BUTTON_TextPadding, TRUE, TAG_DONE))) {
             tags[t].ti_Tag = LAYOUT_AddChild;
             tags[t++].ti_Data = (ULONG)b;
+            tags[t].ti_Tag = CHILD_WeightedWidth;
+            tags[t++].ti_Data = 0;
         }
+        if (i == 0 && !(centred && n == 1)) {
+            tags[t].ti_Tag = LAYOUT_AddChild;
+            tags[t++].ti_Data = (ULONG)NewObject(LAYOUT_GetClass(), NULL, TAG_DONE);
+        }
+    }
+    if (centred && n == 1) {
+        tags[t].ti_Tag = LAYOUT_AddChild;
+        tags[t++].ti_Data = (ULONG)NewObject(LAYOUT_GetClass(), NULL, TAG_DONE);
     }
     tags[t].ti_Tag = TAG_DONE;
     if (!(row = NewObjectA(LAYOUT_GetClass(), NULL, tags))) return -1;
