@@ -56,15 +56,24 @@ $body$, see Template.html.
 
 Installation
 ------------
-Copy MDEdit (with its icon) and C/mdtohtml wherever you like, e.g. to
-SYS:Tools and C:. html.gadget must be installed in SYS:Classes/Gadgets/
-or lie next to MDEdit. Example.md has MDEdit as default tool; set the
-default tool of your Markdown icons to MDEdit to open them with a
-double click.
+Double click Install: it copies MDEdit with the page template and the
+example into a drawer of your choice, mdtohtml to C:, the documentation,
+and the catalogs of the languages you select to LOCALE:Catalogs. MDEdit
+also runs directly from the archive. html.gadget must be installed in
+SYS:Classes/Gadgets/ or lie next to MDEdit. Set the default tool of your
+Markdown icons to MDEdit to open them with a double click.
+
+Languages
+---------
+MDEdit speaks English (built in) and German (Catalogs/deutsch). New
+translations: Source/catalogs/MDEdit.cd lists all strings, a translation
+is a .ct file as for CatComp or FlexCat.
 
 Contents
 --------
+ Install              Installer script (English/German)
  MDEdit               the editor
+ Catalogs/            translations (German)
  C/mdtohtml           the Shell converter
  Example.md           Markdown example
  Template.html        example page template
@@ -94,6 +103,7 @@ gebaut mit ReAction; mdtohtml wandelt Markdown-Dateien in der Shell in
 HTML-Seiten um. Beide verstehen GitHub-Markdown mit Tabellen,
 Durchstreichen, Aufgabenlisten, Autolinks und Fußnoten.
 
+MDEdit spricht Deutsch (Katalog Catalogs/deutsch) und Englisch.
 Editor und Vorschau stehen nebeneinander, der Editor hebt die
 Markdown-Syntax farbig hervor, die Vorschau folgt beim Schreiben, beide
 scrollen gemeinsam. Überschriften erhalten Anker, Links
@@ -101,7 +111,8 @@ auf andere .md-Dateien öffnen diese im Editor, Bilder werden relativ zur
 Schublade des Dokuments geladen. Export als HTML mit eigenem Template.
 Voraussetzungen: AmigaOS 3.2, html.gadget (Aminet dev/gui/html_gadget.lha)
 und AISS für die Toolbar-Bilder. Ausführliche deutsche Dokumentation:
-Docs/LiesMich.md.
+Docs/LiesMich.md. Installation mit dem Installer-Skript Install, das
+auch nach den gewünschten Sprachen fragt.
 
 Versionsgeschichte
 ------------------

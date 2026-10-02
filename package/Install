@@ -1,0 +1,112 @@
+;
+; $VER: Install_MDTools 1.0 (03.10.2026)
+; Installer script for MDEdit and mdtohtml
+; Copyright (c) 2026 André Gewert, MIT License
+;
+; Languages: English is built into MDEdit. Every translation is a catalog
+; Catalogs/<language>/MDEdit.catalog in this archive; for a new one add
+; its name to #langs and a choice to the language question below.
+;
+(set #l (if (= @language "deutsch") 1 0))
+(set @app-name "MDEdit")
+(set @default-dest "Work:")
+
+(welcome
+    (select #l
+        "Welcome to the installation of MDEdit, a Markdown editor with HTML preview, and mdtohtml, a Markdown to HTML converter for the Shell."
+        "Willkommen zur Installation von MDEdit, einem Markdown-Editor mit HTML-Vorschau, und mdtohtml, einem Markdown-HTML-Konverter für die Shell."))
+
+; html.gadget is needed for the preview (Aminet dev/gui/html_gadget.lha)
+(if (= (exists "SYS:Classes/Gadgets/html.gadget" (noreq)) 0)
+    (message
+        (select #l
+            "html.gadget is not installed in SYS:Classes/Gadgets. MDEdit needs it for the preview: please install it from Aminet (dev/gui/html_gadget.lha), or put it next to MDEdit."
+            "html.gadget ist nicht in SYS:Classes/Gadgets installiert. MDEdit braucht es für die Vorschau: bitte von Aminet installieren (dev/gui/html_gadget.lha) oder neben MDEdit legen.")))
+
+; copies one file of the archive (with its icon) to #dest
+(procedure P_COPYFILE #file #prompt
+    (copyfiles
+        (prompt #prompt)
+        (help @copyfiles-help)
+        (source #file)
+        (dest #dest)
+        (infos)))
+
+(set #parts
+    (askoptions
+        (prompt (select #l "Which parts do you want to install?" "Welche Teile sollen installiert werden?"))
+        (help @askoptions-help)
+        (choices
+            (select #l "MDEdit (with page template and example)" "MDEdit (mit Seiten-Template und Beispiel)")
+            (select #l "mdtohtml to C:" "mdtohtml nach C:")
+            (select #l "Documentation" "Dokumentation"))
+        (default 7)))
+
+(if (OR (IN #parts 0) (IN #parts 2))
+    (
+        (set #dest
+            (askdir
+                (prompt (select #l "Where should MDEdit go? A drawer \"MDEdit\" will be created there."
+                                   "Wohin soll MDEdit? Dort wird eine Schublade \"MDEdit\" angelegt."))
+                (help @askdir-help)
+                (default @default-dest)))
+        (set #dest (tackon #dest "MDEdit"))
+        (if (= (exists #dest) 0)
+            (makedir #dest (infos)))
+        (set @default-dest #dest)))
+
+(if (IN #parts 0)
+    (
+        (P_COPYFILE "MDEdit" (select #l "Copying MDEdit" "MDEdit wird kopiert"))
+        (P_COPYFILE "Template.html" (select #l "Copying the page template" "Das Seiten-Template wird kopiert"))
+        (P_COPYFILE "Example.md" (select #l "Copying the example" "Das Beispiel wird kopiert"))
+        (P_COPYFILE "boing.gif" (select #l "Copying the example" "Das Beispiel wird kopiert"))
+        ; the example opens with the installed MDEdit
+        (tooltype
+            (dest (tackon #dest "Example.md"))
+            (setdefaulttool (tackon #dest "MDEdit")))))
+
+(if (IN #parts 1)
+    (copyfiles
+        (prompt (select #l "Copying mdtohtml to C:" "mdtohtml wird nach C: kopiert"))
+        (help @copyfiles-help)
+        (source "C/mdtohtml")
+        (dest "C:")
+        (confirm)))
+
+(if (IN #parts 2)
+    (
+        (if (= (exists (tackon #dest "Docs")) 0)
+            (makedir (tackon #dest "Docs") (infos)))
+        (copyfiles
+            (prompt (select #l "Copying the documentation" "Die Dokumentation wird kopiert"))
+            (help @copyfiles-help)
+            (source "Docs")
+            (dest (tackon #dest "Docs"))
+            (all)
+            (infos))))
+
+; catalogs: English is built in, the system language is preselected
+(set #langs
+    (askoptions
+        (prompt (select #l
+            "Which languages should MDEdit speak? English is always included. The catalogs go to LOCALE:Catalogs."
+            "Welche Sprachen soll MDEdit sprechen? Englisch ist immer dabei. Die Kataloge kommen nach LOCALE:Catalogs."))
+        (help @askoptions-help)
+        (choices "Deutsch")
+        (default (if (= @language "deutsch") 1 0))))
+
+(if (IN #langs 0)
+    (
+        (if (= (exists "LOCALE:Catalogs/deutsch") 0)
+            (makedir "LOCALE:Catalogs/deutsch"))
+        (copyfiles
+            (prompt (select #l "Copying the German catalog" "Der deutsche Katalog wird kopiert"))
+            (help @copyfiles-help)
+            (source "Catalogs/deutsch/MDEdit.catalog")
+            (dest "LOCALE:Catalogs/deutsch"))))
+
+(exit
+    (select #l
+        "MDEdit has been installed."
+        "MDEdit ist installiert."))

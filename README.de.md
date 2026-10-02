@@ -91,6 +91,18 @@ Hinweis: Die Pascal-Version hatte Unix-Optionen (`-f`, `-o`, `-t` …). Diese Ve
 HTML-Datei mit den Platzhaltern `$title$`, `$encoding$` (oder `$charset$`) und `$body$`, siehe
 `test/template.html`. MDEdit verwendet das Template für Vorschau und Export.
 
+## Sprachen
+
+MDEdit ist über die locale.library übersetzbar: Englisch ist eingebaut, Deutsch kommt als Katalog
+(`Catalogs/deutsch/MDEdit.catalog`). MDEdit findet Kataloge neben dem Programm
+(`PROGDIR:Catalogs`) oder in `LOCALE:Catalogs`; das Installer-Skript kopiert die ausgewählten.
+
+`catalogs/MDEdit.cd` enthält alle Texte, `catalogs/<sprache>.ct` die Übersetzungen, beide im
+Format von CatComp und FlexCat. `tools/catcomp.py` (Teil von `make`) erzeugt daraus
+`src/strings.h` und die Kataloge und lehnt Übersetzungen ab, deren Platzhalter (`%s`, `%lu` …)
+vom Original abweichen. Für eine neue Sprache `catalogs/<sprache>.ct` anlegen (z. B. als Kopie
+von `deutsch.ct`) und im `package/Install` eine Auswahl ergänzen.
+
 ## Icons
 
 Das Archiv hat klassische Icons; vollständige Sätze im **GlowIcons**- und **NewIcons**-Stil
@@ -102,7 +114,8 @@ liegen in `Icons/` (Doppelklick auf `UseGlowIcons`, `UseNewIcons` oder `UseClass
 
 ## Bauen
 
-Benötigt [bebbos amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) unter `/opt/amiga` (mit NDK 3.2).
+Benötigt [bebbos amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) unter `/opt/amiga` (mit NDK 3.2)
+und Python 3 für die Kataloge.
 
 ```
 git submodule update --init

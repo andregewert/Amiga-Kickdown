@@ -22,10 +22,24 @@ CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter 
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
-EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(CONVOBJ)
+EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(CONVOBJ)
 TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
-all: charcheck $(O)/MDEdit $(O)/mdtohtml
+# translations: catalogs/<language>.ct -> bin/Catalogs/<language>/MDEdit.catalog
+# (MDEdit finds them through PROGDIR:Catalogs, so bin/ works as it is)
+LANGUAGES := $(basename $(notdir $(wildcard catalogs/*.ct)))
+CATALOGS  := $(foreach l,$(LANGUAGES),$(O)/Catalogs/$(l)/MDEdit.catalog)
+
+all: charcheck $(O)/MDEdit $(O)/mdtohtml $(CATALOGS)
+
+# the built-in strings; src/strings.h is in git, so building needs no Python
+# as long as catalogs/MDEdit.cd is not changed
+src/strings.h: catalogs/MDEdit.cd tools/catcomp.py
+	python3 tools/catcomp.py header $< $@
+
+$(O)/Catalogs/%/MDEdit.catalog: catalogs/%.ct catalogs/MDEdit.cd tools/catcomp.py
+	@mkdir -p $(dir $@)
+	python3 tools/catcomp.py catalog catalogs/MDEdit.cd $< $@
 
 $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h:
 	@echo "*** submodules are missing: git submodule update --init"; exit 1
@@ -38,7 +52,7 @@ $(B)/md4c-html.o: $(MD4C)/md4c-html.c $(MD4C)/md4c-html.h $(MD4C)/md4c.h
 	@mkdir -p $(B)
 	$(CC) $(MD4CFLAGS) -c $< -o $@
 
-$(B)/%.o: src/%.c src/mdedit.h src/settings.h src/mdconv.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
+$(B)/%.o: src/%.c src/mdedit.h src/strings.h src/settings.h src/mdconv.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
 	@mkdir -p $(B)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -55,7 +69,7 @@ $(O)/mdtohtml: $(TOOLOBJ)
 # Amiga sources and texts must be ISO-8859-1: refuse UTF-8 sequences.
 # Not checked: README*.md, CLAUDE.md, tools/*.py, test/utf8.* (UTF-8) and the
 # submodules.
-LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h test/*.md test/*.html test/*.expected test/*.hl \
+LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h catalogs/* test/*.md test/*.html test/*.expected test/*.hl \
            package/* LICENSE Makefile))
 charcheck:
 	@if LC_ALL=C grep -lP '[\xC2-\xF4][\x80-\xBF]' $(LATIN1); then \

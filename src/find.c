@@ -102,10 +102,10 @@ static BOOL build(void)
 {
     fw.find = string(FG_FIND);
     fw.replace = string(FG_REPLACE);
-    fw.casesens = checkbox(FG_CASE, "_Case sensitive", fw.casesens_on);
-    fw.words = checkbox(FG_WORDS, "_Whole words", fw.words_on);
-    fw.backwards = checkbox(FG_BACKWARDS, "_Backwards", fw.backwards_on);
-    fw.wrap = checkbox(FG_WRAP, "Wrap _around", fw.wrap_on);
+    fw.casesens = checkbox(FG_CASE, S(MSG_FIND_CASE), fw.casesens_on);
+    fw.words = checkbox(FG_WORDS, S(MSG_FIND_WORDS), fw.words_on);
+    fw.backwards = checkbox(FG_BACKWARDS, S(MSG_FIND_BACKWARDS), fw.backwards_on);
+    fw.wrap = checkbox(FG_WRAP, S(MSG_FIND_WRAP), fw.wrap_on);
     fw.status = NewObject(BUTTON_GetClass(), NULL,
         GA_ID, FG_STATUS, GA_ReadOnly, TRUE, GA_Text, (ULONG)"",
         BUTTON_Justification, BCJ_LEFT, BUTTON_BevelStyle, BVS_NONE,
@@ -113,7 +113,7 @@ static BOOL build(void)
         TAG_DONE);
 
     fw.winobj = NewObject(WINDOW_GetClass(), NULL,
-        WA_Title,          (ULONG)"Find and replace",
+        WA_Title,          (ULONG)S(MSG_FIND_TITLE),
         WA_PubScreen,      (ULONG)gui.screen,
         WA_Activate,       TRUE,
         WA_DepthGadget,    TRUE,
@@ -133,10 +133,10 @@ static BOOL build(void)
             LAYOUT_InnerSpacing,  4,
             LAYOUT_DeferLayout,   TRUE,
             LAYOUT_AddChild, (ULONG)fw.find,
-            CHILD_Label,     (ULONG)label("_Find "),
+            CHILD_Label,     (ULONG)label(S(MSG_FIND_FIND)),
             CHILD_WeightedHeight, 0,
             LAYOUT_AddChild, (ULONG)fw.replace,
-            CHILD_Label,     (ULONG)label("Replace _with "),
+            CHILD_Label,     (ULONG)label(S(MSG_FIND_WITH)),
             CHILD_WeightedHeight, 0,
             LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
                 LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
@@ -151,10 +151,10 @@ static BOOL build(void)
             LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
                 LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
                 LAYOUT_EvenSize,    TRUE,
-                LAYOUT_AddChild,    (ULONG)button(FG_DOFIND, "Fi_nd"),
-                LAYOUT_AddChild,    (ULONG)button(FG_DOREPLACE, "_Replace"),
-                LAYOUT_AddChild,    (ULONG)button(FG_REPLACEALL, "Replace a_ll"),
-                LAYOUT_AddChild,    (ULONG)button(FG_CLOSE, "Cl_ose"),
+                LAYOUT_AddChild,    (ULONG)button(FG_DOFIND, S(MSG_FIND_DOFIND)),
+                LAYOUT_AddChild,    (ULONG)button(FG_DOREPLACE, S(MSG_FIND_REPLACE)),
+                LAYOUT_AddChild,    (ULONG)button(FG_REPLACEALL, S(MSG_FIND_REPLACEALL)),
+                LAYOUT_AddChild,    (ULONG)button(FG_CLOSE, S(MSG_FIND_CLOSE)),
                 TAG_DONE),
             CHILD_WeightedHeight, 0,
             TAG_DONE)),
@@ -231,7 +231,7 @@ static void do_find(void)
     if (!fw.text[0]) return;
     if (search(FALSE)) status((CONST_STRPTR)"");
     else {
-        snprintf(msg, sizeof(msg), "\"%s\" not found", fw.text);
+        snprintf(msg, sizeof(msg), S(MSG_FIND_NOTFOUND), fw.text);
         status((CONST_STRPTR)msg);
     }
 }
@@ -275,7 +275,7 @@ static void do_replace_all(void)
                    (ULONG)"ENDMULTICHANGE");
     fw.hit = FALSE;
     if (n) editor_changed();
-    snprintf(msg, sizeof(msg), n == 1 ? "1 replacement" : "%lu replacements", (unsigned long)n);
+    snprintf(msg, sizeof(msg), n == 1 ? S(MSG_FIND_ONE) : S(MSG_FIND_MANY), (unsigned long)n);
     status((CONST_STRPTR)msg);
 }
 
@@ -296,7 +296,7 @@ void find_open(void)
     if (!gui.win) return;
     if (!prefs_open_classes()) return;
     if (!fw.winobj && !build()) {
-        status((CONST_STRPTR)"Could not create the find window");
+        status((CONST_STRPTR)S(MSG_FIND_NOWINDOW));
         return;
     }
     if (!fw.win) {
@@ -321,7 +321,7 @@ void find_next(void)
         return;
     }
     if (!search(FALSE)) {
-        snprintf(msg, sizeof(msg), "\"%s\" not found", fw.text);
+        snprintf(msg, sizeof(msg), S(MSG_FIND_NOTFOUND), fw.text);
         status((CONST_STRPTR)msg);
     }
 }

@@ -34,9 +34,25 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
   ein neueres Tag/Commit setzen (`git -C html_gadget checkout <tag>`, dann `git add html_gadget`).
   Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
 
+## Übersetzungen (locale.library)
+
+- Kein sichtbarer Text fest im Code: jeder Text steht in `catalogs/MDEdit.cd` (Englisch, eingebaut)
+  und in `catalogs/deutsch.ct`, im Code `S(MSG_...)` (`src/locale.c`). `src/strings.h` erzeugt
+  `make` aus der `.cd` (`tools/catcomp.py`); die Datei ist eingecheckt, nicht von Hand ändern.
+- Neue Texte ans Ende der `.cd` oder an passender Stelle einfügen, die Nummern ergeben sich aus
+  der Reihenfolge. Werden Texte entfernt oder umsortiert, `CATALOG_VERSION` in `locale.c` und die
+  Version in allen `.ct` erhöhen, sonst lädt ein alter Katalog falsche Texte.
+- Platzhalter (`%s`, `%lu` …) müssen in Übersetzungen gleich bleiben, `catcomp.py` prüft das.
+- Tastenkürzel (`_`) innerhalb eines Fensters eindeutig halten, auch gegenüber den immer
+  sichtbaren Knöpfen (Einstellungen: Save/Use/Cancel); Labels in Formularen enden mit einem
+  Leerzeichen (Abstand zum Gadget).
+- Kataloge werden im Format der OS3.2-Kataloge (CatComp) geschrieben; das wurde an
+  `installer.catalog` der OS3.2-CD geprüft.
+
 ## Zeichenkodierung: ISO-8859-1
 
-- Amiga-Quellen und Testdateien (`src/`, `test/`, `Makefile`, `LICENSE`) sind
+- Amiga-Quellen, Kataloge und Testdateien (`src/`, `catalogs/`, `test/`, `package/`, `Makefile`,
+  `LICENSE`) sind
   **ISO-8859-1**. Ausnahmen (UTF-8): `README*.md`, `CLAUDE.md` und `test/utf8.*` (testet die
   Zeichensatzerkennung).
 - Namen richtig schreiben, auch in C-Quellen: „André Gewert“ (é als ISO-8859-1 0xE9), nicht

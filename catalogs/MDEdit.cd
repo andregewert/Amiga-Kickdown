@@ -1,0 +1,469 @@
+; MDEdit.cd - catalog description of MDEdit (built-in language: english)
+;
+; Format of CatComp/FlexCat. tools/catcomp.py makes src/strings.h and the
+; catalogs from it; translations are catalogs/<language>.ct. Keep the
+; format specifiers (%s, %lu, %ld) and their order in translations.
+;
+; menu titles and items; the shortcuts are fixed
+MSG_MENU_PROJECT (//)
+Project
+;
+MSG_MENU_NEW (//)
+New
+;
+MSG_MENU_OPEN (//)
+Open...
+;
+MSG_MENU_SAVE (//)
+Save
+;
+MSG_MENU_SAVEAS (//)
+Save as...
+;
+MSG_MENU_EXPORT (//)
+Export HTML...
+;
+MSG_MENU_SETTINGS (//)
+Settings...
+;
+MSG_MENU_ICONIFY (//)
+Iconify
+;
+MSG_MENU_ABOUT (//)
+About...
+;
+MSG_MENU_QUIT (//)
+Quit
+;
+MSG_MENU_EDIT (//)
+Edit
+;
+MSG_MENU_CUT (//)
+Cut
+;
+MSG_MENU_COPY (//)
+Copy
+;
+MSG_MENU_PASTE (//)
+Paste
+;
+MSG_MENU_UNDO (//)
+Undo
+;
+MSG_MENU_REDO (//)
+Redo
+;
+MSG_MENU_SELECTALL (//)
+Select all
+;
+MSG_MENU_FIND (//)
+Find...
+;
+MSG_MENU_FINDNEXT (//)
+Find next
+;
+MSG_MENU_HIGHLIGHT (//)
+Syntax highlighting
+;
+MSG_MENU_LINENUMBERS (//)
+Line numbers
+;
+MSG_MENU_PREVIEW (//)
+Preview
+;
+MSG_MENU_REFRESH (//)
+Refresh
+;
+MSG_MENU_AUTOREFRESH (//)
+Auto refresh
+;
+MSG_MENU_SYNCSCROLL (//)
+Synchronize scrolling
+;
+MSG_MENU_COPYPREVIEW (//)
+Copy selection
+;
+; toolbar: label (only without AISS images) and help bubble
+MSG_TB_NEW (//)
+New
+;
+MSG_TBH_NEW (//)
+Create a new document
+;
+MSG_TB_OPEN (//)
+Open
+;
+MSG_TBH_OPEN (//)
+Open a Markdown file
+;
+MSG_TB_SAVE (//)
+Save
+;
+MSG_TBH_SAVE (//)
+Save the Markdown file
+;
+MSG_TB_SAVEAS (//)
+Save as
+;
+MSG_TBH_SAVEAS (//)
+Save the Markdown file under a new name
+;
+MSG_TB_CUT (//)
+Cut
+;
+MSG_TBH_CUT (//)
+Cut the selection
+;
+MSG_TB_COPY (//)
+Copy
+;
+MSG_TBH_COPY (//)
+Copy the selection
+;
+MSG_TB_PASTE (//)
+Paste
+;
+MSG_TBH_PASTE (//)
+Paste from the clipboard
+;
+MSG_TB_UNDO (//)
+Undo
+;
+MSG_TBH_UNDO (//)
+Undo the last change
+;
+MSG_TB_REDO (//)
+Redo
+;
+MSG_TBH_REDO (//)
+Redo the last undone change
+;
+MSG_TB_FIND (//)
+Find
+;
+MSG_TBH_FIND (//)
+Find and replace
+;
+MSG_TB_REFRESH (//)
+Refresh
+;
+MSG_TBH_REFRESH (//)
+Refresh the HTML preview
+;
+MSG_TB_EXPORT (//)
+Export
+;
+MSG_TBH_EXPORT (//)
+Export the document as HTML file
+;
+MSG_TB_SETTINGS (//)
+Settings
+;
+MSG_TBH_SETTINGS (//)
+Settings
+;
+MSG_TB_ABOUT (//)
+About
+;
+MSG_TBH_ABOUT (//)
+About MDEdit
+;
+; main window, status line and requesters
+MSG_UNTITLED (//)
+Untitled
+;
+; appended to the window title, keep the leading space
+MSG_MODIFIED (//)
+ (modified)
+;
+MSG_POSITION (//)
+Line %lu, Col %lu
+;
+MSG_OK (//)
+OK
+;
+MSG_LOADED (//)
+%s (%lu bytes)
+;
+MSG_NEW_DOCUMENT (//)
+New document
+;
+MSG_SAVED (//)
+Saved
+;
+MSG_EXPORTED (//)
+HTML exported
+;
+MSG_LINK (//)
+Link: %s
+;
+MSG_PREVIEW_COPIED (//)
+Preview selection copied to the clipboard
+;
+MSG_PREVIEW_NOSEL (//)
+Nothing selected in the preview
+;
+MSG_NOMEM_PREVIEW (//)
+Not enough memory for the preview
+;
+MSG_NOMEM_SAVE (//)
+Not enough memory to save the text.
+;
+MSG_NOMEM_CONVERT (//)
+Not enough memory to convert the text.
+;
+; requester buttons, separated by |
+MSG_REPLACE_CANCEL (//)
+Replace|Cancel
+;
+MSG_FILE_EXISTS (//)
+%s\nalready exists. Replace it?
+;
+; requester buttons, separated by |
+MSG_SAVE_DISCARD_CANCEL (//)
+Save|Discard|Cancel
+;
+MSG_MODIFIED_ASK (//)
+%s has been modified.\nSave the changes?
+;
+; followed by the file name and the DOS error
+MSG_SAVE_FAILED (//)
+Could not save
+;
+; followed by the file name and the DOS error
+MSG_OPEN_FAILED (//)
+Could not open
+;
+; followed by the file name and the DOS error
+MSG_WRITE_FAILED (//)
+Could not write
+;
+; file requester titles
+MSG_REQ_OPEN (//)
+Open Markdown file
+;
+MSG_REQ_SAVE (//)
+Save Markdown file
+;
+MSG_REQ_EXPORT (//)
+Export HTML file
+;
+; program name, version, parser, gadget name, gadget version
+MSG_ABOUT (//)
+%s %s\nMarkdown editor with HTML preview\n\nCopyright (c) 2026 André Gewert\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
+;
+MSG_UNKNOWN_DIALECT (//)
+Unknown dialect "%s", using GitHub.
+;
+MSG_NO_TEMPLATE (//)
+Could not read the template %s.
+;
+MSG_FONTS_NEXT_START (//)
+Renderer and fonts take effect at the next start
+;
+MSG_SETTINGS_SAVED (//)
+Settings saved
+;
+; followed by the icon name and the DOS error
+MSG_SETTINGS_SAVE_FAILED (//)
+Could not save the settings to
+;
+MSG_CLASS_MISSING (//)
+Could not open %s.
+;
+MSG_HTML_MISSING (//)
+%s not found (SYS:Classes/Gadgets/ or program directory).
+;
+MSG_NO_WINDOW (//)
+Could not open the window.
+;
+; settings window; labels end with a space, it is the gap to the gadget
+MSG_SET_TITLE (//)
+MDEdit settings
+;
+; categories
+MSG_SET_EDITOR (//)
+Editor
+;
+MSG_SET_PREVIEW (//)
+Preview
+;
+MSG_SET_MARKDOWN (//)
+Markdown
+;
+MSG_SET_COLOURS (//)
+Colours
+;
+MSG_SET_WINDOW (//)
+Window
+;
+MSG_SET_HIGHLIGHT (//)
+Syntax _highlighting
+;
+MSG_SET_LINENUMBERS (//)
+Line _numbers
+;
+MSG_SET_RENDERER (//)
+R_enderer 
+;
+MSG_SET_RENDER_HTML (//)
+html.gadget (bitmap fonts)
+;
+MSG_SET_RENDER_TTF (//)
+htmlttf.gadget (TrueType)
+;
+MSG_SET_FONTS (//)
+_TrueType fonts 
+;
+MSG_SET_FONTS_AUTO (//)
+Automatic
+;
+MSG_SET_FONTSIZE (//)
+_Font size (0 = auto) 
+;
+MSG_SET_FONTS_NOTE (//)
+Renderer and fonts take effect at the next start.
+;
+MSG_SET_AUTOREFRESH (//)
+_Refresh while typing
+;
+MSG_SET_SYNC (//)
+S_ynchronize scrolling
+;
+MSG_SET_DIALECT (//)
+_Dialect 
+;
+MSG_SET_CHARSET (//)
+C_harset (empty = detect) 
+;
+MSG_SET_TEMPLATE (//)
+Page _template 
+;
+MSG_SET_TEMPLATE_TITLE (//)
+Page template
+;
+MSG_SET_BUILTIN (//)
+Built-_in
+;
+MSG_SET_COL_HEADING (//)
+_Headings 
+;
+MSG_SET_COL_CODE (//)
+Co_de 
+;
+MSG_SET_COL_QUOTE (//)
+_Quotes 
+;
+MSG_SET_COL_MARKER (//)
+Mar_kers, rules 
+;
+MSG_SET_COL_LINK (//)
+_Links 
+;
+MSG_SET_COL_URL (//)
+U_RLs 
+;
+MSG_SET_COL_HTML (//)
+HT_ML 
+;
+; colour requester titles
+MSG_SET_COLT_HEADING (//)
+Headings
+;
+MSG_SET_COLT_CODE (//)
+Code
+;
+MSG_SET_COLT_QUOTE (//)
+Quotes
+;
+MSG_SET_COLT_MARKER (//)
+Markers and rules
+;
+MSG_SET_COLT_LINK (//)
+Links
+;
+MSG_SET_COLT_URL (//)
+URLs
+;
+MSG_SET_COLT_HTML (//)
+HTML
+;
+MSG_SET_DEFCOLOURS (//)
+Default c_olours
+;
+MSG_SET_WIDTH (//)
+_Width (0 = auto) 
+;
+MSG_SET_HEIGHT (//)
+H_eight (0 = auto) 
+;
+MSG_SET_LEFT (//)
+_Left (-1 = centred) 
+;
+MSG_SET_TOP (//)
+_Top (-1 = centred) 
+;
+MSG_SET_WINDOW_NOTE (//)
+Size and position of the main window at the next start.
+;
+MSG_SET_CURRENT (//)
+Cu_rrent
+;
+MSG_SET_AUTOMATIC (//)
+_Automatic
+;
+MSG_SET_SAVE (//)
+_Save
+;
+MSG_SET_USE (//)
+_Use
+;
+MSG_SET_CANCEL (//)
+_Cancel
+;
+; find window
+MSG_FIND_TITLE (//)
+Find and replace
+;
+MSG_FIND_FIND (//)
+_Find 
+;
+MSG_FIND_WITH (//)
+Replace _with 
+;
+MSG_FIND_CASE (//)
+_Case sensitive
+;
+MSG_FIND_WORDS (//)
+Whole wor_ds
+;
+MSG_FIND_BACKWARDS (//)
+_Backwards
+;
+MSG_FIND_WRAP (//)
+Wrap _around
+;
+MSG_FIND_DOFIND (//)
+Fi_nd
+;
+MSG_FIND_REPLACE (//)
+_Replace
+;
+MSG_FIND_REPLACEALL (//)
+Replace a_ll
+;
+MSG_FIND_CLOSE (//)
+Cl_ose
+;
+MSG_FIND_NOTFOUND (//)
+"%s" not found
+;
+MSG_FIND_ONE (//)
+1 replacement
+;
+MSG_FIND_MANY (//)
+%lu replacements
+;
+MSG_FIND_NOWINDOW (//)
+Could not create the find window
+;

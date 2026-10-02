@@ -131,7 +131,7 @@ static LONG request_centred(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...)
 /* before the window is open: shell output or requester */
 static void message(CONST_STRPTR text, CONST_STRPTR arg)
 {
-    if (_WBenchMsg || gui.win) request((CONST_STRPTR)"OK", text, arg);
+    if (_WBenchMsg || gui.win) request((CONST_STRPTR)S(MSG_OK), text, arg);
     else {
         Printf((STRPTR)text, (ULONG)arg);
         PutStr((STRPTR)"\n");
@@ -142,7 +142,7 @@ static void dos_error(CONST_STRPTR what, CONST_STRPTR name)
 {
     char err[100];
     Fault(IoErr(), NULL, (STRPTR)err, sizeof(err));
-    request((CONST_STRPTR)"OK", (CONST_STRPTR)"%s\n%s\n%s", what, name, err);
+    request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)"%s\n%s\n%s", what, name, err);
 }
 
 static void busy(BOOL on)
@@ -152,13 +152,13 @@ static void busy(BOOL on)
 
 static const char *doc_name(void)
 {
-    return curfile[0] ? (const char *)FilePart((STRPTR)curfile) : "Untitled";
+    return curfile[0] ? (const char *)FilePart((STRPTR)curfile) : S(MSG_UNTITLED);
 }
 
 static void update_title(void)
 {
     char title[160];
-    snprintf(title, sizeof(title), APPNAME " - %s%s", doc_name(), modified ? " (modified)" : "");
+    snprintf(title, sizeof(title), APPNAME " - %s%s", doc_name(), modified ? S(MSG_MODIFIED) : "");
     gui_title((CONST_STRPTR)title);
     gui_icon_title((CONST_STRPTR)doc_name());
 }
@@ -253,7 +253,7 @@ static void update_preview(void)
     if (!(text = editor_text())) return;
     if (!(html = convert(text, NULL))) {
         FreeVec(text);
-        gui_status((CONST_STRPTR)"Not enough memory for the preview");
+        gui_status((CONST_STRPTR)S(MSG_NOMEM_PREVIEW));
         return;
     }
 
@@ -300,7 +300,7 @@ static void follow_link(void)
             return;
         }
     }
-    snprintf(msg, sizeof(msg), "Link: %s", (const char *)url);
+    snprintf(msg, sizeof(msg), S(MSG_LINK), (const char *)url);
     gui_status((CONST_STRPTR)msg);
 }
 
@@ -348,8 +348,7 @@ static BOOL confirm_overwrite(CONST_STRPTR name)
     BPTR lock = Lock((STRPTR)name, ACCESS_READ);
     if (!lock) return TRUE;
     UnLock(lock);
-    return request((CONST_STRPTR)"Replace|Cancel",
-                   (CONST_STRPTR)"%s\nalready exists. Replace it?", name) == 1;
+    return request((CONST_STRPTR)S(MSG_REPLACE_CANCEL), (CONST_STRPTR)S(MSG_FILE_EXISTS), name) == 1;
 }
 
 static BOOL save_document(BOOL ask)
@@ -360,14 +359,14 @@ static BOOL save_document(BOOL ask)
 
     poll_changes();
     if (ask || !curfile[0]) {
-        if (!file_request(TRUE, (CONST_STRPTR)"Save Markdown file", (CONST_STRPTR)"#?.(md|markdown|txt)",
+        if (!file_request(TRUE, (CONST_STRPTR)S(MSG_REQ_SAVE), (CONST_STRPTR)"#?.(md|markdown|txt)",
                           curfile[0] ? (CONST_STRPTR)curfile : NULL, name, sizeof(name)))
             return FALSE;
         if (!confirm_overwrite((CONST_STRPTR)name)) return FALSE;
     } else strcpy(name, curfile);
 
     if (!(text = editor_text())) {
-        request((CONST_STRPTR)"OK", (CONST_STRPTR)"Not enough memory to save the text.");
+        request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_NOMEM_SAVE));
         return FALSE;
     }
     busy(TRUE);
@@ -375,13 +374,13 @@ static BOOL save_document(BOOL ask)
     busy(FALSE);
     FreeVec(text);
     if (!ok) {
-        dos_error((CONST_STRPTR)"Could not save", (CONST_STRPTR)name);
+        dos_error((CONST_STRPTR)S(MSG_SAVE_FAILED), (CONST_STRPTR)name);
         return FALSE;
     }
     strcpy(curfile, name);
     modified = FALSE;
     update_title();
-    gui_status((CONST_STRPTR)"Saved");
+    gui_status((CONST_STRPTR)S(MSG_SAVED));
     return TRUE;
 }
 
@@ -390,8 +389,8 @@ static BOOL check_save(void)
 {
     poll_changes();
     if (!modified) return TRUE;
-    switch (request((CONST_STRPTR)"Save|Discard|Cancel",
-                    (CONST_STRPTR)"%s has been modified.\nSave the changes?", (CONST_STRPTR)doc_name())) {
+    switch (request((CONST_STRPTR)S(MSG_SAVE_DISCARD_CANCEL), (CONST_STRPTR)S(MSG_MODIFIED_ASK),
+                    (CONST_STRPTR)doc_name())) {
     case 1:  return save_document(FALSE);
     case 2:  return TRUE;
     default: return FALSE;
@@ -408,7 +407,7 @@ static BOOL load_document(CONST_STRPTR name)
     text = read_file(name, &len);
     if (!text) {
         busy(FALSE);
-        dos_error((CONST_STRPTR)"Could not open", name);
+        dos_error((CONST_STRPTR)S(MSG_OPEN_FAILED), name);
         return FALSE;
     }
     editor_set(text);
@@ -420,7 +419,7 @@ static BOOL load_document(CONST_STRPTR name)
     SetGadgetAttrs((struct Gadget *)gui.html, gui.win, NULL, HTML_Top, 0, TAG_DONE);
     sync_reset();
     busy(FALSE);
-    snprintf(msg, sizeof(msg), "%s (%lu bytes)", (const char *)name, (unsigned long)len);
+    snprintf(msg, sizeof(msg), S(MSG_LOADED), (const char *)name, (unsigned long)len);
     gui_status((CONST_STRPTR)msg);
     gui_activate_editor();
     return TRUE;
@@ -442,7 +441,7 @@ static void new_document(void)
     modified = FALSE;
     update_title();
     update_preview();
-    gui_status((CONST_STRPTR)"New document");
+    gui_status((CONST_STRPTR)S(MSG_NEW_DOCUMENT));
     gui_activate_editor();
 }
 
@@ -450,7 +449,7 @@ static void open_requested(void)
 {
     char name[PATHLEN];
     if (!check_save()) return;
-    if (file_request(FALSE, (CONST_STRPTR)"Open Markdown file", (CONST_STRPTR)"#?.(md|markdown|txt)",
+    if (file_request(FALSE, (CONST_STRPTR)S(MSG_REQ_OPEN), (CONST_STRPTR)"#?.(md|markdown|txt)",
                      curfile[0] ? (CONST_STRPTR)curfile : NULL, name, sizeof(name)))
         load_document((CONST_STRPTR)name);
 }
@@ -466,10 +465,10 @@ static void export_html(void)
     if (curfile[0]) {
         strcpy(name, curfile);
         if ((dot = strrchr((char *)FilePart((STRPTR)name), '.'))) *dot = 0;
-    } else strcpy(name, "Untitled");
+    } else strcpy(name, S(MSG_UNTITLED));
     strncat(name, ".html", sizeof(name) - strlen(name) - 1);
 
-    if (!file_request(TRUE, (CONST_STRPTR)"Export HTML file", (CONST_STRPTR)"#?.(html|htm)",
+    if (!file_request(TRUE, (CONST_STRPTR)S(MSG_REQ_EXPORT), (CONST_STRPTR)"#?.(html|htm)",
                       (CONST_STRPTR)name, name, sizeof(name)))
         return;
     if (!confirm_overwrite((CONST_STRPTR)name)) return;
@@ -480,26 +479,21 @@ static void export_html(void)
         FreeVec(text);
     }
     if (!html) {
-        request((CONST_STRPTR)"OK", (CONST_STRPTR)"Not enough memory to convert the text.");
+        request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_NOMEM_CONVERT));
         return;
     }
     busy(TRUE);
     ok = write_file((CONST_STRPTR)name, (CONST_STRPTR)html, len);
     busy(FALSE);
     mdconv_free(html);
-    if (!ok) dos_error((CONST_STRPTR)"Could not write", (CONST_STRPTR)name);
-    else gui_status((CONST_STRPTR)"HTML exported");
+    if (!ok) dos_error((CONST_STRPTR)S(MSG_WRITE_FAILED), (CONST_STRPTR)name);
+    else gui_status((CONST_STRPTR)S(MSG_EXPORTED));
 }
 
 static void about(void)
 {
-    request_centred((CONST_STRPTR)"OK",
-            (CONST_STRPTR)APPNAME " " VERSION_TEXT "\n"
-            "Markdown editor with HTML preview\n\n"
-            "Copyright (c) 2026 André Gewert\n"
-            "Released under the MIT License\n\n"
-            "Markdown parser: %s\n"
-            "Preview: %s %ld.%ld",
+    request_centred((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_ABOUT),
+            (CONST_STRPTR)APPNAME, (CONST_STRPTR)VERSION_TEXT,
             (CONST_STRPTR)mdconv_version(),
             (CONST_STRPTR)HTMLBase->lib_Node.ln_Name,
             (LONG)HTMLBase->lib_Version, (LONG)HTMLBase->lib_Revision);
@@ -511,8 +505,8 @@ static void copy_preview(void)
     GetAttr(HTML_HasSelection, gui.html, &has);
     if (has) {
         SetGadgetAttrs((struct Gadget *)gui.html, gui.win, NULL, HTML_Copy, TRUE, TAG_DONE);
-        gui_status((CONST_STRPTR)"Preview selection copied to the clipboard");
-    } else gui_status((CONST_STRPTR)"Nothing selected in the preview");
+        gui_status((CONST_STRPTR)S(MSG_PREVIEW_COPIED));
+    } else gui_status((CONST_STRPTR)S(MSG_PREVIEW_NOSEL));
 }
 
 /*****************************************************************************/
@@ -525,14 +519,14 @@ static void setup_conversion(void)
     template_text = NULL;
     conv.flags = mdconv_default_flags();
     if (set.dialect[0] && !mdconv_dialect(set.dialect, &conv.flags))
-        message((CONST_STRPTR)"Unknown dialect \"%s\", using GitHub.", (CONST_STRPTR)set.dialect);
+        message((CONST_STRPTR)S(MSG_UNKNOWN_DIALECT), (CONST_STRPTR)set.dialect);
     conv.charset = set.charset[0] ? set.charset : NULL;
     conv.tmpl = NULL;
     if (set.template[0]) {
         if ((template_text = read_file((CONST_STRPTR)set.template, NULL)))
             conv.tmpl = (const char *)template_text;
         else
-            message((CONST_STRPTR)"Could not read the template %s.", (CONST_STRPTR)set.template);
+            message((CONST_STRPTR)S(MSG_NO_TEMPLATE), (CONST_STRPTR)set.template);
     }
 }
 
@@ -577,7 +571,7 @@ static void apply_settings(const struct Settings *n)
         update_preview();
     }
     if (old.ttf != set.ttf || strcmp(old.fontset, set.fontset) || old.fontsize != set.fontsize)
-        gui_status((CONST_STRPTR)"Renderer and fonts take effect at the next start");
+        gui_status((CONST_STRPTR)S(MSG_FONTS_NEXT_START));
 }
 
 static void edit_settings(void)
@@ -589,9 +583,9 @@ static void edit_settings(void)
     apply_settings(&n);
     if (r == PREFS_SAVE) {
         if (settings_save_icon(&set, (CONST_STRPTR)iconname))
-            gui_status((CONST_STRPTR)"Settings saved");
+            gui_status((CONST_STRPTR)S(MSG_SETTINGS_SAVED));
         else
-            dos_error((CONST_STRPTR)"Could not save the settings to", (CONST_STRPTR)iconname);
+            dos_error((CONST_STRPTR)S(MSG_SETTINGS_SAVE_FAILED), (CONST_STRPTR)iconname);
     }
 }
 
@@ -772,7 +766,7 @@ static BOOL shell_options(void)
 static struct Library *open_class(CONST_STRPTR name, ULONG ver)
 {
     struct Library *base = OpenLibrary((STRPTR)name, ver);
-    if (!base) message((CONST_STRPTR)"Could not open %s.", name);
+    if (!base) message((CONST_STRPTR)S(MSG_CLASS_MISSING), name);
     return base;
 }
 
@@ -787,7 +781,7 @@ static struct Library *open_html(BOOL ttf)
     if ((base = OpenLibrary((STRPTR)path, 1))) return base;
     sprintf(path, "PROGDIR:%s", (const char *)name);
     if ((base = OpenLibrary((STRPTR)path, 1))) return base;
-    message((CONST_STRPTR)"%s not found (SYS:Classes/Gadgets/ or program directory).", name);
+    message((CONST_STRPTR)S(MSG_HTML_MISSING), name);
     return NULL;
 }
 
@@ -799,6 +793,7 @@ int main(void)
     BOOL done = FALSE;
     int rc = RETURN_FAIL;
 
+    locale_open();                      /* first: also the start messages are translated */
     settings_default(&set);
     IconBase = OpenLibrary((STRPTR)"icon.library", 37);
     if (_WBenchMsg) {
@@ -820,7 +815,7 @@ int main(void)
 
     appport = CreateMsgPort();
     if (!gui_open(HTML_GetClass(), appport, appport ? &apphook : NULL, &set)) {
-        message((CONST_STRPTR)"Could not open the window.", NULL);
+        message((CONST_STRPTR)S(MSG_NO_WINDOW), NULL);
         goto out;
     }
     /* the program icon stands for the iconified window */
@@ -918,6 +913,7 @@ out:
     if (WindowBase) CloseLibrary(WindowBase);
     if (AslBase) CloseLibrary(AslBase);
     if (IconBase) CloseLibrary(IconBase);
+    locale_close();                     /* last: menus and gadgets used the strings */
     (void)version;
     return rc;
 }

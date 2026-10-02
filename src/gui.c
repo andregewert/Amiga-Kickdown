@@ -39,43 +39,74 @@
 
 struct GUI gui;
 
-static struct NewMenu menus[] = {
-    { NM_TITLE, (STRPTR)"Project",         0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"New",             (STRPTR)"N", 0, 0, (APTR)CMD_NEW },
-    { NM_ITEM,  (STRPTR)"Open...",         (STRPTR)"O", 0, 0, (APTR)CMD_OPEN },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Save",            (STRPTR)"S", 0, 0, (APTR)CMD_SAVE },
-    { NM_ITEM,  (STRPTR)"Save as...",      (STRPTR)"A", 0, 0, (APTR)CMD_SAVEAS },
-    { NM_ITEM,  (STRPTR)"Export HTML...",  (STRPTR)"E", 0, 0, (APTR)CMD_EXPORT },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Settings...",     (STRPTR)",", 0, 0, (APTR)CMD_SETTINGS },
-    { NM_ITEM,  (STRPTR)"Iconify",         (STRPTR)"I", 0, 0, (APTR)CMD_ICONIFY },
-    { NM_ITEM,  (STRPTR)"About...",        (STRPTR)"?", 0, 0, (APTR)CMD_ABOUT },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Quit",            (STRPTR)"Q", 0, 0, (APTR)CMD_QUIT },
-    { NM_TITLE, (STRPTR)"Edit",            0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Cut",             (STRPTR)"X", 0, 0, (APTR)CMD_CUT },
-    { NM_ITEM,  (STRPTR)"Copy",            (STRPTR)"C", 0, 0, (APTR)CMD_COPY },
-    { NM_ITEM,  (STRPTR)"Paste",           (STRPTR)"V", 0, 0, (APTR)CMD_PASTE },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Undo",            (STRPTR)"Z", 0, 0, (APTR)CMD_UNDO },
-    { NM_ITEM,  (STRPTR)"Redo",            (STRPTR)"Y", 0, 0, (APTR)CMD_REDO },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Select all",      0, 0, 0, (APTR)CMD_SELECTALL },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Find...",         (STRPTR)"F", 0, 0, (APTR)CMD_FIND },
-    { NM_ITEM,  (STRPTR)"Find next",       (STRPTR)"G", 0, 0, (APTR)CMD_FINDNEXT },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Syntax highlighting", 0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_HIGHLIGHT },
-    { NM_ITEM,  (STRPTR)"Line numbers",    0, CHECKIT | MENUTOGGLE, 0, (APTR)CMD_LINENUMBERS },
-    { NM_TITLE, (STRPTR)"Preview",         0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Refresh",         (STRPTR)"R", 0, 0, (APTR)CMD_REFRESH },
-    { NM_ITEM,  (STRPTR)"Auto refresh",    0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_AUTOREFRESH },
-    { NM_ITEM,  (STRPTR)"Synchronize scrolling", 0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_SYNCSCROLL },
-    { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
-    { NM_ITEM,  (STRPTR)"Copy selection",  0, 0, 0, (APTR)CMD_COPYPREVIEW },
-    { NM_END,   0, 0, 0, 0, 0 }
+/* The menus; NewMenu is filled in at run time with the translated
+ * strings (gui_open()). msg -1: separator bar. Shortcuts stay the same
+ * in every language.                                                   */
+static const struct {
+    UBYTE type;
+    LONG msg;
+    const char *key;
+    UWORD flags;
+    ULONG cmd;
+} menudef[] = {
+    { NM_TITLE, MSG_MENU_PROJECT,      0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_NEW,          "N", 0, CMD_NEW },
+    { NM_ITEM,  MSG_MENU_OPEN,         "O", 0, CMD_OPEN },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_SAVE,         "S", 0, CMD_SAVE },
+    { NM_ITEM,  MSG_MENU_SAVEAS,       "A", 0, CMD_SAVEAS },
+    { NM_ITEM,  MSG_MENU_EXPORT,       "E", 0, CMD_EXPORT },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_SETTINGS,     ",", 0, CMD_SETTINGS },
+    { NM_ITEM,  MSG_MENU_ICONIFY,      "I", 0, CMD_ICONIFY },
+    { NM_ITEM,  MSG_MENU_ABOUT,        "?", 0, CMD_ABOUT },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_QUIT,         "Q", 0, CMD_QUIT },
+    { NM_TITLE, MSG_MENU_EDIT,         0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_CUT,          "X", 0, CMD_CUT },
+    { NM_ITEM,  MSG_MENU_COPY,         "C", 0, CMD_COPY },
+    { NM_ITEM,  MSG_MENU_PASTE,        "V", 0, CMD_PASTE },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_UNDO,         "Z", 0, CMD_UNDO },
+    { NM_ITEM,  MSG_MENU_REDO,         "Y", 0, CMD_REDO },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_SELECTALL,    0,   0, CMD_SELECTALL },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_FIND,         "F", 0, CMD_FIND },
+    { NM_ITEM,  MSG_MENU_FINDNEXT,     "G", 0, CMD_FINDNEXT },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_HIGHLIGHT,    0,   CHECKIT | MENUTOGGLE, CMD_HIGHLIGHT },
+    { NM_ITEM,  MSG_MENU_LINENUMBERS,  0,   CHECKIT | MENUTOGGLE, CMD_LINENUMBERS },
+    { NM_TITLE, MSG_MENU_PREVIEW,      0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_REFRESH,      "R", 0, CMD_REFRESH },
+    { NM_ITEM,  MSG_MENU_AUTOREFRESH,  0,   CHECKIT | MENUTOGGLE, CMD_AUTOREFRESH },
+    { NM_ITEM,  MSG_MENU_SYNCSCROLL,   0,   CHECKIT | MENUTOGGLE, CMD_SYNCSCROLL },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_COPYPREVIEW,  0,   0, CMD_COPYPREVIEW },
 };
+#define NUMMENUS (sizeof(menudef) / sizeof(menudef[0]))
+
+static struct NewMenu menus[NUMMENUS + 1];
+
+/* NewMenu from menudef with the translated strings and the check marks */
+static void build_menus(const struct Settings *set, BOOL highlight)
+{
+    ULONG i;
+
+    memset(menus, 0, sizeof(menus));
+    for (i = 0; i < NUMMENUS; i++) {
+        struct NewMenu *nm = &menus[i];
+        ULONG cmd = menudef[i].cmd;
+        BOOL on = (cmd == CMD_HIGHLIGHT && highlight) || (cmd == CMD_LINENUMBERS && set->linenumbers) ||
+                  (cmd == CMD_AUTOREFRESH && set->autorefresh) || (cmd == CMD_SYNCSCROLL && set->syncscroll);
+        nm->nm_Type = menudef[i].type;
+        nm->nm_Label = menudef[i].msg < 0 ? NM_BARLABEL : (STRPTR)S(menudef[i].msg);
+        nm->nm_CommKey = (STRPTR)menudef[i].key;
+        nm->nm_Flags = menudef[i].flags | (on ? CHECKED : 0);
+        nm->nm_UserData = (APTR)cmd;
+    }
+    menus[NUMMENUS].nm_Type = NM_END;
+}
 
 /* help bubbles of the speedbar buttons (window.class), see make_buttons() */
 static struct HintInfo hints[MAXTOOLS + 1];
@@ -85,22 +116,23 @@ static struct HintInfo hints[MAXTOOLS + 1];
 static const struct {
     UWORD cmd;
     WORD spacing;
-    const char *image, *label, *help;
+    const char *image;
+    LONG label, help;
 } tools[] = {
-    { CMD_NEW,     0, "new",      "New",     "Create a new document" },
-    { CMD_OPEN,    0, "open",     "Open",    "Open a Markdown file" },
-    { CMD_SAVE,    0, "save",     "Save",    "Save the Markdown file" },
-    { CMD_SAVEAS,  0, "saveas",   "Save as", "Save the Markdown file under a new name" },
-    { CMD_CUT,     8, "cut",      "Cut",     "Cut the selection" },
-    { CMD_COPY,    0, "copy",     "Copy",    "Copy the selection" },
-    { CMD_PASTE,   0, "paste",    "Paste",   "Paste from the clipboard" },
-    { CMD_UNDO,    8, "undo",     "Undo",    "Undo the last change" },
-    { CMD_REDO,    0, "redo",     "Redo",    "Redo the last undone change" },
-    { CMD_FIND,    8, "find",     "Find",    "Find and replace" },
-    { CMD_REFRESH, 8, "refresh",  "Refresh", "Refresh the HTML preview" },
-    { CMD_EXPORT,  0, "copyfile", "Export",  "Export the document as HTML file" },
-    { CMD_SETTINGS, 8, "prefs",   "Settings", "Settings" },
-    { CMD_ABOUT,   0, "info",     "About",   "About MDEdit" },
+    { CMD_NEW,      0, "new",      MSG_TB_NEW,      MSG_TBH_NEW },
+    { CMD_OPEN,     0, "open",     MSG_TB_OPEN,     MSG_TBH_OPEN },
+    { CMD_SAVE,     0, "save",     MSG_TB_SAVE,     MSG_TBH_SAVE },
+    { CMD_SAVEAS,   0, "saveas",   MSG_TB_SAVEAS,   MSG_TBH_SAVEAS },
+    { CMD_CUT,      8, "cut",      MSG_TB_CUT,      MSG_TBH_CUT },
+    { CMD_COPY,     0, "copy",     MSG_TB_COPY,     MSG_TBH_COPY },
+    { CMD_PASTE,    0, "paste",    MSG_TB_PASTE,    MSG_TBH_PASTE },
+    { CMD_UNDO,     8, "undo",     MSG_TB_UNDO,     MSG_TBH_UNDO },
+    { CMD_REDO,     0, "redo",     MSG_TB_REDO,     MSG_TBH_REDO },
+    { CMD_FIND,     8, "find",     MSG_TB_FIND,     MSG_TBH_FIND },
+    { CMD_REFRESH,  8, "refresh",  MSG_TB_REFRESH,  MSG_TBH_REFRESH },
+    { CMD_EXPORT,   0, "copyfile", MSG_TB_EXPORT,   MSG_TBH_EXPORT },
+    { CMD_SETTINGS, 8, "prefs",    MSG_TB_SETTINGS, MSG_TBH_SETTINGS },
+    { CMD_ABOUT,    0, "info",     MSG_TB_ABOUT,    MSG_TBH_ABOUT },
 };
 #define NUMTOOLS (sizeof(tools) / sizeof(tools[0]))
 
@@ -152,7 +184,7 @@ static BOOL make_buttons(void)
     for (i = 0; i < NUMTOOLS; i++) {
         Object *img = gui.images[i] = load_image(tools[i].image);
         node = AllocSpeedButtonNode(tools[i].cmd,
-            img ? SBNA_Image : SBNA_Text, img ? (ULONG)img : (ULONG)tools[i].label,
+            img ? SBNA_Image : SBNA_Text, img ? (ULONG)img : (ULONG)S(tools[i].label),
             SBNA_Enabled,   TRUE,
             SBNA_Spacing,   tools[i].spacing,
             SBNA_Highlight, SBH_RECESS,
@@ -161,7 +193,7 @@ static BOOL make_buttons(void)
         AddTail(&gui.buttons, node);
         hints[i].hi_GadgetID = GID_TOOLBAR;
         hints[i].hi_Code = tools[i].cmd;
-        hints[i].hi_Text = (STRPTR)tools[i].help;
+        hints[i].hi_Text = (STRPTR)S(tools[i].help);
         hints[i].hi_Flags = 0;
     }
     hints[i].hi_GadgetID = hints[i].hi_Code = -1;
@@ -180,20 +212,11 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
 {
     BOOL highlight = set->highlight && highlight_hook();
     LONG width, height, left, top;
-    struct NewMenu *nm;
 
     /* the tool images are remapped for this screen */
     if (!(gui.screen = LockPubScreen(NULL))) return FALSE;
     if (!make_buttons()) return FALSE;
-
-    for (nm = menus; nm->nm_Type != NM_END; nm++) {
-        if (nm->nm_UserData == (APTR)CMD_LINENUMBERS && set->linenumbers)
-            nm->nm_Flags |= CHECKED;
-        if ((nm->nm_UserData == (APTR)CMD_AUTOREFRESH && !set->autorefresh) ||
-            (nm->nm_UserData == (APTR)CMD_SYNCSCROLL && !set->syncscroll) ||
-            (nm->nm_UserData == (APTR)CMD_HIGHLIGHT && !highlight))
-            nm->nm_Flags &= ~CHECKED;
-    }
+    build_menus(set, highlight);
 
     gui.toolbar = NewObject(SPEEDBAR_GetClass(), NULL,
         GA_ID,                GID_TOOLBAR,
@@ -392,7 +415,7 @@ void gui_status(CONST_STRPTR text)
 void gui_position(ULONG line, ULONG col)
 {
     static char buf[32];
-    sprintf(buf, "Line %lu, Col %lu", (unsigned long)line, (unsigned long)col);
+    snprintf(buf, sizeof(buf), S(MSG_POSITION), (unsigned long)line, (unsigned long)col);
     SetGadgetAttrs((struct Gadget *)gui.pos, gui.win, NULL, GA_Text, (ULONG)buf, TAG_DONE);
 }
 

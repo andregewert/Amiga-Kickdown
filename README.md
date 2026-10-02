@@ -91,6 +91,18 @@ A template is an HTML file with the placeholders `$title$`, `$encoding$` (or `$c
 `$body$` (case is ignored), see `test/template.html`. Without a template a minimal HTML 4 frame
 is used. MDEdit uses the template for the preview and the export.
 
+## Languages
+
+MDEdit is localized through locale.library: English is built in, German comes as catalog
+(`Catalogs/deutsch/MDEdit.catalog`). MDEdit finds catalogs next to the program
+(`PROGDIR:Catalogs`) or in `LOCALE:Catalogs`; the Installer script copies the ones you select.
+
+`catalogs/MDEdit.cd` lists all strings, `catalogs/<language>.ct` are the translations, both in
+the format of CatComp and FlexCat. `tools/catcomp.py` (part of `make`) makes `src/strings.h` and
+the catalogs and refuses translations whose format specifiers (`%s`, `%lu` …) differ from the
+original. For a new language add `catalogs/<language>.ct` (e.g. copied from `deutsch.ct`) and a
+choice in `package/Install`.
+
 ## Icons
 
 The archive comes with classic icons; complete sets in the **GlowIcons** and **NewIcons**
@@ -101,7 +113,8 @@ style are in `Icons/` (double click `UseGlowIcons`, `UseNewIcons` or `UseClassic
 
 ## Building
 
-Requires [bebbo's amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) in `/opt/amiga` (with NDK 3.2).
+Requires [bebbo's amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) in `/opt/amiga` (with NDK 3.2)
+and Python 3 for the catalogs.
 
 ```
 git clone --recursive <repository>     # or: git submodule update --init

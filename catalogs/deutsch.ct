@@ -1,0 +1,618 @@
+## version $VER: MDEdit.catalog 1.0 (03.10.2026)
+## codeset 0
+## language deutsch
+;
+; German translation of MDEdit (catalogs/MDEdit.cd)
+;
+; menu titles and items; the shortcuts are fixed
+MSG_MENU_PROJECT
+Projekt
+; Project
+;
+MSG_MENU_NEW
+Neu
+; New
+;
+MSG_MENU_OPEN
+Öffnen...
+; Open...
+;
+MSG_MENU_SAVE
+Speichern
+; Save
+;
+MSG_MENU_SAVEAS
+Speichern als...
+; Save as...
+;
+MSG_MENU_EXPORT
+HTML exportieren...
+; Export HTML...
+;
+MSG_MENU_SETTINGS
+Einstellungen...
+; Settings...
+;
+MSG_MENU_ICONIFY
+Ikonifizieren
+; Iconify
+;
+MSG_MENU_ABOUT
+Über...
+; About...
+;
+MSG_MENU_QUIT
+Beenden
+; Quit
+;
+MSG_MENU_EDIT
+Bearbeiten
+; Edit
+;
+MSG_MENU_CUT
+Ausschneiden
+; Cut
+;
+MSG_MENU_COPY
+Kopieren
+; Copy
+;
+MSG_MENU_PASTE
+Einfügen
+; Paste
+;
+MSG_MENU_UNDO
+Rückgängig
+; Undo
+;
+MSG_MENU_REDO
+Wiederholen
+; Redo
+;
+MSG_MENU_SELECTALL
+Alles markieren
+; Select all
+;
+MSG_MENU_FIND
+Suchen...
+; Find...
+;
+MSG_MENU_FINDNEXT
+Weitersuchen
+; Find next
+;
+MSG_MENU_HIGHLIGHT
+Syntax-Hervorhebung
+; Syntax highlighting
+;
+MSG_MENU_LINENUMBERS
+Zeilennummern
+; Line numbers
+;
+MSG_MENU_PREVIEW
+Vorschau
+; Preview
+;
+MSG_MENU_REFRESH
+Aktualisieren
+; Refresh
+;
+MSG_MENU_AUTOREFRESH
+Automatisch aktualisieren
+; Auto refresh
+;
+MSG_MENU_SYNCSCROLL
+Synchron scrollen
+; Synchronize scrolling
+;
+MSG_MENU_COPYPREVIEW
+Markierung kopieren
+; Copy selection
+;
+; toolbar: label (only without AISS images) and help bubble
+MSG_TB_NEW
+Neu
+; New
+;
+MSG_TBH_NEW
+Neues Dokument anlegen
+; Create a new document
+;
+MSG_TB_OPEN
+Öffnen
+; Open
+;
+MSG_TBH_OPEN
+Markdown-Datei öffnen
+; Open a Markdown file
+;
+MSG_TB_SAVE
+Speichern
+; Save
+;
+MSG_TBH_SAVE
+Markdown-Datei speichern
+; Save the Markdown file
+;
+MSG_TB_SAVEAS
+Speichern als
+; Save as
+;
+MSG_TBH_SAVEAS
+Markdown-Datei unter neuem Namen speichern
+; Save the Markdown file under a new name
+;
+MSG_TB_CUT
+Ausschneiden
+; Cut
+;
+MSG_TBH_CUT
+Markierung ausschneiden
+; Cut the selection
+;
+MSG_TB_COPY
+Kopieren
+; Copy
+;
+MSG_TBH_COPY
+Markierung kopieren
+; Copy the selection
+;
+MSG_TB_PASTE
+Einfügen
+; Paste
+;
+MSG_TBH_PASTE
+Aus der Zwischenablage einfügen
+; Paste from the clipboard
+;
+MSG_TB_UNDO
+Rückgängig
+; Undo
+;
+MSG_TBH_UNDO
+Letzte Änderung rückgängig machen
+; Undo the last change
+;
+MSG_TB_REDO
+Wiederholen
+; Redo
+;
+MSG_TBH_REDO
+Rückgängig gemachte Änderung wiederholen
+; Redo the last undone change
+;
+MSG_TB_FIND
+Suchen
+; Find
+;
+MSG_TBH_FIND
+Suchen und ersetzen
+; Find and replace
+;
+MSG_TB_REFRESH
+Aktualisieren
+; Refresh
+;
+MSG_TBH_REFRESH
+HTML-Vorschau aktualisieren
+; Refresh the HTML preview
+;
+MSG_TB_EXPORT
+Exportieren
+; Export
+;
+MSG_TBH_EXPORT
+Dokument als HTML-Datei exportieren
+; Export the document as HTML file
+;
+MSG_TB_SETTINGS
+Einstellungen
+; Settings
+;
+MSG_TBH_SETTINGS
+Einstellungen
+; Settings
+;
+MSG_TB_ABOUT
+Über
+; About
+;
+MSG_TBH_ABOUT
+Über MDEdit
+; About MDEdit
+;
+; main window, status line and requesters
+MSG_UNTITLED
+Unbenannt
+; Untitled
+;
+; appended to the window title, keep the leading space
+MSG_MODIFIED
+ (geändert)
+;  (modified)
+;
+MSG_POSITION
+Zeile %lu, Spalte %lu
+; Line %lu, Col %lu
+;
+MSG_OK
+OK
+; OK
+;
+MSG_LOADED
+%s (%lu Bytes)
+; %s (%lu bytes)
+;
+MSG_NEW_DOCUMENT
+Neues Dokument
+; New document
+;
+MSG_SAVED
+Gespeichert
+; Saved
+;
+MSG_EXPORTED
+HTML exportiert
+; HTML exported
+;
+MSG_LINK
+Link: %s
+; Link: %s
+;
+MSG_PREVIEW_COPIED
+Markierung der Vorschau in die Zwischenablage kopiert
+; Preview selection copied to the clipboard
+;
+MSG_PREVIEW_NOSEL
+In der Vorschau ist nichts markiert
+; Nothing selected in the preview
+;
+MSG_NOMEM_PREVIEW
+Nicht genug Speicher für die Vorschau
+; Not enough memory for the preview
+;
+MSG_NOMEM_SAVE
+Nicht genug Speicher, um den Text zu speichern.
+; Not enough memory to save the text.
+;
+MSG_NOMEM_CONVERT
+Nicht genug Speicher, um den Text umzuwandeln.
+; Not enough memory to convert the text.
+;
+; requester buttons, separated by |
+MSG_REPLACE_CANCEL
+Ersetzen|Abbrechen
+; Replace|Cancel
+;
+MSG_FILE_EXISTS
+%s\nexistiert bereits. Ersetzen?
+; %s\nalready exists. Replace it?
+;
+; requester buttons, separated by |
+MSG_SAVE_DISCARD_CANCEL
+Speichern|Verwerfen|Abbrechen
+; Save|Discard|Cancel
+;
+MSG_MODIFIED_ASK
+%s wurde geändert.\nÄnderungen speichern?
+; %s has been modified.\nSave the changes?
+;
+; followed by the file name and the DOS error
+MSG_SAVE_FAILED
+Speichern nicht möglich:
+; Could not save
+;
+; followed by the file name and the DOS error
+MSG_OPEN_FAILED
+Öffnen nicht möglich:
+; Could not open
+;
+; followed by the file name and the DOS error
+MSG_WRITE_FAILED
+Schreiben nicht möglich:
+; Could not write
+;
+; file requester titles
+MSG_REQ_OPEN
+Markdown-Datei öffnen
+; Open Markdown file
+;
+MSG_REQ_SAVE
+Markdown-Datei speichern
+; Save Markdown file
+;
+MSG_REQ_EXPORT
+HTML-Datei exportieren
+; Export HTML file
+;
+; program name, version, parser, gadget name, gadget version
+MSG_ABOUT
+%s %s\nMarkdown-Editor mit HTML-Vorschau\n\nCopyright (c) 2026 André Gewert\nVeröffentlicht unter der MIT-Lizenz\n\nMarkdown-Parser: %s\nVorschau: %s %ld.%ld
+; %s %s\nMarkdown editor with HTML preview\n\nCopyright (c) 2026 André Gewert\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
+;
+MSG_UNKNOWN_DIALECT
+Unbekannter Dialekt "%s", GitHub wird verwendet.
+; Unknown dialect "%s", using GitHub.
+;
+MSG_NO_TEMPLATE
+Das Template %s konnte nicht gelesen werden.
+; Could not read the template %s.
+;
+MSG_FONTS_NEXT_START
+Renderer und Schriften gelten ab dem nächsten Start
+; Renderer and fonts take effect at the next start
+;
+MSG_SETTINGS_SAVED
+Einstellungen gespeichert
+; Settings saved
+;
+; followed by the icon name and the DOS error
+MSG_SETTINGS_SAVE_FAILED
+Einstellungen nicht speicherbar in
+; Could not save the settings to
+;
+MSG_CLASS_MISSING
+%s kann nicht geöffnet werden.
+; Could not open %s.
+;
+MSG_HTML_MISSING
+%s nicht gefunden (SYS:Classes/Gadgets/ oder Programmverzeichnis).
+; %s not found (SYS:Classes/Gadgets/ or program directory).
+;
+MSG_NO_WINDOW
+Das Fenster kann nicht geöffnet werden.
+; Could not open the window.
+;
+; settings window; labels end with a space, it is the gap to the gadget
+MSG_SET_TITLE
+MDEdit-Einstellungen
+; MDEdit settings
+;
+; categories
+MSG_SET_EDITOR
+Editor
+; Editor
+;
+MSG_SET_PREVIEW
+Vorschau
+; Preview
+;
+MSG_SET_MARKDOWN
+Markdown
+; Markdown
+;
+MSG_SET_COLOURS
+Farben
+; Colours
+;
+MSG_SET_WINDOW
+Fenster
+; Window
+;
+MSG_SET_HIGHLIGHT
+Syntax-_Hervorhebung
+; Syntax _highlighting
+;
+MSG_SET_LINENUMBERS
+Zeilen_nummern
+; Line _numbers
+;
+MSG_SET_RENDERER
+R_enderer 
+; R_enderer 
+;
+MSG_SET_RENDER_HTML
+html.gadget (Bitmap-Schriften)
+; html.gadget (bitmap fonts)
+;
+MSG_SET_RENDER_TTF
+htmlttf.gadget (TrueType)
+; htmlttf.gadget (TrueType)
+;
+MSG_SET_FONTS
+_TrueType-Schriften 
+; _TrueType fonts 
+;
+MSG_SET_FONTS_AUTO
+Automatisch
+; Automatic
+;
+MSG_SET_FONTSIZE
+Schrift_größe (0 = auto) 
+; _Font size (0 = auto) 
+;
+MSG_SET_FONTS_NOTE
+Renderer und Schriften gelten ab dem nächsten Start.
+; Renderer and fonts take effect at the next start.
+;
+MSG_SET_AUTOREFRESH
+Beim Tippen akt_ualisieren
+; _Refresh while typing
+;
+MSG_SET_SYNC
+S_ynchron scrollen
+; S_ynchronize scrolling
+;
+MSG_SET_DIALECT
+_Dialekt 
+; _Dialect 
+;
+MSG_SET_CHARSET
+_Zeichensatz (leer = erkennen) 
+; C_harset (empty = detect) 
+;
+MSG_SET_TEMPLATE
+Seiten-_Template 
+; Page _template 
+;
+MSG_SET_TEMPLATE_TITLE
+Seiten-Template
+; Page template
+;
+MSG_SET_BUILTIN
+_Eingebaut
+; Built-_in
+;
+MSG_SET_COL_HEADING
+Übers_chriften 
+; _Headings 
+;
+MSG_SET_COL_CODE
+Co_de 
+; Co_de 
+;
+MSG_SET_COL_QUOTE
+_Zitate 
+; _Quotes 
+;
+MSG_SET_COL_MARKER
+_Marker, Linien 
+; Mar_kers, rules 
+;
+MSG_SET_COL_LINK
+_Links 
+; _Links 
+;
+MSG_SET_COL_URL
+_URLs 
+; U_RLs 
+;
+MSG_SET_COL_HTML
+H_TML 
+; HT_ML 
+;
+; colour requester titles
+MSG_SET_COLT_HEADING
+Überschriften
+; Headings
+;
+MSG_SET_COLT_CODE
+Code
+; Code
+;
+MSG_SET_COLT_QUOTE
+Zitate
+; Quotes
+;
+MSG_SET_COLT_MARKER
+Marker und Linien
+; Markers and rules
+;
+MSG_SET_COLT_LINK
+Links
+; Links
+;
+MSG_SET_COLT_URL
+URLs
+; URLs
+;
+MSG_SET_COLT_HTML
+HTML
+; HTML
+;
+MSG_SET_DEFCOLOURS
+Standard_farben
+; Default c_olours
+;
+MSG_SET_WIDTH
+B_reite (0 = auto) 
+; _Width (0 = auto) 
+;
+MSG_SET_HEIGHT
+H_öhe (0 = auto) 
+; H_eight (0 = auto) 
+;
+MSG_SET_LEFT
+_Links (-1 = zentriert) 
+; _Left (-1 = centred) 
+;
+MSG_SET_TOP
+_Oben (-1 = zentriert) 
+; _Top (-1 = centred) 
+;
+MSG_SET_WINDOW_NOTE
+Größe und Position des Hauptfensters beim nächsten Start.
+; Size and position of the main window at the next start.
+;
+MSG_SET_CURRENT
+A_ktuell
+; Cu_rrent
+;
+MSG_SET_AUTOMATIC
+A_utomatisch
+; _Automatic
+;
+MSG_SET_SAVE
+_Speichern
+; _Save
+;
+MSG_SET_USE
+_Benutzen
+; _Use
+;
+MSG_SET_CANCEL
+_Abbrechen
+; _Cancel
+;
+; find window
+MSG_FIND_TITLE
+Suchen und ersetzen
+; Find and replace
+;
+MSG_FIND_FIND
+_Suchen 
+; _Find 
+;
+MSG_FIND_WITH
+Ersetzen _durch 
+; Replace _with 
+;
+MSG_FIND_CASE
+_Groß/klein
+; _Case sensitive
+;
+MSG_FIND_WORDS
+Ganze _Wörter
+; Whole wor_ds
+;
+MSG_FIND_BACKWARDS
+_Rückwärts
+; _Backwards
+;
+MSG_FIND_WRAP
+_Umlaufend
+; Wrap _around
+;
+MSG_FIND_DOFIND
+Su_chen
+; Fi_nd
+;
+MSG_FIND_REPLACE
+_Ersetzen
+; _Replace
+;
+MSG_FIND_REPLACEALL
+_Alle ersetzen
+; Replace a_ll
+;
+MSG_FIND_CLOSE
+Sc_hließen
+; Cl_ose
+;
+MSG_FIND_NOTFOUND
+"%s" nicht gefunden
+; "%s" not found
+;
+MSG_FIND_ONE
+1 Ersetzung
+; 1 replacement
+;
+MSG_FIND_MANY
+%lu Ersetzungen
+; %lu replacements
+;
+MSG_FIND_NOWINDOW
+Das Suchfenster kann nicht angelegt werden
+; Could not create the find window
+;

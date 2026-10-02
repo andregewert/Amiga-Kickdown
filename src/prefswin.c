@@ -65,19 +65,21 @@ enum {
     PG_SAVE, PG_USE, PG_CANCEL
 };
 
-static const char *const categories[] = { "Editor", "Preview", "Markdown", "Colours", "Window" };
+static const LONG categories[] = { MSG_SET_EDITOR, MSG_SET_PREVIEW, MSG_SET_MARKDOWN,
+                                   MSG_SET_COLOURS, MSG_SET_WINDOW };
 #define NUMCATEGORIES 5
 
-static STRPTR renderers[] = { (STRPTR)"html.gadget (bitmap fonts)",
-                              (STRPTR)"htmlttf.gadget (TrueType)", NULL };
-static STRPTR fontsets[] = { (STRPTR)"Automatic", (STRPTR)"Vera", (STRPTR)"DejaVu",
-                             (STRPTR)"Noto", NULL };
+/* chooser labels; the translated ones are set in build() */
+static STRPTR renderers[] = { NULL, NULL, NULL };
+static STRPTR fontsets[] = { NULL, (STRPTR)"Vera", (STRPTR)"DejaVu", (STRPTR)"Noto", NULL };
 static STRPTR dialects[] = { (STRPTR)"GitHub", (STRPTR)"CommonMark", NULL };
-static const char *const colour_labels[NUMCOLOURS] = {
-    "_Headings ", "Co_de ", "_Quotes ", "_Markers, rules ", "_Links ", "_URLs ", "HT_ML "
+static const LONG colour_labels[NUMCOLOURS] = {
+    MSG_SET_COL_HEADING, MSG_SET_COL_CODE, MSG_SET_COL_QUOTE, MSG_SET_COL_MARKER,
+    MSG_SET_COL_LINK, MSG_SET_COL_URL, MSG_SET_COL_HTML
 };
-static const char *const colour_titles[NUMCOLOURS] = {
-    "Headings", "Code", "Quotes", "Markers and rules", "Links", "URLs", "HTML"
+static const LONG colour_titles[NUMCOLOURS] = {
+    MSG_SET_COLT_HEADING, MSG_SET_COLT_CODE, MSG_SET_COLT_QUOTE, MSG_SET_COLT_MARKER,
+    MSG_SET_COLT_LINK, MSG_SET_COLT_URL, MSG_SET_COLT_HTML
 };
 
 static struct {
@@ -109,7 +111,7 @@ BOOL prefs_open_classes(void)
     for (i = 0; i < sizeof(cl) / sizeof(cl[0]); i++)
         if (!*cl[i].base && !(*cl[i].base = OpenLibrary((STRPTR)cl[i].name, 44))) {
             struct EasyStruct es = { sizeof(es), 0, (STRPTR)APPNAME,
-                                     (STRPTR)"Could not open %s.", (STRPTR)"OK" };
+                                     (STRPTR)S(MSG_CLASS_MISSING), (STRPTR)S(MSG_OK) };
             EasyRequest(gui.win, &es, NULL, (ULONG)cl[i].name);
             return FALSE;
         }
@@ -191,10 +193,14 @@ static Object *build(const struct Settings *s)
     Object *editor, *preview, *markdown, *colours, *window;
     ULONG i;
 
+    renderers[0] = (STRPTR)S(MSG_SET_RENDER_HTML);
+    renderers[1] = (STRPTR)S(MSG_SET_RENDER_TTF);
+    fontsets[0] = (STRPTR)S(MSG_SET_FONTS_AUTO);
+
     /* categories */
     NewList(&pw.catlist);
     for (i = 0; i < NUMCATEGORIES; i++) {
-        struct Node *n = AllocListBrowserNode(1, LBNCA_Text, (ULONG)categories[i], TAG_DONE);
+        struct Node *n = AllocListBrowserNode(1, LBNCA_Text, (ULONG)S(categories[i]), TAG_DONE);
         if (n) AddTail(&pw.catlist, n);
     }
     pw.list = NewObject(LISTBROWSER_GetClass(), NULL,
@@ -208,10 +214,10 @@ static Object *build(const struct Settings *s)
         TAG_DONE);
 
     /* Editor */
-    pw.highlight = checkbox(PG_HIGHLIGHT, "Syntax _highlighting",
+    pw.highlight = checkbox(PG_HIGHLIGHT, S(MSG_SET_HIGHLIGHT),
                             s->highlight && highlight_hook(), !highlight_hook());
-    pw.linenumbers = checkbox(PG_LINENUMBERS, "Line _numbers", s->linenumbers, FALSE);
-    editor = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(categories[0]),
+    pw.linenumbers = checkbox(PG_LINENUMBERS, S(MSG_SET_LINENUMBERS), s->linenumbers, FALSE);
+    editor = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[0])),
         LAYOUT_AddChild, (ULONG)pw.highlight,   FIXED,
         LAYOUT_AddChild, (ULONG)pw.linenumbers, FIXED,
         LAYOUT_AddChild, (ULONG)filler(),
@@ -225,16 +231,16 @@ static Object *build(const struct Settings *s)
         GA_ID, PG_FONTSIZE, GA_RelVerify, TRUE, GA_Disabled, !s->ttf,
         INTEGER_Number, s->fontsize, INTEGER_Minimum, 0, INTEGER_Maximum, 64,
         INTEGER_MaxChars, 3, TAG_DONE);
-    pw.autorefresh = checkbox(PG_AUTOREFRESH, "_Refresh while typing", s->autorefresh, FALSE);
-    pw.sync = checkbox(PG_SYNC, "_Synchronize scrolling", s->syncscroll, FALSE);
-    preview = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(categories[1]),
+    pw.autorefresh = checkbox(PG_AUTOREFRESH, S(MSG_SET_AUTOREFRESH), s->autorefresh, FALSE);
+    pw.sync = checkbox(PG_SYNC, S(MSG_SET_SYNC), s->syncscroll, FALSE);
+    preview = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[1])),
         LAYOUT_AddChild, (ULONG)pw.renderer,    FIXED,
-        CHILD_Label,     (ULONG)label("R_enderer "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_RENDERER)),
         LAYOUT_AddChild, (ULONG)pw.fontset,     FIXED,
-        CHILD_Label,     (ULONG)label("_TrueType fonts "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_FONTS)),
         LAYOUT_AddChild, (ULONG)pw.fontsize,    FIXED,
-        CHILD_Label,     (ULONG)label("_Font size (0 = auto) "),
-        LAYOUT_AddImage, (ULONG)label("Renderer and fonts take effect at the next start."),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_FONTSIZE)),
+        LAYOUT_AddImage, (ULONG)label(S(MSG_SET_FONTS_NOTE)),
         FIXED,
         LAYOUT_AddChild, (ULONG)pw.autorefresh, FIXED,
         LAYOUT_AddChild, (ULONG)pw.sync,        FIXED,
@@ -248,22 +254,22 @@ static Object *build(const struct Settings *s)
         STRINGA_MaxChars, sizeof(s->charset) - 1, TAG_DONE);
     pw.template = NewObject(GETFILE_GetClass(), NULL,
         GA_ID, PG_TEMPLATE, GA_RelVerify, TRUE,
-        GETFILE_TitleText, (ULONG)"Page template", GETFILE_FullFile, (ULONG)s->template,
+        GETFILE_TitleText, (ULONG)S(MSG_SET_TEMPLATE_TITLE), GETFILE_FullFile, (ULONG)s->template,
         GETFILE_Pattern, (ULONG)"#?.(html|htm)", GETFILE_DoPatterns, TRUE,
         GETFILE_RejectIcons, TRUE, TAG_DONE);
-    markdown = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(categories[2]),
+    markdown = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[2])),
         LAYOUT_AddChild, (ULONG)pw.dialect,     FIXED,
-        CHILD_Label,     (ULONG)label("_Dialect "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_DIALECT)),
         LAYOUT_AddChild, (ULONG)pw.charset,     FIXED,
-        CHILD_Label,     (ULONG)label("_Charset (empty = detect) "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_CHARSET)),
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation,  LAYOUT_ORIENT_HORIZ,
             LAYOUT_AddChild,     (ULONG)pw.template,
-            LAYOUT_AddChild,     (ULONG)button(PG_NOTEMPLATE, "Built-_in"),
+            LAYOUT_AddChild,     (ULONG)button(PG_NOTEMPLATE, S(MSG_SET_BUILTIN)),
             CHILD_WeightedWidth, 0,
             TAG_DONE),
         FIXED,
-        CHILD_Label,     (ULONG)label("Page _template "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_TEMPLATE)),
         LAYOUT_AddChild, (ULONG)filler(),
         TAG_DONE);
 
@@ -272,20 +278,20 @@ static Object *build(const struct Settings *s)
         pw.colours[i] = NewObject(GETCOLOR_GetClass(), NULL,
             GA_ID, PG_COLOUR + i, GA_RelVerify, TRUE,
             GETCOLOR_Screen, (ULONG)gui.screen, GETCOLOR_Color, s->colours[i],
-            GETCOLOR_TitleText, (ULONG)colour_titles[i], TAG_DONE);
-    colours = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(categories[3]),
-        LAYOUT_AddChild, (ULONG)pw.colours[0], FIXED, CHILD_Label, (ULONG)label(colour_labels[0]),
-        LAYOUT_AddChild, (ULONG)pw.colours[1], FIXED, CHILD_Label, (ULONG)label(colour_labels[1]),
-        LAYOUT_AddChild, (ULONG)pw.colours[2], FIXED, CHILD_Label, (ULONG)label(colour_labels[2]),
-        LAYOUT_AddChild, (ULONG)pw.colours[3], FIXED, CHILD_Label, (ULONG)label(colour_labels[3]),
-        LAYOUT_AddChild, (ULONG)pw.colours[4], FIXED, CHILD_Label, (ULONG)label(colour_labels[4]),
-        LAYOUT_AddChild, (ULONG)pw.colours[5], FIXED, CHILD_Label, (ULONG)label(colour_labels[5]),
-        LAYOUT_AddChild, (ULONG)pw.colours[6], FIXED, CHILD_Label, (ULONG)label(colour_labels[6]),
+            GETCOLOR_TitleText, (ULONG)S(colour_titles[i]), TAG_DONE);
+    colours = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[3])),
+        LAYOUT_AddChild, (ULONG)pw.colours[0], FIXED, CHILD_Label, (ULONG)label(S(colour_labels[0])),
+        LAYOUT_AddChild, (ULONG)pw.colours[1], FIXED, CHILD_Label, (ULONG)label(S(colour_labels[1])),
+        LAYOUT_AddChild, (ULONG)pw.colours[2], FIXED, CHILD_Label, (ULONG)label(S(colour_labels[2])),
+        LAYOUT_AddChild, (ULONG)pw.colours[3], FIXED, CHILD_Label, (ULONG)label(S(colour_labels[3])),
+        LAYOUT_AddChild, (ULONG)pw.colours[4], FIXED, CHILD_Label, (ULONG)label(S(colour_labels[4])),
+        LAYOUT_AddChild, (ULONG)pw.colours[5], FIXED, CHILD_Label, (ULONG)label(S(colour_labels[5])),
+        LAYOUT_AddChild, (ULONG)pw.colours[6], FIXED, CHILD_Label, (ULONG)label(S(colour_labels[6])),
         /* the button on the right, not across the page */
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation,  LAYOUT_ORIENT_HORIZ,
             LAYOUT_AddChild,     (ULONG)filler(),
-            LAYOUT_AddChild,     (ULONG)button(PG_DEFCOLOURS, "Default c_olours"),
+            LAYOUT_AddChild,     (ULONG)button(PG_DEFCOLOURS, S(MSG_SET_DEFCOLOURS)),
             CHILD_WeightedWidth, 0,
             TAG_DONE),
         FIXED,
@@ -305,24 +311,24 @@ static Object *build(const struct Settings *s)
     pw.top = NewObject(INTEGER_GetClass(), NULL,
         GA_ID, PG_TOP, GA_RelVerify, TRUE, INTEGER_Number, s->wintop,
         INTEGER_Minimum, -1, INTEGER_Maximum, 9999, INTEGER_MaxChars, 4, TAG_DONE);
-    window = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(categories[4]),
+    window = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[4])),
         LAYOUT_AddChild, (ULONG)pw.width,  FIXED,
-        CHILD_Label,     (ULONG)label("_Width (0 = auto) "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_WIDTH)),
         LAYOUT_AddChild, (ULONG)pw.height, FIXED,
-        CHILD_Label,     (ULONG)label("H_eight (0 = auto) "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_HEIGHT)),
         LAYOUT_AddChild, (ULONG)pw.left,   FIXED,
-        CHILD_Label,     (ULONG)label("_Left (-1 = centred) "),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_LEFT)),
         LAYOUT_AddChild, (ULONG)pw.top,    FIXED,
-        CHILD_Label,     (ULONG)label("_Top (-1 = centred) "),
-        LAYOUT_AddImage, (ULONG)label("Size and position of the main window at the next start."),
+        CHILD_Label,     (ULONG)label(S(MSG_SET_TOP)),
+        LAYOUT_AddImage, (ULONG)label(S(MSG_SET_WINDOW_NOTE)),
         FIXED,
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation,  LAYOUT_ORIENT_HORIZ,
             LAYOUT_EvenSize,     TRUE,
             LAYOUT_AddChild,     (ULONG)filler(),
-            LAYOUT_AddChild,     (ULONG)button(PG_CURSIZE, "Cu_rrent"),
+            LAYOUT_AddChild,     (ULONG)button(PG_CURSIZE, S(MSG_SET_CURRENT)),
             CHILD_WeightedWidth, 0,
-            LAYOUT_AddChild,     (ULONG)button(PG_AUTOSIZE, "_Automatic"),
+            LAYOUT_AddChild,     (ULONG)button(PG_AUTOSIZE, S(MSG_SET_AUTOMATIC)),
             CHILD_WeightedWidth, 0,
             TAG_DONE),
         FIXED,
@@ -358,9 +364,9 @@ static Object *build(const struct Settings *s)
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
             LAYOUT_EvenSize,    TRUE,
-            LAYOUT_AddChild,    (ULONG)button(PG_SAVE, "_Save"),
-            LAYOUT_AddChild,    (ULONG)button(PG_USE, "_Use"),
-            LAYOUT_AddChild,    (ULONG)button(PG_CANCEL, "_Cancel"),
+            LAYOUT_AddChild,    (ULONG)button(PG_SAVE, S(MSG_SET_SAVE)),
+            LAYOUT_AddChild,    (ULONG)button(PG_USE, S(MSG_SET_USE)),
+            LAYOUT_AddChild,    (ULONG)button(PG_CANCEL, S(MSG_SET_CANCEL)),
             TAG_DONE),
         CHILD_WeightedHeight, 0,
         TAG_DONE);
@@ -421,7 +427,7 @@ int prefs_dialog(struct Settings *s)
     if (!(pw.root = build(s))) goto out;
 
     pw.winobj = NewObject(WINDOW_GetClass(), NULL,
-        WA_Title,           (ULONG)APPNAME " settings",
+        WA_Title,           (ULONG)S(MSG_SET_TITLE),
         WA_PubScreen,       (ULONG)gui.screen,
         WA_Activate,        TRUE,
         WA_DepthGadget,     TRUE,

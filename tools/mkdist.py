@@ -39,6 +39,11 @@ def main():
     os.makedirs(PKG)
 
     copy(b('package', NAME + '.readme'), os.path.join(PKG, NAME + '.readme'))
+    copy(b('package', 'Install'), os.path.join(PKG, 'Install'))
+    # translations; next to MDEdit they work without installing (PROGDIR:Catalogs)
+    languages = sorted(os.listdir(b('bin', 'Catalogs')))
+    for lang in languages:
+        copy(b('bin', 'Catalogs', lang, 'MDEdit.catalog'), os.path.join(PKG, 'Catalogs', lang, 'MDEdit.catalog'))
     copy(b('LICENSE'), os.path.join(PKG, 'LICENSE'))
     copy(b('bin', 'MDEdit'), os.path.join(PKG, 'MDEdit'))
     copy(b('bin', 'mdtohtml'), os.path.join(PKG, 'C', 'mdtohtml'))
@@ -56,7 +61,7 @@ def main():
 
     # sources in the same layout as the repository, so "make" works there
     src = os.path.join(PKG, 'Source')
-    for d in ('src', 'test', 'tools', 'package'):
+    for d in ('src', 'test', 'tools', 'package', 'catalogs'):
         copytree(b(d), os.path.join(src, d), ignore=('__pycache__', 'hostconv', 'hostsync', 'hosthl', 'hostset'))
     for f in ('Makefile', 'README.md', 'README.de.md', 'LICENSE', 'CLAUDE.md'):
         copy(b(f), os.path.join(src, f))
@@ -72,7 +77,9 @@ def main():
 
     # icons: classic ones next to the files, every style also in Icons/<Style>/
     mv = 'SYS:Utilities/MultiView'
-    icons = [('MDEdit', 'mdedit', WBTOOL,
+    icons = [('Install', 'install', WBPROJECT,
+              dict(default_tool='Installer', tooltypes=('APPNAME=MDEdit', 'MINUSER=AVERAGE'))),
+             ('MDEdit', 'mdedit', WBTOOL,
               dict(stack=65536, tooltypes=('(TEMPLATE=Template.html)', '(DIALECT=GitHub)',
                                            '(CHARSET=ISO-8859-1)', '(TTF)', '(FONTSET=Vera)',
                                            '(SIZE=12)',
@@ -84,7 +91,7 @@ def main():
              ('LICENSE', 'license', WBPROJECT, dict(default_tool=mv)),
              ('Docs/ReadMe.md', 'markdown', WBPROJECT, dict(default_tool=mv)),
              ('Docs/LiesMich.md', 'markdown', WBPROJECT, dict(default_tool=mv))]
-    for d in ('C', 'Docs', 'Icons', 'Source'):
+    for d in ['C', 'Docs', 'Icons', 'Source', 'Catalogs'] + ['Catalogs/' + l for l in languages]:
         icons.append((d, 'drawer', WBDRAWER, {}))
     write_icon(PKG, 'Classic', 'drawer', WBDRAWER)
     for name, role, kind, kw in icons:

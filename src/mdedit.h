@@ -14,6 +14,13 @@
 
 #define APPNAME "MDEdit"
 
+#include "strings.h"
+
+/* locale.c: S(MSG_...) is the string in the user's language */
+void locale_open(void);
+void locale_close(void);
+const char *S(LONG id);
+
 /* commands: menu user data and speedbar button ids */
 enum {
     CMD_NEW = 1, CMD_OPEN, CMD_SAVE, CMD_SAVEAS, CMD_EXPORT, CMD_ABOUT, CMD_QUIT,
