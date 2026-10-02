@@ -49,6 +49,7 @@ static struct NewMenu menus[] = {
     { NM_ITEM,  (STRPTR)"Export HTML...",  (STRPTR)"E", 0, 0, (APTR)CMD_EXPORT },
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Settings...",     (STRPTR)",", 0, 0, (APTR)CMD_SETTINGS },
+    { NM_ITEM,  (STRPTR)"Iconify",         (STRPTR)"I", 0, 0, (APTR)CMD_ICONIFY },
     { NM_ITEM,  (STRPTR)"About...",        (STRPTR)"?", 0, 0, (APTR)CMD_ABOUT },
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Quit",            (STRPTR)"Q", 0, 0, (APTR)CMD_QUIT },
@@ -327,6 +328,9 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         appport ? WINDOW_AppPort : TAG_IGNORE,   (ULONG)appport,
         appport ? WINDOW_AppWindow : TAG_IGNORE, TRUE,
         apphook ? WINDOW_AppMsgHook : TAG_IGNORE, (ULONG)apphook,
+        /* iconifying needs the AppPort for the AppIcon */
+        appport ? WINDOW_IconifyGadget : TAG_IGNORE, TRUE,
+        WINDOW_IconTitle,   (ULONG)APPNAME,
         WINDOW_ParentGroup, (ULONG)gui.layout,
         TAG_DONE);
     if (!gui.winobj) return FALSE;              /* gui_close() disposes the layout */
@@ -397,8 +401,43 @@ void gui_sync_hscroll(void)
                    SCROLLER_Total, total, SCROLLER_Visible, vis, SCROLLER_Top, left, TAG_DONE);
 }
 
+/* icon on the Workbench while iconified; the window disposes it */
+void gui_set_icon(struct DiskObject *icon)
+{
+    SetAttrs(gui.winobj, WINDOW_Icon, (ULONG)icon, TAG_DONE);
+}
+
+void gui_icon_title(CONST_STRPTR title)
+{
+    static char buf[108];
+    /* the window keeps the pointer */
+    strncpy(buf, (const char *)title, sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = 0;
+    SetAttrs(gui.winobj, WINDOW_IconTitle, (ULONG)buf, TAG_DONE);
+}
+
+void gui_iconify(void)
+{
+    if (!gui.win) return;
+    SetAttrs(gui.toolbar, SPEEDBAR_Window, 0, TAG_DONE);
+    DoMethod(gui.winobj, WM_ICONIFY);
+    gui.win = NULL;
+}
+
+/* FALSE if the window could not be opened again */
+BOOL gui_uniconify(void)
+{
+    if (gui.win) return TRUE;
+    if (!(gui.win = (struct Window *)DoMethod(gui.winobj, WM_OPEN))) return FALSE;
+    SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL,
+                   SPEEDBAR_Window, (ULONG)gui.win, TAG_DONE);
+    gui_activate_editor();
+    return TRUE;
+}
+
 void gui_activate_editor(void)
 {
+    if (!gui.win) return;
     ActivateLayoutGadget((struct Gadget *)gui.layout, gui.win, NULL, (ULONG)gui.editor);
 }
 

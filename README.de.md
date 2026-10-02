@@ -55,6 +55,8 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   Vorschau lassen sich ebenfalls kopieren.
 * Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
+* Ikonifizieren (Gadget in der Titelleiste oder *Project/Iconify*): Das MDEdit-Icon erscheint auf
+  der Workbench, ein Doppelklick oder ein darauf gezogenes Markdown-Icon öffnet das Fenster wieder.
 
 Die Einstellungen kommen aus den Tooltypes des MDEdit-Icons, auch beim Start aus der Shell;
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,

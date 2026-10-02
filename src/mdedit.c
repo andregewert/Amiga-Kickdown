@@ -159,6 +159,7 @@ static void update_title(void)
     char title[160];
     snprintf(title, sizeof(title), APPNAME " - %s%s", doc_name(), modified ? " (modified)" : "");
     gui_title((CONST_STRPTR)title);
+    gui_icon_title((CONST_STRPTR)doc_name());
 }
 
 /*****************************************************************************/
@@ -625,6 +626,7 @@ static BOOL command(ULONG cmd)
         set_linenumbers();
         break;
     case CMD_SETTINGS:    edit_settings(); break;
+    case CMD_ICONIFY:     gui_iconify(); break;
     case CMD_COPYPREVIEW: copy_preview(); break;
     }
     return FALSE;
@@ -812,15 +814,25 @@ int main(void)
         message((CONST_STRPTR)"Could not open the window.", NULL);
         goto out;
     }
+    /* the program icon stands for the iconified window */
+    if (IconBase) {
+        struct DiskObject *dob = GetDiskObject((STRPTR)iconname);
+        if (dob) {
+            dob->do_CurrentX = dob->do_CurrentY = NO_ICON_POSITION;
+            gui_set_icon(dob);
+        }
+    }
     update_title();
 
     if (startfile[0]) load_document((CONST_STRPTR)startfile);
     else update_preview();
 
-    GetAttr(WINDOW_SigMask, gui.winobj, &sigmask);
     if (appport) appsig = 1UL << appport->mp_SigBit;
     while (!done) {
-        ULONG sig = Wait(sigmask | appsig | SIGBREAKF_CTRL_C);
+        ULONG sig;
+        /* after iconifying the window has a new port: ask every time */
+        GetAttr(WINDOW_SigMask, gui.winobj, &sigmask);
+        sig = Wait(sigmask | appsig | SIGBREAKF_CTRL_C);
         if (sig & SIGBREAKF_CTRL_C) break;
         while ((result = DoMethod(gui.winobj, WM_HANDLEINPUT, &code)) != WMHI_LASTMSG) {
             switch (result & WMHI_CLASSMASK) {
@@ -851,6 +863,13 @@ int main(void)
                 update_preview();
                 sync_reset();
                 break;
+            case WMHI_ICONIFY:
+                gui_iconify();
+                break;
+            case WMHI_UNICONIFY:
+                if (!gui_uniconify()) done = TRUE;
+                else sync_reset();
+                break;
             case WMHI_RAWKEY:
                 switch (result & WMHI_KEYMASK) {
                 case 0x7A: wheel(-1); break;        /* wheel up */
@@ -864,6 +883,8 @@ int main(void)
             char name[PATHLEN];
             strcpy(name, dropped);
             dropped[0] = 0;
+            /* dropped on the AppIcon: open the window first */
+            if (!gui_uniconify()) break;
             open_document((CONST_STRPTR)name);
         }
     }

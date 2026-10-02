@@ -51,6 +51,8 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 * Cut/Copy/Paste/Undo/Redo, select all; text selected in the preview can be copied, too.
 * Status line with the cursor position, mouse wheel scrolls the pane under the pointer.
 * AppWindow: drop a Markdown icon on the window to open it.
+* Iconify (gadget in the title bar or *Project/Iconify*): the MDEdit icon appears on the
+  Workbench, a double click or a Markdown icon dropped on it opens the window again.
 
 The settings are read from the tool types of the MDEdit icon, also when MDEdit is started from
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,

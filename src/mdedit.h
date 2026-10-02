@@ -18,7 +18,7 @@
 enum {
     CMD_NEW = 1, CMD_OPEN, CMD_SAVE, CMD_SAVEAS, CMD_EXPORT, CMD_ABOUT, CMD_QUIT,
     CMD_CUT, CMD_COPY, CMD_PASTE, CMD_UNDO, CMD_REDO, CMD_SELECTALL, CMD_HIGHLIGHT,
-    CMD_LINENUMBERS, CMD_SETTINGS,
+    CMD_LINENUMBERS, CMD_SETTINGS, CMD_ICONIFY,
     CMD_REFRESH, CMD_AUTOREFRESH, CMD_SYNCSCROLL, CMD_COPYPREVIEW
 };
 
@@ -53,6 +53,11 @@ void gui_activate_editor(void);
 BOOL gui_checked(ULONG cmd);
 void gui_set_checked(ULONG cmd, BOOL on);
 void gui_busy(BOOL on);
+struct DiskObject;
+void gui_set_icon(struct DiskObject *icon);
+void gui_icon_title(CONST_STRPTR title);
+void gui_iconify(void);
+BOOL gui_uniconify(void);
 
 /* dialog.c */
 LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL centred);

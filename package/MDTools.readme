@@ -29,7 +29,7 @@ MDEdit
    copied as well
  - toolbar with AISS images (TBIMAGES:), text buttons if they are
    missing
- - AppWindow: drop a Markdown icon on the window to open it
+ - AppWindow: drop a Markdown icon on the window to open it; iconify
  - settings window: editor, preview (renderer, TrueType fonts), Markdown
    dialect, charset, page template, highlighting colours, window size
    and position; saved as tool types of the MDEdit icon
