@@ -156,10 +156,18 @@ static BOOL make_buttons(void)
     return TRUE;
 }
 
+/* window size from the settings: at most the screen, 0 = default */
+static LONG start_size(LONG wanted, LONG screen, LONG def)
+{
+    if (wanted <= 0) return def;
+    return wanted > screen ? screen : wanted;
+}
+
 BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
               const struct Settings *set)
 {
     BOOL highlight = set->highlight && highlight_hook();
+    LONG width, height, left, top;
     struct NewMenu *nm;
 
     /* the tool images are remapped for this screen */
@@ -293,6 +301,13 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         TAG_DONE);
     if (!gui.layout) return FALSE;
 
+    width = start_size(set->winwidth, gui.screen->Width, gui.screen->Width * 9 / 10);
+    height = start_size(set->winheight, gui.screen->Height, gui.screen->Height * 4 / 5);
+    /* a saved position, moved in if the window would stick out */
+    left = set->winleft;
+    top = set->wintop;
+    if (left > gui.screen->Width - width) left = gui.screen->Width - width;
+    if (top > gui.screen->Height - height) top = gui.screen->Height - height;
     gui.winobj = NewObject(WINDOW_GetClass(), NULL,
         WA_Title,           (ULONG)APPNAME,
         WA_PubScreen,       (ULONG)gui.screen,
@@ -301,12 +316,14 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         WA_DragBar,         TRUE,
         WA_CloseGadget,     TRUE,
         WA_SizeGadget,      TRUE,
-        WA_Width,           gui.screen->Width * 9 / 10,
-        WA_Height,          gui.screen->Height * 4 / 5,
+        WA_Width,           width,
+        WA_Height,          height,
+        set->winleft >= 0 ? WA_Left : TAG_IGNORE, left,
+        set->wintop >= 0 ? WA_Top : TAG_IGNORE,   top,
         WA_IDCMP,           IDCMP_INTUITICKS | IDCMP_RAWKEY,
         WA_NewLookMenus,    TRUE,
         WINDOW_NewMenu,     (ULONG)menus,
-        WINDOW_Position,    WPOS_CENTERSCREEN,
+        set->winleft < 0 || set->wintop < 0 ? WINDOW_Position : TAG_IGNORE, WPOS_CENTERSCREEN,
         appport ? WINDOW_AppPort : TAG_IGNORE,   (ULONG)appport,
         appport ? WINDOW_AppWindow : TAG_IGNORE, TRUE,
         apphook ? WINDOW_AppMsgHook : TAG_IGNORE, (ULONG)apphook,

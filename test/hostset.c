@@ -140,6 +140,10 @@ int main(void)
     s.fontsize = 14;
     strcpy(s.template, "Work:MDTools/My page.html");
     s.colours[C_HEADING] = 0x123456;
+    s.winwidth = 800;
+    s.winheight = 560;
+    s.winleft = 0;                  /* 0 is a position, not "unset" */
+    s.wintop = 24;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:MDEdit"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 

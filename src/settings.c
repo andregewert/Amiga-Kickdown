@@ -47,6 +47,7 @@ void settings_default(struct Settings *s)
     s->highlight = TRUE;
     s->autorefresh = TRUE;
     s->syncscroll = TRUE;
+    s->winleft = s->wintop = -1;
     strcpy(s->dialect, "GitHub");
     memcpy(s->colours, default_colours, sizeof(s->colours));
 }
@@ -99,6 +100,10 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if (FindToolType(tt, (STRPTR)"TTF")) s->ttf = TRUE;
     if ((v = FindToolType(tt, (STRPTR)"FONTSET"))) copy_str(s->fontset, sizeof(s->fontset), v);
     if ((v = FindToolType(tt, (STRPTR)"SIZE")) && StrToLong(v, &n) > 0 && n >= 0) s->fontsize = n;
+    if ((v = FindToolType(tt, (STRPTR)"WIDTH")) && StrToLong(v, &n) > 0 && n >= 0) s->winwidth = n;
+    if ((v = FindToolType(tt, (STRPTR)"HEIGHT")) && StrToLong(v, &n) > 0 && n >= 0) s->winheight = n;
+    if ((v = FindToolType(tt, (STRPTR)"LEFT")) && StrToLong(v, &n) > 0 && n >= 0) s->winleft = n;
+    if ((v = FindToolType(tt, (STRPTR)"TOP")) && StrToLong(v, &n) > 0 && n >= 0) s->wintop = n;
     if (FindToolType(tt, (STRPTR)"NOAUTOREFRESH")) s->autorefresh = FALSE;
     if (FindToolType(tt, (STRPTR)"NOSYNC")) s->syncscroll = FALSE;
     if ((v = FindToolType(tt, (STRPTR)"DIALECT"))) copy_str(s->dialect, sizeof(s->dialect), v);
@@ -135,7 +140,7 @@ BOOL settings_load_icon(struct Settings *s, CONST_STRPTR name)
 /*****************************************************************************/
 /* writing                                                                   */
 
-#define NUMKEYS (10 + NUMCOLOURS)
+#define NUMKEYS (14 + NUMCOLOURS)
 #define ENTRYLEN (PATHLEN + 24)
 
 struct Entry {
@@ -169,7 +174,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     struct Entry *e;
     STRPTR *old, *tt;
     ULONG nold = 0, n = 0, i, k, nicons;
-    char num[12], buf[NUMCOLOURS][8], *disabled;
+    char num[12], wnum[12], hnum[12], lnum[12], tnum[12], buf[NUMCOLOURS][8], *disabled;
     BOOL ok;
 
     if (!(dob = GetDiskObject((STRPTR)name))) {
@@ -195,6 +200,14 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "DIALECT", !same_text(s->dialect, "GitHub"), s->dialect);
     entry(&e[k++], "CHARSET", s->charset[0] != 0, s->charset);
     entry(&e[k++], "TEMPLATE", s->template[0] != 0, s->template);
+    sprintf(wnum, "%ld", (long)s->winwidth);
+    sprintf(hnum, "%ld", (long)s->winheight);
+    entry(&e[k++], "WIDTH", s->winwidth > 0, wnum);
+    entry(&e[k++], "HEIGHT", s->winheight > 0, hnum);
+    sprintf(lnum, "%ld", (long)s->winleft);
+    sprintf(tnum, "%ld", (long)s->wintop);
+    entry(&e[k++], "LEFT", s->winleft >= 0, lnum);
+    entry(&e[k++], "TOP", s->wintop >= 0, tnum);
     for (i = 0; i < NUMCOLOURS; i++) {
         sprintf(buf[i], "%06lX", (unsigned long)s->colours[i]);
         entry(&e[k++], colour_names[i], s->colours[i] != default_colours[i], buf[i]);

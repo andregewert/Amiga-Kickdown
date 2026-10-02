@@ -38,8 +38,9 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   Tabellen, HTML-Tags und Entities.
 * Zeilennummern im Editor einblendbar (*Edit/Line numbers*).
 * Einstellungsfenster (*Project/Settings...*) mit den Kategorien Editor, Preview (Renderer,
-  TrueType-Schriften, Aktualisierung, Scrollen), Markdown (Dialekt, Zeichensatz, Template) und
-  Colours (Farben der Syntax-Hervorhebung). *Save* schreibt sie in die Tooltypes des
+  TrueType-Schriften, Aktualisierung, Scrollen), Markdown (Dialekt, Zeichensatz, Template),
+  Colours (Farben der Syntax-Hervorhebung) und Window (Startgröße und -position, „Current“ übernimmt
+  sie vom offenen Fenster). *Save* schreibt sie in die Tooltypes des
   MDEdit-Icons, *Use* gilt für die laufende Sitzung; andere Tooltypes bleiben unverändert.
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
@@ -58,7 +59,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
 Die Einstellungen kommen aus den Tooltypes des MDEdit-Icons, auch beim Start aus der Shell;
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
-`FONTSET=`, `SIZE=`, `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`).
+`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`).
 
 ## mdtohtml
 

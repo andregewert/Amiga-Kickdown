@@ -29,6 +29,12 @@ struct Settings {
     char  dialect[20];              /* "GitHub" or "CommonMark" */
     char  charset[40];              /* "" = detected */
     char  template[PATHLEN];        /* "" = built-in page */
+    /* main window at the start: size 0 = from the screen size,
+     * position -1 = centred                                         */
+    LONG  winwidth;
+    LONG  winheight;
+    LONG  winleft;
+    LONG  wintop;
     /* colours as 0xRRGGBB */
     ULONG colours[NUMCOLOURS];
 };
