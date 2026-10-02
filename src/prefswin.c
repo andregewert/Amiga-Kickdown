@@ -11,7 +11,7 @@
  * (CHILD_WeightedHeight 0); an empty group at the end takes the rest, so
  * a bigger window does not stretch them.
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #include <exec/types.h>

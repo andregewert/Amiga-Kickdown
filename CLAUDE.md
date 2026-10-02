@@ -39,7 +39,8 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 - Amiga-Quellen und Testdateien (`src/`, `test/`, `Makefile`, `LICENSE`) sind
   **ISO-8859-1**. Ausnahmen (UTF-8): `README*.md`, `CLAUDE.md` und `test/utf8.*` (testet die
   Zeichensatzerkennung).
-- In C-Kommentaren und -Strings ASCII verwenden. Dateien mit Umlauten mit Python schreiben
+- Namen richtig schreiben, auch in C-Quellen: „André Gewert“ (é als ISO-8859-1 0xE9), nicht
+  „Andre“. Sonst in C-Kommentaren möglichst ASCII. Dateien mit Umlauten mit Python schreiben
   (`encoding='latin-1'`) oder mit `iconv -f UTF-8 -t ISO-8859-1` umwandeln.
 - `make charcheck` (Teil von `make`) findet UTF-8-Sequenzen.
 

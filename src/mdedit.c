@@ -12,7 +12,7 @@
  * icons dropped on the window as well. The preview uses html.gadget (htmlttf.gadget with TTF), the
  * speedbar the AISS images in TBIMAGES:.
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #include <exec/types.h>
@@ -488,7 +488,7 @@ static void about(void)
     request_centred((CONST_STRPTR)"OK",
             (CONST_STRPTR)APPNAME " " VERSION_TEXT "\n"
             "Markdown editor with HTML preview\n\n"
-            "Copyright (c) 2026 Andre Gewert\n"
+            "Copyright (c) 2026 André Gewert\n"
             "Released under the MIT License\n\n"
             "Markdown parser: %s\n"
             "Preview: %s %ld.%ld",

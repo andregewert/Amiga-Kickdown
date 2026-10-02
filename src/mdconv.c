@@ -1,7 +1,7 @@
 /*
  * mdconv - Markdown to HTML conversion shared by MDEdit and mdtohtml
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #include <stdio.h>

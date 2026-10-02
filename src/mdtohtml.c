@@ -7,7 +7,7 @@
  * Without FROM the Markdown text is read from standard input, without TO
  * the HTML page goes to standard output.
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #include <exec/types.h>

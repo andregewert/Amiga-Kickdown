@@ -1,7 +1,7 @@
 /*
  * fileio - whole-file reading and writing via dos.library
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #ifndef FILEIO_H

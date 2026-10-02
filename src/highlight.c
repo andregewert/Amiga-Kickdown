@@ -17,7 +17,7 @@
  * with ObtainBestPen(). The colours are dark enough for black text on the
  * Workbench grey (#BDBDBD): contrast at least 4.5:1.
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #include <exec/types.h>

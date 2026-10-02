@@ -5,7 +5,7 @@
  * host (make check). Input is treated byte by byte (MD4C_USE_ASCII):
  * Latin-1 and UTF-8 texts pass through unchanged.
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #ifndef MDCONV_H

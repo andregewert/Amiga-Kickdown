@@ -1,7 +1,7 @@
 /*
  * MDEdit - Markdown editor with HTML preview (ReAction, AmigaOS 3.2)
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #ifndef MDEDIT_H

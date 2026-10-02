@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # mkdist.py - builds the Aminet archive MDTools.lha from the built tree
 #
-# Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>, MIT License
+# Copyright (c) 2026 André Gewert <agewert@ubergeek.de>, MIT License
 #
 # Creates dist/MDTools/ with the programs, an example, the documentation
 # (README*.md converted to ISO-8859-1), the sources and icons (classic

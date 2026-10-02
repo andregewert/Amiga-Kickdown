@@ -1,7 +1,7 @@
 /*
  * MDEdit - settings, stored as tool types of the program icon
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #ifndef SETTINGS_H

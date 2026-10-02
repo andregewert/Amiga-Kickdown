@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # icons.py - Workbench icons of the Amiga-MDTools distribution
 #
-# Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>, MIT License
+# Copyright (c) 2026 André Gewert <agewert@ubergeek.de>, MIT License
 #
 # The icon writer (classic 4 colour icons, GlowIcons, NewIcons) comes from
 # html_gadget/tools/mkicons.py (git submodule). This file adds the motifs of

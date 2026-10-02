@@ -9,7 +9,7 @@
  * each line is estimated by word wrapping at a column count that is
  * calibrated against GA_TEXTEDITOR_Prop_Entries.
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #include <exec/types.h>

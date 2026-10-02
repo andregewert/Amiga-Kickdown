@@ -7,7 +7,7 @@
  * numbered the same way: 1, 2, ..., the last one 0. Return selects the
  * first button, Esc and the close gadget the last one.
  *
- * Copyright (c) 2026 Andre Gewert <agewert@ubergeek.de>
+ * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
 #include <exec/types.h>
