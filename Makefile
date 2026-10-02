@@ -22,7 +22,7 @@ CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter 
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
-EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(CONVOBJ)
+EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(CONVOBJ)
 TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
 all: charcheck $(O)/MDEdit $(O)/mdtohtml

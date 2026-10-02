@@ -88,20 +88,41 @@ static BOOL open_document(CONST_STRPTR name);
 
 /*****************************************************************************/
 
-static LONG request(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...)
+/* Requester with printf style text: centred over the main window (see
+ * dialog.c), before it is open with EasyRequest().                    */
+static LONG vrequest(CONST_STRPTR gadgets, BOOL centred, CONST_STRPTR fmt, va_list ap)
 {
+    char text[1024];
     struct EasyStruct es;
-    va_list ap;
     LONG r;
+
+    vsnprintf(text, sizeof(text), (const char *)fmt, ap);
+    if ((r = dialog((CONST_STRPTR)APPNAME, (CONST_STRPTR)text, gadgets, centred)) >= 0) return r;
 
     es.es_StructSize = sizeof(es);
     es.es_Flags = 0;
     es.es_Title = (STRPTR)APPNAME;
-    es.es_TextFormat = (STRPTR)fmt;
+    es.es_TextFormat = (STRPTR)"%s";        /* the text may contain '%' */
     es.es_GadgetFormat = (STRPTR)gadgets;
-    /* on the 68k all arguments are LONGs on the stack */
+    return EasyRequest(gui.win, &es, NULL, (ULONG)text);
+}
+
+static LONG request(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...)
+{
+    va_list ap;
+    LONG r;
     va_start(ap, fmt);
-    r = EasyRequestArgs(gui.win, &es, NULL, (APTR)ap);
+    r = vrequest(gadgets, FALSE, fmt, ap);
+    va_end(ap);
+    return r;
+}
+
+static LONG request_centred(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...)
+{
+    va_list ap;
+    LONG r;
+    va_start(ap, fmt);
+    r = vrequest(gadgets, TRUE, fmt, ap);
     va_end(ap);
     return r;
 }
@@ -464,7 +485,7 @@ static void export_html(void)
 
 static void about(void)
 {
-    request((CONST_STRPTR)"OK",
+    request_centred((CONST_STRPTR)"OK",
             (CONST_STRPTR)APPNAME " " VERSION_TEXT "\n"
             "Markdown editor with HTML preview\n\n"
             "Copyright (c) 2026 Andre Gewert\n"

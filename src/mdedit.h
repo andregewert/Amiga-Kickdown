@@ -54,6 +54,9 @@ BOOL gui_checked(ULONG cmd);
 void gui_set_checked(ULONG cmd, BOOL on);
 void gui_busy(BOOL on);
 
+/* dialog.c */
+LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL centred);
+
 /* prefswin.c */
 enum { PREFS_CANCEL, PREFS_USE, PREFS_SAVE };
 int prefs_dialog(struct Settings *s);
