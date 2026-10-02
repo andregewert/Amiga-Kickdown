@@ -60,6 +60,7 @@ static struct NewMenu menus[] = {
     { NM_ITEM,  (STRPTR)"Select all",      0, 0, 0, (APTR)CMD_SELECTALL },
     { NM_ITEM,  NM_BARLABEL,               0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Syntax highlighting", 0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_HIGHLIGHT },
+    { NM_ITEM,  (STRPTR)"Line numbers",    0, CHECKIT | MENUTOGGLE, 0, (APTR)CMD_LINENUMBERS },
     { NM_TITLE, (STRPTR)"Preview",         0, 0, 0, 0 },
     { NM_ITEM,  (STRPTR)"Refresh",         (STRPTR)"R", 0, 0, (APTR)CMD_REFRESH },
     { NM_ITEM,  (STRPTR)"Auto refresh",    0, CHECKIT | MENUTOGGLE | CHECKED, 0, (APTR)CMD_AUTOREFRESH },
@@ -152,7 +153,7 @@ static BOOL make_buttons(void)
 }
 
 BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
-              BOOL autorefresh, BOOL syncscroll, BOOL highlight)
+              BOOL autorefresh, BOOL syncscroll, BOOL highlight, BOOL linenumbers)
 {
     struct NewMenu *nm;
 
@@ -160,11 +161,14 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
     if (!(gui.screen = LockPubScreen(NULL))) return FALSE;
     if (!make_buttons()) return FALSE;
 
-    for (nm = menus; nm->nm_Type != NM_END; nm++)
+    for (nm = menus; nm->nm_Type != NM_END; nm++) {
+        if (nm->nm_UserData == (APTR)CMD_LINENUMBERS && linenumbers)
+            nm->nm_Flags |= CHECKED;
         if ((nm->nm_UserData == (APTR)CMD_AUTOREFRESH && !autorefresh) ||
             (nm->nm_UserData == (APTR)CMD_SYNCSCROLL && !syncscroll) ||
             (nm->nm_UserData == (APTR)CMD_HIGHLIGHT && !(highlight && highlight_hook())))
             nm->nm_Flags &= ~CHECKED;
+    }
 
     gui.toolbar = NewObject(SPEEDBAR_GetClass(), NULL,
         GA_ID,                GID_TOOLBAR,
@@ -177,6 +181,7 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         GA_ID,                    GID_EDITOR,
         GA_RelVerify,             TRUE,
         GA_TEXTEDITOR_FixedFont,  TRUE,
+        GA_TEXTEDITOR_ShowLineNumbers, linenumbers,
         GA_TEXTEDITOR_Contents,   (ULONG)"",
         highlight && highlight_hook() ? GA_TEXTEDITOR_HighlighterHook : TAG_IGNORE,
                                   (ULONG)highlight_hook(),

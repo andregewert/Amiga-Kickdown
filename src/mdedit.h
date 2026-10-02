@@ -18,6 +18,7 @@
 enum {
     CMD_NEW = 1, CMD_OPEN, CMD_SAVE, CMD_SAVEAS, CMD_EXPORT, CMD_ABOUT, CMD_QUIT,
     CMD_CUT, CMD_COPY, CMD_PASTE, CMD_UNDO, CMD_REDO, CMD_SELECTALL, CMD_HIGHLIGHT,
+    CMD_LINENUMBERS,
     CMD_REFRESH, CMD_AUTOREFRESH, CMD_SYNCSCROLL, CMD_COPYPREVIEW
 };
 
@@ -41,7 +42,7 @@ extern struct GUI gui;
 
 /* gui.c */
 BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
-              BOOL autorefresh, BOOL syncscroll, BOOL highlight);
+              BOOL autorefresh, BOOL syncscroll, BOOL highlight, BOOL linenumbers);
 void gui_close(void);
 void gui_status(CONST_STRPTR text);
 void gui_position(ULONG line, ULONG col);

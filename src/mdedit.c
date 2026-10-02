@@ -3,7 +3,7 @@
  *
  *   MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
  *          [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
- *          [NOHIGHLIGHT]
+ *          [NOHIGHLIGHT] [LINENUMBERS]
  *
  * From the Workbench the options are read from the tool types; a project
  * icon with MDEdit as default tool is opened, icons dropped on the window
@@ -77,6 +77,7 @@ static struct {
     BOOL noautorefresh;
     BOOL nosync;
     BOOL nohighlight;
+    BOOL linenumbers;
 } opt;
 
 static struct MDConvOptions conv;
@@ -520,6 +521,13 @@ static BOOL command(ULONG cmd)
         SetGadgetAttrs((struct Gadget *)gui.editor, gui.win, NULL, GA_TEXTEDITOR_HighlighterHook,
                        gui_checked(CMD_HIGHLIGHT) ? (ULONG)highlight_hook() : 0, TAG_DONE);
         break;
+    case CMD_LINENUMBERS:
+        SetGadgetAttrs((struct Gadget *)gui.editor, gui.win, NULL, GA_TEXTEDITOR_ShowLineNumbers,
+                       gui_checked(CMD_LINENUMBERS), TAG_DONE);
+        /* the text gets narrower or wider: other line breaks for the sync */
+        update_preview();
+        sync_reset();
+        break;
     case CMD_COPYPREVIEW: copy_preview(); break;
     }
     return FALSE;
@@ -616,6 +624,7 @@ static void wb_options(struct WBStartup *wbs)
             if (FindToolType(tt, (STRPTR)"NOAUTOREFRESH")) opt.noautorefresh = TRUE;
             if (FindToolType(tt, (STRPTR)"NOSYNC")) opt.nosync = TRUE;
             if (FindToolType(tt, (STRPTR)"NOHIGHLIGHT")) opt.nohighlight = TRUE;
+            if (FindToolType(tt, (STRPTR)"LINENUMBERS")) opt.linenumbers = TRUE;
             FreeDiskObject(dob);
         }
         CurrentDir(old);
@@ -627,9 +636,9 @@ static void wb_options(struct WBStartup *wbs)
 
 static BOOL shell_options(void)
 {
-    LONG args[8] = { 0 };
+    LONG args[9] = { 0 };
     struct RDArgs *rda = ReadArgs((STRPTR)"FILE,TEMPLATE/K,CHARSET/K,DIALECT/K,TTF/S,NOAUTOREFRESH/S,"
-                                  "NOSYNC/S,NOHIGHLIGHT/S",
+                                  "NOSYNC/S,NOHIGHLIGHT/S,LINENUMBERS/S",
                                   args, NULL);
     if (!rda) {
         PrintFault(IoErr(), (STRPTR)APPNAME);
@@ -643,6 +652,7 @@ static BOOL shell_options(void)
     opt.noautorefresh = args[5] != 0;
     opt.nosync = args[6] != 0;
     opt.nohighlight = args[7] != 0;
+    opt.linenumbers = args[8] != 0;
     FreeArgs(rda);
     return TRUE;
 }
@@ -707,7 +717,7 @@ int main(void)
 
     appport = CreateMsgPort();
     if (!gui_open(HTML_GetClass(), appport, appport ? &apphook : NULL,
-                  !opt.noautorefresh, !opt.nosync, !opt.nohighlight)) {
+                  !opt.noautorefresh, !opt.nosync, !opt.nohighlight, opt.linenumbers)) {
         message((CONST_STRPTR)"Could not open the window.", NULL);
         goto out;
     }

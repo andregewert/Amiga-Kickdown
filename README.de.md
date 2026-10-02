@@ -25,7 +25,7 @@ aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
 ## MDEdit
 
 ```
-MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT]
+MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT] [LINENUMBERS]
 ```
 
 * Links der Editor (`texteditor.gadget`, Festbreitenschrift), rechts die Vorschau (`html.gadget`),
@@ -35,6 +35,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
 * Syntax-Hervorhebung im Editor (*Edit/Syntax highlighting*, braucht texteditor.gadget V47):
   Überschriften, Hervorhebungen, Code (auch Codeblöcke), Zitate, Listenzeichen, Links, URLs,
   Tabellen, HTML-Tags und Entities.
+* Zeilennummern im Editor einblendbar (*Edit/Line numbers*).
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
 * Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
@@ -50,7 +51,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
 
 Von der Workbench werden dieselben Optionen aus den Tooltypes gelesen (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`).
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`).
 
 ## mdtohtml
 

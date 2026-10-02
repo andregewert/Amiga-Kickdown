@@ -18,7 +18,7 @@ MDEdit
  - editor (texteditor.gadget) and preview (html.gadget) side by side,
    the bar between them adjusts the split
  - syntax highlighting of headings, emphasis, code, quotes, lists, links,
-   tables and HTML in the editor
+   tables and HTML in the editor, line numbers on request
  - the preview follows half a second after you stop typing and keeps
    its scroll position; editor and preview scroll together
  - headings get anchors, so "#anchor" links and tables of contents
@@ -33,7 +33,7 @@ MDEdit
  - options as tool types or Shell arguments:
    MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
           [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
-          [NOHIGHLIGHT]
+          [NOHIGHLIGHT] [LINENUMBERS]
    TTF uses htmlttf.gadget (anti-aliased TrueType fonts) for the preview.
 
 mdtohtml
