@@ -604,3 +604,28 @@ Show f_ormatting buttons
 MSG_TBH_MORE (//)
 Buttons that do not fit
 ;
+; splash window and its setting
+MSG_SPLASH_SUBTITLE (//)
+Markdown editor with HTML preview
+;
+MSG_SPLASH_VERSION (//)
+Version %s
+;
+MSG_SPLASH_CLASSES (//)
+Opening the ReAction classes...
+;
+MSG_SPLASH_PREVIEW (//)
+Opening the HTML preview...
+;
+MSG_SPLASH_IMAGES (//)
+Loading the toolbar images...
+;
+MSG_SPLASH_TOOLBAR (//)
+Preparing the toolbar...
+;
+MSG_SPLASH_WINDOW (//)
+Opening the window...
+;
+MSG_SET_SPLASH (//)
+Show s_plash window at the start
+;

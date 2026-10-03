@@ -70,6 +70,8 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   am rechten Ende der Toolbar.
 * Toolbar-Knöpfe werden ausgegraut, wenn sie nichts bewirken würden (Speichern,
   Rückgängig/Wiederholen, Ausschneiden/Kopieren); Hilfe-Bubbles an den Knöpfen.
+* Startfenster mit Icon, Version und Fortschrittsbalken, solange das Programm startet (abschaltbar
+  auf der Seite Window der Einstellungen).
 * Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
 * Ikonifizieren (Gadget in der Titelleiste oder *Project/Iconify*): Das MDEdit-Icon erscheint auf
@@ -78,7 +80,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
 Die Einstellungen kommen aus den Tooltypes des MDEdit-Icons, auch beim Start aus der Shell;
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
-`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`,
+`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
 `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`).
 
 ## mdtohtml

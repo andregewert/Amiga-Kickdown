@@ -42,6 +42,7 @@ struct Settings {
     LONG  winheight;
     LONG  winleft;
     LONG  wintop;
+    BOOL  splash;                   /* splash window while starting */
     /* colours as 0xRRGGBB */
     ULONG colours[NUMCOLOURS];
 };

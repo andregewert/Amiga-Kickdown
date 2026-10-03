@@ -93,6 +93,12 @@ BOOL gui_uniconify(void);
 /* mdedit.c: the text was changed from outside the editor (find.c) */
 void editor_changed(void);
 
+void splash_open(CONST_STRPTR iconname, CONST_STRPTR name, CONST_STRPTR version, ULONG steps);
+void splash_status(CONST_STRPTR text);
+void splash_step(void);
+void splash_close(void);
+ULONG gui_tool_count(void);
+
 void format_apply(int kind);
 
 /* find.c */

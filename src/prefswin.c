@@ -62,7 +62,7 @@ enum {
     PG_DIALECT, PG_CHARSET, PG_TEMPLATE, PG_NOTEMPLATE,
     PG_COLOUR, PG_DEFCOLOURS = PG_COLOUR + NUMCOLOURS,
     PG_WIDTH, PG_HEIGHT, PG_LEFT, PG_TOP, PG_CURSIZE, PG_AUTOSIZE,
-    PG_TBMODE, PG_TBFRAMES, PG_FMTBUTTONS,
+    PG_TBMODE, PG_TBFRAMES, PG_FMTBUTTONS, PG_SPLASH,
     PG_SAVE, PG_USE, PG_CANCEL
 };
 
@@ -88,7 +88,7 @@ static struct {
     Object *winobj, *root, *list, *page;
     Object *highlight, *linenumbers, *renderer, *fontset, *fontsize, *autorefresh, *sync;
     Object *dialect, *charset, *template, *colours[NUMCOLOURS];
-    Object *width, *height, *left, *top;
+    Object *width, *height, *left, *top, *splash;
     Object *tbmode, *tbframes, *fmtbuttons;
     struct Window *win;
     struct List catlist;
@@ -318,6 +318,7 @@ static Object *build(const struct Settings *s)
     pw.top = NewObject(INTEGER_GetClass(), NULL,
         GA_ID, PG_TOP, GA_RelVerify, TRUE, INTEGER_Number, s->wintop,
         INTEGER_Minimum, -1, INTEGER_Maximum, 9999, INTEGER_MaxChars, 4, TAG_DONE);
+    pw.splash = checkbox(PG_SPLASH, S(MSG_SET_SPLASH), s->splash, FALSE);
     window = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[4])),
         LAYOUT_AddChild, (ULONG)pw.width,  FIXED,
         CHILD_Label,     (ULONG)label(S(MSG_SET_WIDTH)),
@@ -339,6 +340,7 @@ static Object *build(const struct Settings *s)
             CHILD_WeightedWidth, 0,
             TAG_DONE),
         FIXED,
+        LAYOUT_AddChild, (ULONG)pw.splash, FIXED,
         LAYOUT_AddChild, (ULONG)filler(),
         TAG_DONE);
 
@@ -433,6 +435,7 @@ static void read_gadgets(struct Settings *s)
     s->winheight = (LONG)get(pw.height, INTEGER_Number);
     s->winleft = (LONG)get(pw.left, INTEGER_Number);
     s->wintop = (LONG)get(pw.top, INTEGER_Number);
+    s->splash = get(pw.splash, CHECKBOX_Checked) != 0;
     s->tbmode = (LONG)get(pw.tbmode, CHOOSER_Selected);
     s->tbframes = get(pw.tbframes, CHECKBOX_Checked) != 0;
     s->fmtbuttons = get(pw.fmtbuttons, CHECKBOX_Checked) != 0;

@@ -196,7 +196,15 @@
 #define MSG_MENU_FORMATBAR           191
 #define MSG_SET_FMTBUTTONS           192
 #define MSG_TBH_MORE                 193
-#define MSG_COUNT                    194
+#define MSG_SPLASH_SUBTITLE          194
+#define MSG_SPLASH_VERSION           195
+#define MSG_SPLASH_CLASSES           196
+#define MSG_SPLASH_PREVIEW           197
+#define MSG_SPLASH_IMAGES            198
+#define MSG_SPLASH_TOOLBAR           199
+#define MSG_SPLASH_WINDOW            200
+#define MSG_SET_SPLASH               201
+#define MSG_COUNT                    202
 
 /* the built-in (English) strings, defined where MDEDIT_STRINGS is set */
 #ifdef MDEDIT_STRINGS
@@ -395,6 +403,14 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Show formatting buttons",
     "Show f_ormatting buttons",
     "Buttons that do not fit",
+    "Markdown editor with HTML preview",
+    "Version %s",
+    "Opening the ReAction classes...",
+    "Opening the HTML preview...",
+    "Loading the toolbar images...",
+    "Preparing the toolbar...",
+    "Opening the window...",
+    "Show s_plash window at the start",
 };
 #endif
 

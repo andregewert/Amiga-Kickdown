@@ -15,6 +15,8 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
   Einstellungsfenster (listbrowser + page.gadget). Gruppen dort komplett per Tagliste bauen:
   `CHILD_Label` gilt nur für das Kind in derselben Tagliste, `LAYOUT_AddChild` per OM_SET erst
   ab V47. Gadgets auf verdeckten Seiten mit `SetPageGadgetAttrs()` ändern.
+- `src/splash.c`: Startfenster, nur Intuition/graphics (öffnet vor den ReAction-Klassen);
+  `splash_step()` an jeder Ladestufe, die Schrittzahl steht in `main()`.
 - Formatierung (Toolbar, Menü *Format*): `src/mdformat.c` ändert den Text (reines ANSI-C,
   Host-Test `test/hostfmt.c`), `src/format.c` verbindet es mit texteditor.gadget (Positionen
   x/y = Zeichen im Absatz/Absatznummer, Absatz = Zeile der Datei). Die Reihenfolge von

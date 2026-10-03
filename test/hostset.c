@@ -147,6 +147,7 @@ int main(void)
     s.tbmode = TBMODE_TEXT;
     s.tbframes = TRUE;
     s.fmtbuttons = FALSE;
+    s.splash = FALSE;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:MDEdit"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 
@@ -178,6 +179,8 @@ int main(void)
     check(i < nicon, "TOOLBARFRAMES disabled");
     for (i = 0; i < nicon && strcmp(icon[i], "NOFORMATBUTTONS"); i++) ;
     check(i < nicon, "NOFORMATBUTTONS kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "NOSPLASH"); i++) ;
+    check(i < nicon, "NOSPLASH kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:MDEdit");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

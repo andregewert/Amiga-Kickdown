@@ -367,6 +367,7 @@ static BOOL make_buttons(const struct Settings *set)
         }
         gui.images[i] = img;
         gui.ghosts[i] = ghost;
+        splash_step();
         /* pressed: the AISS selected image if there is one, else recessed */
         node = AllocSpeedButtonNode(tools[i].cmd,
             img ? SBNA_Image : SBNA_Text, img ? (ULONG)img : (ULONG)S(tools[i].label),
@@ -418,6 +419,11 @@ static void bars_window(struct Window *win)
         if (bars[i]) SetGadgetAttrs((struct Gadget *)bars[i], win, NULL, SPEEDBAR_Window, (ULONG)win, TAG_DONE);
 }
 
+ULONG gui_tool_count(void)
+{
+    return NUMTOOLS;
+}
+
 /* window size from the settings: at most the screen, 0 = default */
 static LONG start_size(LONG wanted, LONG screen, LONG def)
 {
@@ -438,6 +444,7 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
     /* texts of the buttons; prefs_cleanup() closes it at the end */
     if (!LabelBase) LabelBase = OpenLibrary((STRPTR)"images/label.image", 44);
     obtain_ghostpen();
+    splash_status((CONST_STRPTR)S(set->tbmode == TBMODE_TEXT ? MSG_SPLASH_TOOLBAR : MSG_SPLASH_IMAGES));
     if (!make_buttons(set)) return FALSE;
     build_menus(set, highlight);
 
@@ -638,6 +645,7 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         WINDOW_ParentGroup, (ULONG)gui.layout,
         TAG_DONE);
     if (!gui.winobj) return FALSE;              /* gui_close() disposes the layout */
+    splash_status((CONST_STRPTR)S(MSG_SPLASH_WINDOW));
     if (!(gui.win = (struct Window *)DoMethod(gui.winobj, WM_OPEN))) return FALSE;
 
     bars_window(gui.win);

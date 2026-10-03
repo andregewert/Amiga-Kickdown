@@ -64,6 +64,8 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
   the toolbar.
 * Toolbar buttons are ghosted when they would do nothing (Save, Undo/Redo, Cut/Copy); help
   bubbles on the buttons.
+* A splash window with icon, version and progress bar while the program starts (can be switched
+  off on the Window page of the settings).
 * Status line with the cursor position, mouse wheel scrolls the pane under the pointer.
 * AppWindow: drop a Markdown icon on the window to open it.
 * Iconify (gadget in the title bar or *Project/Iconify*): the MDEdit icon appears on the
@@ -72,7 +74,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 The settings are read from the tool types of the MDEdit icon, also when MDEdit is started from
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
-`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`,
+`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
 `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`); a relative `TEMPLATE` is relative to the icon's drawer.
 Set MDEdit as default tool of your `.md` icons to open them by double click.
 

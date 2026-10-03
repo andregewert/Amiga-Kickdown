@@ -798,3 +798,36 @@ MSG_TBH_MORE
 Knöpfe, die nicht hineinpassen
 ; Buttons that do not fit
 ;
+; splash window and its setting
+MSG_SPLASH_SUBTITLE
+Markdown-Editor mit HTML-Vorschau
+; Markdown editor with HTML preview
+;
+MSG_SPLASH_VERSION
+Version %s
+; Version %s
+;
+MSG_SPLASH_CLASSES
+Öffne die ReAction-Klassen...
+; Opening the ReAction classes...
+;
+MSG_SPLASH_PREVIEW
+Öffne die HTML-Vorschau...
+; Opening the HTML preview...
+;
+MSG_SPLASH_IMAGES
+Lade die Toolbar-Bilder...
+; Loading the toolbar images...
+;
+MSG_SPLASH_TOOLBAR
+Bereite die Toolbar vor...
+; Preparing the toolbar...
+;
+MSG_SPLASH_WINDOW
+Öffne das Fenster...
+; Opening the window...
+;
+MSG_SET_SPLASH
+Startfenster beim Programmstart _zeigen
+; Show s_plash window at the start
+;

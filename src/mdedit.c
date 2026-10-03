@@ -131,6 +131,7 @@ static LONG request_centred(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...)
 /* before the window is open: shell output or requester */
 static void message(CONST_STRPTR text, CONST_STRPTR arg)
 {
+    splash_close();                     /* not over the requester */
     if (_WBenchMsg || gui.win) request((CONST_STRPTR)S(MSG_OK), text, arg);
     else {
         Printf((STRPTR)text, (ULONG)arg);
@@ -803,6 +804,7 @@ static struct Library *open_class(CONST_STRPTR name, ULONG ver)
 {
     struct Library *base = OpenLibrary((STRPTR)name, ver);
     if (!base) message((CONST_STRPTR)S(MSG_CLASS_MISSING), name);
+    splash_step();
     return base;
 }
 
@@ -836,6 +838,11 @@ int main(void)
         if (IconBase) wb_options(_WBenchMsg);
     } else if (!shell_options()) goto out;
 
+    /* steps of the progress bar: the classes below, html.gadget, the
+     * toolbar buttons and the window                                */
+    if (set.splash) splash_open((CONST_STRPTR)iconname, (CONST_STRPTR)APPNAME,
+                                (CONST_STRPTR)VERSION_TEXT, 8 + 1 + gui_tool_count() + 1);
+    splash_status((CONST_STRPTR)S(MSG_SPLASH_CLASSES));
     if (!(AslBase = open_class((CONST_STRPTR)"asl.library", 39)) ||
         !(WindowBase = open_class((CONST_STRPTR)"window.class", 44)) ||
         !(LayoutBase = open_class((CONST_STRPTR)"gadgets/layout.gadget", 44)) ||
@@ -844,8 +851,9 @@ int main(void)
         !(SpeedBarBase = open_class((CONST_STRPTR)"gadgets/speedbar.gadget", 44)) ||
         !(BitMapBase = open_class((CONST_STRPTR)"images/bitmap.image", 44)) ||
         !(TextFieldBase = open_class((CONST_STRPTR)"gadgets/texteditor.gadget", 45)) ||
-        !(HTMLBase = open_html(set.ttf)))
+        (splash_status((CONST_STRPTR)S(MSG_SPLASH_PREVIEW)), !(HTMLBase = open_html(set.ttf))))
         goto out;
+    splash_step();
 
     setup_conversion();
 
@@ -854,6 +862,7 @@ int main(void)
         message((CONST_STRPTR)S(MSG_NO_WINDOW), NULL);
         goto out;
     }
+    splash_close();
     /* the program icon stands for the iconified window */
     if (IconBase) {
         struct DiskObject *dob = GetDiskObject((STRPTR)iconname);
@@ -939,6 +948,7 @@ int main(void)
     rc = RETURN_OK;
 
 out:
+    splash_close();
     find_cleanup(TRUE);
     gui_close();
     sync_free();
