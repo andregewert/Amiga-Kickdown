@@ -121,6 +121,8 @@ static const struct {
 #define NUMMENUS (sizeof(menudef) / sizeof(menudef[0]))
 
 static struct NewMenu menus[NUMMENUS + 1];
+static void remember_checks(void);
+static void apply_checks(void);
 
 /* NewMenu from menudef with the translated strings and the check marks */
 static void build_menus(const struct Settings *set, BOOL highlight)
@@ -215,9 +217,10 @@ static BOOL exists(CONST_STRPTR name)
 }
 
 /* *hassel: there is a selected image as well; the ghosted image
- * (<name>_g) goes to *ghost, NULL if there is none. 'names' is a list
- * of alternatives separated by '|'.                              */
-static Object *load_image(const char *names, BOOL *hassel, Object **ghost)
+ * (<name>_g) goes to *ghost, NULL if there is none; with 'selected' the
+ * selected image also as an object of its own (for a label). 'names'
+ * is a list of alternatives separated by '|'.                     */
+static Object *load_image(const char *names, BOOL *hassel, Object **ghost, Object **selected)
 {
     char file[64], sel[64], name[40];
     const char *p = names;
@@ -243,8 +246,15 @@ static Object *load_image(const char *names, BOOL *hassel, Object **ghost)
     sprintf(file, "TBIMAGES:%s", name);
     sprintf(sel, "TBIMAGES:%s_s", name);
     *hassel = FALSE;
+    if (selected) *selected = NULL;
     if (!exists((CONST_STRPTR)file)) return NULL;
     *hassel = exists((CONST_STRPTR)sel);
+    if (selected && *hassel)
+        *selected = NewObject(BITMAP_GetClass(), NULL,
+            BITMAP_SourceFile, (ULONG)sel,
+            BITMAP_Screen,     (ULONG)gui.screen,
+            BITMAP_Masking,    TRUE,
+            TAG_DONE);
     return NewObject(BITMAP_GetClass(), NULL,
         BITMAP_SourceFile,       (ULONG)file,
         *hassel ? BITMAP_SelectSourceFile : TAG_IGNORE, (ULONG)sel,
@@ -345,12 +355,13 @@ static BOOL make_buttons(const struct Settings *set)
     NewList(&gui.buttons2);
     if (set->tbmode == TBMODE_BOTH) gui.smallattr = small_font();
     for (i = 0; i < NUMTOOLS; i++) {
-        Object *bm = NULL, *ghost = NULL, *img;
+        Object *bm = NULL, *ghost = NULL, *selbm = NULL, *selimg = NULL, *img;
         BOOL sel = FALSE, second = tools[i].row && (rows || !set->fmtbuttons);
         struct Node *node;
 
         /* text only: no image is loaded at all */
-        if (set->tbmode != TBMODE_TEXT) bm = load_image(tools[i].image, &sel, &ghost);
+        if (set->tbmode != TBMODE_TEXT)
+            bm = load_image(tools[i].image, &sel, &ghost, set->tbmode == TBMODE_BOTH ? &selbm : NULL);
         if (set->tbmode == TBMODE_IMAGES && bm) {
             img = bm;
         } else {
@@ -363,10 +374,14 @@ static BOOL make_buttons(const struct Settings *set)
                 if (ghost) DisposeObject(ghost);
                 ghost = !bm || set->tbmode == TBMODE_TEXT ? make_label(i, NULL, ghost_pen()) : NULL;
             }
-            sel = FALSE;
+            /* pressed: the label with the AISS selected image */
+            if (selbm && bm && img) selimg = make_label(i, selbm, text);
+            else if (selbm) DisposeObject(selbm);
+            sel = selimg != NULL;
         }
         gui.images[i] = img;
         gui.ghosts[i] = ghost;
+        gui.selimgs[i] = selimg;
         splash_step();
         /* pressed: the AISS selected image if there is one, else recessed */
         node = AllocSpeedButtonNode(tools[i].cmd,
@@ -374,6 +389,7 @@ static BOOL make_buttons(const struct Settings *set)
             SBNA_Enabled,   TRUE,
             SBNA_Spacing,   rows && tools[i].row && !tools[i - 1].row ? 0 : tools[i].spacing,
             SBNA_Highlight, sel ? SBH_IMAGE : SBH_RECESS,
+            selimg ? SBNA_SelImage : TAG_IGNORE, (ULONG)selimg,
             TAG_DONE);
         if (!node) return FALSE;
         gui.nodes[i] = node;
@@ -647,6 +663,7 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
     if (!gui.winobj) return FALSE;              /* gui_close() disposes the layout */
     splash_status((CONST_STRPTR)S(MSG_SPLASH_WINDOW));
     if (!(gui.win = (struct Window *)DoMethod(gui.winobj, WM_OPEN))) return FALSE;
+    apply_checks();
 
     bars_window(gui.win);
     gui_activate_editor();
@@ -687,6 +704,8 @@ void gui_close(void)
         if (gui.images[i]) DisposeObject(gui.images[i]);
     for (i = 0; i < MAXTOOLS; i++)
         if (gui.ghosts[i]) DisposeObject(gui.ghosts[i]);
+    for (i = 0; i < MAXTOOLS; i++)
+        if (gui.selimgs[i]) DisposeObject(gui.selimgs[i]);
     if (gui.smallfont) CloseFont(gui.smallfont);   /* after the labels */
     if (DiskfontBase) CloseLibrary(DiskfontBase);
     DiskfontBase = NULL;
@@ -935,6 +954,7 @@ void gui_icon_title(CONST_STRPTR title)
 void gui_iconify(void)
 {
     if (!gui.win) return;
+    remember_checks();
     SetAttrs(gui.toolbar, SPEEDBAR_Window, 0, TAG_DONE);
     if (gui.toolbar2) SetAttrs(gui.toolbar2, SPEEDBAR_Window, 0, TAG_DONE);
     DoMethod(gui.winobj, WM_ICONIFY);
@@ -946,6 +966,7 @@ BOOL gui_uniconify(void)
 {
     if (gui.win) return TRUE;
     if (!(gui.win = (struct Window *)DoMethod(gui.winobj, WM_OPEN))) return FALSE;
+    apply_checks();
     bars_window(gui.win);
     gui_activate_editor();
     return TRUE;
@@ -969,11 +990,44 @@ static struct MenuItem *find_item(ULONG cmd)
 }
 
 /* sets a checkmark menu item, e.g. after the settings were changed */
+/* window.class makes the menu strip anew from menus[] at every WM_OPEN
+ * (also after iconifying), so the table keeps the current check marks */
+static void remember_check(ULONG cmd, BOOL on)
+{
+    ULONG i;
+    for (i = 0; i < NUMMENUS; i++)
+        if (menus[i].nm_UserData == (APTR)cmd) {
+            if (on) menus[i].nm_Flags |= CHECKED;
+            else menus[i].nm_Flags &= ~CHECKED;
+        }
+}
+
+/* before the window closes: the check marks the user set in the menu */
+static void remember_checks(void)
+{
+    struct MenuItem *item;
+    ULONG i;
+    if (!gui.win) return;
+    for (i = 0; i < NUMMENUS; i++)
+        if ((menudef[i].flags & CHECKIT) && (item = find_item(menudef[i].cmd)))
+            remember_check(menudef[i].cmd, (item->Flags & CHECKED) != 0);
+}
+
+/* after the window opened: the menu shows the check marks of the table */
+static void apply_checks(void)
+{
+    ULONG i;
+    for (i = 0; i < NUMMENUS; i++)
+        if (menudef[i].flags & CHECKIT)
+            gui_set_checked(menudef[i].cmd, (menus[i].nm_Flags & CHECKED) != 0);
+}
+
 void gui_set_checked(ULONG cmd, BOOL on)
 {
     struct MenuItem *item;
     struct Menu *strip;
 
+    remember_check(cmd, on);
     if (!gui.win || !(item = find_item(cmd))) return;
     if (!(item->Flags & CHECKED) == !on) return;
     strip = gui.win->MenuStrip;

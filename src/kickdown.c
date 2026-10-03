@@ -45,7 +45,7 @@
 #include "fileio.h"
 #include "settings.h"
 
-#define VERSION_TEXT "1.0 (03.10.2026)"
+#define VERSION_TEXT "1.1 (03.10.2026)"
 static const char version[] = "$VER: " APPNAME " " VERSION_TEXT;
 
 /* initialised explicitly: as COMMON symbols they would pull in the

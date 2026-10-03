@@ -56,6 +56,7 @@ struct GUI {
     struct Node *nodes[MAXTOOLS];   /* the node of each button */
     Object *images[MAXTOOLS];       /* bitmap.image or label.image of the buttons */
     Object *ghosts[MAXTOOLS];       /* their ghosted variants (AISS <name>_g) */
+    Object *selimgs[MAXTOOLS];      /* pressed image and text (SBNA_SelImage) */
     char labels[MAXTOOLS][40];      /* texts of the label.images */
     struct DrawInfo *dri;
     LONG ghostpen;                  /* pen of ghosted texts, -1: not obtained */
