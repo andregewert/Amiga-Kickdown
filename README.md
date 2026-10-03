@@ -52,7 +52,13 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 * Find and replace (*Edit/Find...*, Amiga-F): a window next to the editor with case sensitive,
   whole words, backwards and wrap around; Replace all is one undo step. *Find next* (Amiga-G)
   repeats the last search.
-* Help bubbles on the toolbar buttons.
+* Formatting (toolbar and *Format* menu): heading (every click one level more, up to `###`),
+  bold, italic, underline (`<u>`, Markdown has none), code (several lines become a code block), link, image, bulleted, numbered and
+  task list, quote. Inline formats wrap the selection or are removed if it already has them;
+  bold, italic and underline over several lines format each line after its list, quote or heading marker;
+  list formats work on all selected lines. Each command is one undo step.
+* Toolbar buttons are ghosted when they would do nothing (Save, Undo/Redo, Cut/Copy); help
+  bubbles on the buttons.
 * Status line with the cursor position, mouse wheel scrolls the pane under the pointer.
 * AppWindow: drop a Markdown icon on the window to open it.
 * Iconify (gadget in the title bar or *Project/Iconify*): the MDEdit icon appears on the

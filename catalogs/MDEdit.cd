@@ -467,3 +467,73 @@ MSG_FIND_MANY (//)
 MSG_FIND_NOWINDOW (//)
 Could not create the find window
 ;
+; Format menu (the items are also the toolbar labels) and help bubbles
+MSG_MENU_FORMAT (//)
+Format
+;
+MSG_MENU_HEADING (//)
+Heading
+;
+MSG_MENU_BOLD (//)
+Bold
+;
+MSG_MENU_ITALIC (//)
+Italic
+;
+MSG_MENU_CODE (//)
+Code
+;
+MSG_MENU_LINK (//)
+Link
+;
+MSG_MENU_IMAGE (//)
+Image
+;
+MSG_MENU_BULLET (//)
+Bulleted list
+;
+MSG_MENU_NUMBERED (//)
+Numbered list
+;
+MSG_MENU_TASK (//)
+Task list
+;
+MSG_MENU_QUOTE (//)
+Quote
+;
+MSG_TBH_HEADING (//)
+Heading (#, every click one level more, up to ###)
+;
+MSG_TBH_BOLD (//)
+Bold (**text**)
+;
+MSG_TBH_ITALIC (//)
+Italic (*text*)
+;
+MSG_TBH_CODE (//)
+Code (`code`, several lines as code block)
+;
+MSG_TBH_LINK (//)
+Link ([text](address))
+;
+MSG_TBH_IMAGE (//)
+Image (![description](file))
+;
+MSG_TBH_BULLET (//)
+Bulleted list (- )
+;
+MSG_TBH_NUMBERED (//)
+Numbered list (1. )
+;
+MSG_TBH_TASK (//)
+Task list (- [ ] )
+;
+MSG_TBH_QUOTE (//)
+Quote (> )
+;
+MSG_MENU_UNDERLINE (//)
+Underline
+;
+MSG_TBH_UNDERLINE (//)
+Underline (<u>text</u>)
+;

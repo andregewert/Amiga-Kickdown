@@ -151,7 +151,30 @@
 #define MSG_FIND_ONE                 146
 #define MSG_FIND_MANY                147
 #define MSG_FIND_NOWINDOW            148
-#define MSG_COUNT                    149
+#define MSG_MENU_FORMAT              149
+#define MSG_MENU_HEADING             150
+#define MSG_MENU_BOLD                151
+#define MSG_MENU_ITALIC              152
+#define MSG_MENU_CODE                153
+#define MSG_MENU_LINK                154
+#define MSG_MENU_IMAGE               155
+#define MSG_MENU_BULLET              156
+#define MSG_MENU_NUMBERED            157
+#define MSG_MENU_TASK                158
+#define MSG_MENU_QUOTE               159
+#define MSG_TBH_HEADING              160
+#define MSG_TBH_BOLD                 161
+#define MSG_TBH_ITALIC               162
+#define MSG_TBH_CODE                 163
+#define MSG_TBH_LINK                 164
+#define MSG_TBH_IMAGE                165
+#define MSG_TBH_BULLET               166
+#define MSG_TBH_NUMBERED             167
+#define MSG_TBH_TASK                 168
+#define MSG_TBH_QUOTE                169
+#define MSG_MENU_UNDERLINE           170
+#define MSG_TBH_UNDERLINE            171
+#define MSG_COUNT                    172
 
 /* the built-in (English) strings, defined where MDEDIT_STRINGS is set */
 #ifdef MDEDIT_STRINGS
@@ -305,6 +328,29 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "1 replacement",
     "%lu replacements",
     "Could not create the find window",
+    "Format",
+    "Heading",
+    "Bold",
+    "Italic",
+    "Code",
+    "Link",
+    "Image",
+    "Bulleted list",
+    "Numbered list",
+    "Task list",
+    "Quote",
+    "Heading (#, every click one level more, up to ###)",
+    "Bold (**text**)",
+    "Italic (*text*)",
+    "Code (`code`, several lines as code block)",
+    "Link ([text](address))",
+    "Image (![description](file))",
+    "Bulleted list (- )",
+    "Numbered list (1. )",
+    "Task list (- [ ] )",
+    "Quote (> )",
+    "Underline",
+    "Underline (<u>text</u>)",
 };
 #endif
 

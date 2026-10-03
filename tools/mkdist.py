@@ -62,7 +62,7 @@ def main():
     # sources in the same layout as the repository, so "make" works there
     src = os.path.join(PKG, 'Source')
     for d in ('src', 'test', 'tools', 'package', 'catalogs'):
-        copytree(b(d), os.path.join(src, d), ignore=('__pycache__', 'hostconv', 'hostsync', 'hosthl', 'hostset'))
+        copytree(b(d), os.path.join(src, d), ignore=('__pycache__', 'hostconv', 'hostsync', 'hosthl', 'hostset', 'hostfmt'))
     for f in ('Makefile', 'README.md', 'README.de.md', 'LICENSE', 'CLAUDE.md'):
         copy(b(f), os.path.join(src, f))
     copytree(b('md4c', 'src'), os.path.join(src, 'md4c', 'src'), ignore=('*.pc.in', '*.cmake', 'CMakeLists.txt'))

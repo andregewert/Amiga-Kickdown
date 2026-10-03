@@ -22,7 +22,7 @@ CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter 
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
-EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(CONVOBJ)
+EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(B)/format.o $(B)/mdformat.o $(CONVOBJ)
 TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
 # translations: catalogs/<language>.ct -> bin/Catalogs/<language>/MDEdit.catalog
@@ -52,7 +52,7 @@ $(B)/md4c-html.o: $(MD4C)/md4c-html.c $(MD4C)/md4c-html.h $(MD4C)/md4c.h
 	@mkdir -p $(B)
 	$(CC) $(MD4CFLAGS) -c $< -o $@
 
-$(B)/%.o: src/%.c src/mdedit.h src/strings.h src/settings.h src/mdconv.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
+$(B)/%.o: src/%.c src/mdedit.h src/strings.h src/settings.h src/mdconv.h src/mdformat.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
 	@mkdir -p $(B)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -94,9 +94,13 @@ test/hosthl: test/hosthl.c src/highlight.c
 test/hostset: test/hostset.c src/settings.c src/settings.h
 	cc -g -Wall -Wno-unused-function -fsanitize=address,undefined -Itest/hostinc -o $@ test/hostset.c
 
+# host test of the formatting commands (src/mdformat.c)
+test/hostfmt: test/hostfmt.c src/mdformat.c src/mdformat.h
+	cc -g -Wall -Wextra -fsanitize=address,undefined -Isrc -o $@ test/hostfmt.c src/mdformat.c
+
 CHECKS  := $(wildcard test/*.md)
 
-check: test/hostconv test/hostsync test/hosthl test/hostset
+check: test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt
 	@mkdir -p $(B)/test; fail=0; \
 	for f in $(CHECKS); do n=$$(basename $$f .md); \
 		if ./test/hostconv $$f test/template.html > $(B)/test/$$n.out && \
@@ -110,6 +114,7 @@ check: test/hostconv test/hostsync test/hosthl test/hostset
 	done; \
 	if ./test/hostset > $(B)/test/settings.out; then echo "ok   settings in tool types"; \
 	else cat $(B)/test/settings.out; echo "FAIL settings in tool types"; fail=1; fi; \
+	./test/hostfmt || fail=1; \
 	exit $$fail
 
 # accept the current output as reference after an intended change
@@ -131,6 +136,6 @@ dist: all
 	python3 tools/mkdist.py
 
 clean:
-	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl test/hostset
+	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt
 
 .PHONY: all clean check check-update charcheck dist icons md4cversion

@@ -56,7 +56,15 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
 * Suchen und Ersetzen (*Edit/Find...*, Amiga-F): ein Fenster neben dem Editor mit Groß-/Klein-
   schreibung, ganzen Wörtern, rückwärts und Umlauf; „Replace all“ ist ein Rückgängig-Schritt.
   *Find next* (Amiga-G) wiederholt die letzte Suche.
-* Hilfe-Bubbles an den Toolbar-Knöpfen.
+* Formatierung (Toolbar und Menü *Format*): Überschrift (jeder Klick eine Ebene mehr, bis
+  `###`), fett, kursiv, unterstrichen (`<u>`, Markdown kennt das nicht), Code (mehrere Zeilen werden ein Codeblock), Link, Bild, Aufzählung,
+  nummerierte Liste, Aufgabenliste, Zitat. Inline-Formate umschließen die Markierung oder werden
+  entfernt, wenn sie schon vorhanden sind; fett, kursiv und unterstrichen über mehrere Zeilen formatieren jede
+  Zeile einzeln hinter ihrem Listen-, Zitat- oder Überschriftenzeichen; Listenformate gelten für
+  alle markierten Zeilen. Jeder
+  Befehl ist ein Rückgängig-Schritt.
+* Toolbar-Knöpfe werden ausgegraut, wenn sie nichts bewirken würden (Speichern,
+  Rückgängig/Wiederholen, Ausschneiden/Kopieren); Hilfe-Bubbles an den Knöpfen.
 * Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
 * Ikonifizieren (Gadget in der Titelleiste oder *Project/Iconify*): Das MDEdit-Icon erscheint auf

@@ -647,6 +647,9 @@ static BOOL command(ULONG cmd)
     case CMD_FIND:        find_open(); break;
     case CMD_FINDNEXT:    find_next(); break;
     case CMD_COPYPREVIEW: copy_preview(); break;
+    default:
+        if (cmd >= CMD_BOLD && cmd <= CMD_QUOTE) format_apply((int)(cmd - CMD_BOLD));
+        break;
     }
     return FALSE;
 }

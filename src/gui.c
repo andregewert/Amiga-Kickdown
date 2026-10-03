@@ -78,6 +78,21 @@ static const struct {
     { NM_ITEM,  -1,                    0,   0, 0 },
     { NM_ITEM,  MSG_MENU_HIGHLIGHT,    0,   CHECKIT | MENUTOGGLE, CMD_HIGHLIGHT },
     { NM_ITEM,  MSG_MENU_LINENUMBERS,  0,   CHECKIT | MENUTOGGLE, CMD_LINENUMBERS },
+    { NM_TITLE, MSG_MENU_FORMAT,       0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_HEADING,      "H", 0, CMD_HEADING },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_BOLD,         "B", 0, CMD_BOLD },
+    { NM_ITEM,  MSG_MENU_ITALIC,       "T", 0, CMD_ITALIC },
+    { NM_ITEM,  MSG_MENU_UNDERLINE,    "U", 0, CMD_UNDERLINE },
+    { NM_ITEM,  MSG_MENU_CODE,         "D", 0, CMD_CODE },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_LINK,         "K", 0, CMD_LINK },
+    { NM_ITEM,  MSG_MENU_IMAGE,        0,   0, CMD_IMAGE },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_BULLET,       "L", 0, CMD_BULLET },
+    { NM_ITEM,  MSG_MENU_NUMBERED,     0,   0, CMD_NUMBERED },
+    { NM_ITEM,  MSG_MENU_TASK,         0,   0, CMD_TASK },
+    { NM_ITEM,  MSG_MENU_QUOTE,        0,   0, CMD_QUOTE },
     { NM_TITLE, MSG_MENU_PREVIEW,      0,   0, 0 },
     { NM_ITEM,  MSG_MENU_REFRESH,      "R", 0, CMD_REFRESH },
     { NM_ITEM,  MSG_MENU_AUTOREFRESH,  0,   CHECKIT | MENUTOGGLE, CMD_AUTOREFRESH },
@@ -113,7 +128,9 @@ static void build_menus(const struct Settings *set, BOOL highlight)
 static struct HintInfo hints[MAXTOOLS + 1];
 
 /* Speedbar buttons. The images come from AISS (TBIMAGES:<name>, the
- * selected state from <name>_s); a missing image falls back to the label. */
+ * selected state from <name>_s, the ghosted one from <name>_g); "a|b"
+ * takes the first one that exists (AISS 4 has more images than AISS
+ * Classic). Without an image the label is used.                       */
 static const struct {
     UWORD cmd;
     WORD spacing;
@@ -130,6 +147,17 @@ static const struct {
     { CMD_UNDO,     8, "undo",     MSG_TB_UNDO,     MSG_TBH_UNDO },
     { CMD_REDO,     0, "redo",     MSG_TB_REDO,     MSG_TBH_REDO },
     { CMD_FIND,     8, "find",     MSG_TB_FIND,     MSG_TBH_FIND },
+    { CMD_HEADING,  8, "font_larger|font", MSG_MENU_HEADING, MSG_TBH_HEADING },
+    { CMD_BOLD,     0, "font_bold",     MSG_MENU_BOLD,     MSG_TBH_BOLD },
+    { CMD_ITALIC,   0, "font_italic",   MSG_MENU_ITALIC,   MSG_TBH_ITALIC },
+    { CMD_UNDERLINE, 0, "font_uline",   MSG_MENU_UNDERLINE, MSG_TBH_UNDERLINE },
+    { CMD_CODE,     0, "brackets|hexview", MSG_MENU_CODE,  MSG_TBH_CODE },
+    { CMD_LINK,     8, "hyperlink|internet", MSG_MENU_LINK, MSG_TBH_LINK },
+    { CMD_IMAGE,    0, "image",         MSG_MENU_IMAGE,    MSG_TBH_IMAGE },
+    { CMD_BULLET,   8, "capitalpoints", MSG_MENU_BULLET,   MSG_TBH_BULLET },
+    { CMD_NUMBERED, 0, "capitalnumber", MSG_MENU_NUMBERED, MSG_TBH_NUMBERED },
+    { CMD_QUOTE,    0, "quote|definitions", MSG_MENU_QUOTE, MSG_TBH_QUOTE },
+    { CMD_TASK,     0, "task",          MSG_MENU_TASK,     MSG_TBH_TASK },
     { CMD_REFRESH,  8, "refresh",  MSG_TB_REFRESH,  MSG_TBH_REFRESH },
     { CMD_EXPORT,   0, "copyfile", MSG_TB_EXPORT,   MSG_TBH_EXPORT },
     { CMD_SETTINGS, 8, "prefs",    MSG_TB_SETTINGS, MSG_TBH_SETTINGS },
@@ -162,10 +190,24 @@ static BOOL exists(CONST_STRPTR name)
 }
 
 /* *hassel: there is a selected image as well; the ghosted image
- * (<name>_g) goes to *ghost, NULL if there is none               */
-static Object *load_image(const char *name, BOOL *hassel, Object **ghost)
+ * (<name>_g) goes to *ghost, NULL if there is none. 'names' is a list
+ * of alternatives separated by '|'.                              */
+static Object *load_image(const char *names, BOOL *hassel, Object **ghost)
 {
-    char file[64], sel[64];
+    char file[64], sel[64], name[40];
+    const char *p = names;
+
+    /* the first alternative that exists, else the last one */
+    for (;;) {
+        const char *e = strchr(p, '|');
+        ULONG len = e ? (ULONG)(e - p) : strlen(p);
+        if (len >= sizeof(name)) len = sizeof(name) - 1;
+        memcpy(name, p, len);
+        name[len] = 0;
+        sprintf(file, "TBIMAGES:%s", name);
+        if (!e || exists((CONST_STRPTR)file)) break;
+        p = e + 1;
+    }
 
     sprintf(file, "TBIMAGES:%s_g", name);
     *ghost = exists((CONST_STRPTR)file) ? NewObject(BITMAP_GetClass(), NULL,

@@ -26,7 +26,10 @@ enum {
     CMD_NEW = 1, CMD_OPEN, CMD_SAVE, CMD_SAVEAS, CMD_EXPORT, CMD_ABOUT, CMD_QUIT,
     CMD_CUT, CMD_COPY, CMD_PASTE, CMD_UNDO, CMD_REDO, CMD_SELECTALL, CMD_HIGHLIGHT,
     CMD_LINENUMBERS, CMD_SETTINGS, CMD_ICONIFY, CMD_FIND, CMD_FINDNEXT,
-    CMD_REFRESH, CMD_AUTOREFRESH, CMD_SYNCSCROLL, CMD_COPYPREVIEW
+    CMD_REFRESH, CMD_AUTOREFRESH, CMD_SYNCSCROLL, CMD_COPYPREVIEW,
+    /* formatting, in the order of FMT_... (mdformat.h) */
+    CMD_BOLD, CMD_ITALIC, CMD_UNDERLINE, CMD_CODE, CMD_LINK, CMD_IMAGE,
+    CMD_HEADING, CMD_BULLET, CMD_NUMBERED, CMD_TASK, CMD_QUOTE
 };
 
 enum {
@@ -34,7 +37,7 @@ enum {
     GID_STATUS, GID_POS
 };
 
-#define MAXTOOLS 16
+#define MAXTOOLS 32
 
 struct GUI {
     struct Screen *screen;
@@ -63,7 +66,7 @@ BOOL gui_checked(ULONG cmd);
 void gui_set_checked(ULONG cmd, BOOL on);
 void gui_busy(BOOL on);
 void gui_tools_disabled(ULONG mask);
-#define TOOLBIT(cmd) (1UL << (cmd))
+#define TOOLBIT(cmd) ((cmd) < 32 ? 1UL << (cmd) : 0)  /* only commands below 32 */
 struct DiskObject;
 void gui_set_icon(struct DiskObject *icon);
 void gui_icon_title(CONST_STRPTR title);
@@ -72,6 +75,8 @@ BOOL gui_uniconify(void);
 
 /* mdedit.c: the text was changed from outside the editor (find.c) */
 void editor_changed(void);
+
+void format_apply(int kind);
 
 /* find.c */
 void find_open(void);

@@ -616,3 +616,96 @@ MSG_FIND_NOWINDOW
 Das Suchfenster kann nicht angelegt werden
 ; Could not create the find window
 ;
+; Format menu and help bubbles
+MSG_MENU_FORMAT
+Format
+; Format
+;
+MSG_MENU_HEADING
+Überschrift
+; Heading
+;
+MSG_MENU_BOLD
+Fett
+; Bold
+;
+MSG_MENU_ITALIC
+Kursiv
+; Italic
+;
+MSG_MENU_CODE
+Code
+; Code
+;
+MSG_MENU_LINK
+Link
+; Link
+;
+MSG_MENU_IMAGE
+Bild
+; Image
+;
+MSG_MENU_BULLET
+Aufzählung
+; Bulleted list
+;
+MSG_MENU_NUMBERED
+Nummerierte Liste
+; Numbered list
+;
+MSG_MENU_TASK
+Aufgabenliste
+; Task list
+;
+MSG_MENU_QUOTE
+Zitat
+; Quote
+;
+MSG_TBH_HEADING
+Überschrift (#, jeder Klick eine Ebene mehr, bis ###)
+; Heading (#, every click one level more, up to ###)
+;
+MSG_TBH_BOLD
+Fett (**Text**)
+; Bold (**text**)
+;
+MSG_TBH_ITALIC
+Kursiv (*Text*)
+; Italic (*text*)
+;
+MSG_TBH_CODE
+Code (`Code`, mehrere Zeilen als Codeblock)
+; Code (`code`, several lines as code block)
+;
+MSG_TBH_LINK
+Link ([Text](Adresse))
+; Link ([text](address))
+;
+MSG_TBH_IMAGE
+Bild (![Beschreibung](Datei))
+; Image (![description](file))
+;
+MSG_TBH_BULLET
+Aufzählung (- )
+; Bulleted list (- )
+;
+MSG_TBH_NUMBERED
+Nummerierte Liste (1. )
+; Numbered list (1. )
+;
+MSG_TBH_TASK
+Aufgabenliste (- [ ] )
+; Task list (- [ ] )
+;
+MSG_TBH_QUOTE
+Zitat (> )
+; Quote (> )
+;
+MSG_MENU_UNDERLINE
+Unterstrichen
+; Underline
+;
+MSG_TBH_UNDERLINE
+Unterstrichen (<u>Text</u>)
+; Underline (<u>text</u>)
+;

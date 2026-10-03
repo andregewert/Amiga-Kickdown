@@ -15,6 +15,10 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
   Einstellungsfenster (listbrowser + page.gadget). Gruppen dort komplett per Tagliste bauen:
   `CHILD_Label` gilt nur für das Kind in derselben Tagliste, `LAYOUT_AddChild` per OM_SET erst
   ab V47. Gadgets auf verdeckten Seiten mit `SetPageGadgetAttrs()` ändern.
+- Formatierung (Toolbar, Menü *Format*): `src/mdformat.c` ändert den Text (reines ANSI-C,
+  Host-Test `test/hostfmt.c`), `src/format.c` verbindet es mit texteditor.gadget (Positionen
+  x/y = Zeichen im Absatz/Absatznummer, Absatz = Zeile der Datei). Die Reihenfolge von
+  `CMD_BOLD`…`CMD_QUOTE` (mdedit.h) entspricht `FMT_...` (mdformat.h).
 - Neue Einstellung: Feld in `struct Settings`, Standard in `settings_default()`, Tooltype in
   `settings_from_tooltypes()` und `settings_save_icon()`, Gadget in `prefswin.c`, Übernahme in
   `apply_settings()` (mdedit.c), Test in `test/hostset.c`.
@@ -75,7 +79,8 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
   `test/<name>.expected`. Zusätzlich läuft `test/hostsync` (bindet `src/sync.c` mit den
   Gadget-Attrappen aus `test/hoststubs.h` und den leeren Headern in `test/hostinc/` ein) und
   `test/hosthl` (Highlighting, Vergleich mit `test/<name>.hl`) und `test/hostset` (Schreiben und
-  Lesen der Tooltypes: fremde Einträge und NewIcons-Block müssen erhalten bleiben).
+  Lesen der Tooltypes: fremde Einträge und NewIcons-Block müssen erhalten bleiben) und
+  `test/hostfmt` (Formatierungsbefehle).
   Gewollte Änderungen mit `make check-update` übernehmen und den Diff prüfen. Neue
   `test/*.md` werden automatisch mitgetestet.
 - Vor einem Commit: `make` und `make check`.
