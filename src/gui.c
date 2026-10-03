@@ -18,6 +18,7 @@
 #include <gadgets/html.h>
 #include <gadgets/htmlttf.h>
 #include <images/bitmap.h>
+#include <images/bevel.h>
 
 #include <proto/exec.h>
 #include <proto/dos.h>
@@ -160,16 +161,26 @@ static BOOL exists(CONST_STRPTR name)
     return TRUE;
 }
 
-static Object *load_image(const char *name)
+/* *hassel: there is a selected image as well; the ghosted image
+ * (<name>_g) goes to *ghost, NULL if there is none               */
+static Object *load_image(const char *name, BOOL *hassel, Object **ghost)
 {
     char file[64], sel[64];
 
+    sprintf(file, "TBIMAGES:%s_g", name);
+    *ghost = exists((CONST_STRPTR)file) ? NewObject(BITMAP_GetClass(), NULL,
+        BITMAP_SourceFile, (ULONG)file,
+        BITMAP_Screen,     (ULONG)gui.screen,
+        BITMAP_Masking,    TRUE,
+        TAG_DONE) : NULL;
     sprintf(file, "TBIMAGES:%s", name);
     sprintf(sel, "TBIMAGES:%s_s", name);
+    *hassel = FALSE;
     if (!exists((CONST_STRPTR)file)) return NULL;
+    *hassel = exists((CONST_STRPTR)sel);
     return NewObject(BITMAP_GetClass(), NULL,
         BITMAP_SourceFile,       (ULONG)file,
-        exists((CONST_STRPTR)sel) ? BITMAP_SelectSourceFile : TAG_IGNORE, (ULONG)sel,
+        *hassel ? BITMAP_SelectSourceFile : TAG_IGNORE, (ULONG)sel,
         BITMAP_Screen,           (ULONG)gui.screen,
         BITMAP_Masking,          TRUE,
         TAG_DONE);
@@ -178,16 +189,18 @@ static Object *load_image(const char *name)
 static BOOL make_buttons(void)
 {
     ULONG i;
+    BOOL sel;
     struct Node *node;
 
     NewList(&gui.buttons);
     for (i = 0; i < NUMTOOLS; i++) {
-        Object *img = gui.images[i] = load_image(tools[i].image);
+        Object *img = gui.images[i] = load_image(tools[i].image, &sel, &gui.ghosts[i]);
+        /* pressed: the AISS selected image if there is one, else recessed */
         node = AllocSpeedButtonNode(tools[i].cmd,
             img ? SBNA_Image : SBNA_Text, img ? (ULONG)img : (ULONG)S(tools[i].label),
             SBNA_Enabled,   TRUE,
             SBNA_Spacing,   tools[i].spacing,
-            SBNA_Highlight, SBH_RECESS,
+            SBNA_Highlight, img && sel ? SBH_IMAGE : SBH_RECESS,
             TAG_DONE);
         if (!node) return FALSE;
         AddTail(&gui.buttons, node);
@@ -223,6 +236,12 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         GA_RelVerify,         TRUE,
         SPEEDBAR_Orientation, SBORIENT_HORIZ,
         SPEEDBAR_Buttons,     (ULONG)&gui.buttons,
+        /* flat: no frame around the bar, buttons get one only while
+         * pressed (ButtonBevelStyle is V47, older versions ignore it).
+         * With BVS_NONE bevel.image draws no ghost pattern for disabled
+         * buttons either, they show the ghosted image instead.        */
+        SPEEDBAR_BevelStyle,       BVS_NONE,
+        SPEEDBAR_ButtonBevelStyle, BVS_NONE,
         TAG_DONE);
     highlight_colours(gui.screen, set->colours);
     gui.editor = NewObject(TEXTEDITOR_GetClass(), NULL,
@@ -398,9 +417,38 @@ void gui_close(void)
     }
     for (i = 0; i < MAXTOOLS; i++)
         if (gui.images[i]) DisposeObject(gui.images[i]);
+    for (i = 0; i < MAXTOOLS; i++)
+        if (gui.ghosts[i]) DisposeObject(gui.ghosts[i]);
     highlight_release();                            /* after the editor is gone */
     if (gui.screen) UnlockPubScreen(NULL, gui.screen);
     memset(&gui, 0, sizeof(gui));
+}
+
+/* Ghosts the buttons whose bit (TOOLBIT(cmd)) is set in 'mask': they
+ * show the ghosted AISS image and cannot be selected. The node list has
+ * to be taken from the speedbar while it is changed and the bar redrawn,
+ * so this only happens when the mask differs.                       */
+void gui_tools_disabled(ULONG mask)
+{
+    struct Node *node;
+    ULONG i = 0;
+
+    if (!gui.toolbar || mask == gui.disabled) return;
+    gui.disabled = mask;
+    SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL, SPEEDBAR_Buttons, ~0UL, TAG_DONE);
+    /* the nodes are in the order of tools[] */
+    for (node = gui.buttons.lh_Head; node->ln_Succ && i < NUMTOOLS; node = node->ln_Succ, i++) {
+        BOOL off = (mask & TOOLBIT(tools[i].cmd)) != 0;
+        Object *img = off && gui.images[i] && gui.ghosts[i] ? gui.ghosts[i] : gui.images[i];
+        SetSpeedButtonNodeAttrs(node,
+            SBNA_Disabled, off,
+            img ? SBNA_Image : TAG_IGNORE, (ULONG)img,
+            TAG_DONE);
+    }
+    SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL,
+                   SPEEDBAR_Buttons, (ULONG)&gui.buttons, TAG_DONE);
+    /* the speedbar does not draw itself when the list is attached */
+    if (gui.win) RefreshGList((struct Gadget *)gui.toolbar, gui.win, NULL, 1);
 }
 
 void gui_status(CONST_STRPTR text)

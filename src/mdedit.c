@@ -155,12 +155,28 @@ static const char *doc_name(void)
     return curfile[0] ? (const char *)FilePart((STRPTR)curfile) : S(MSG_UNTITLED);
 }
 
+/* ghosts the buttons that would do nothing now */
+static void update_tools(void)
+{
+    ULONG undo = TRUE, redo = TRUE, marked = TRUE, mask = 0;
+
+    GetAttr(GA_TEXTEDITOR_UndoAvailable, gui.editor, &undo);
+    GetAttr(GA_TEXTEDITOR_RedoAvailable, gui.editor, &redo);
+    GetAttr(GA_TEXTEDITOR_AreaMarked, gui.editor, &marked);
+    if (!modified) mask |= TOOLBIT(CMD_SAVE);
+    if (!undo)     mask |= TOOLBIT(CMD_UNDO);
+    if (!redo)     mask |= TOOLBIT(CMD_REDO);
+    if (!marked)   mask |= TOOLBIT(CMD_CUT) | TOOLBIT(CMD_COPY);
+    gui_tools_disabled(mask);
+}
+
 static void update_title(void)
 {
     char title[160];
     snprintf(title, sizeof(title), APPNAME " - %s%s", doc_name(), modified ? S(MSG_MODIFIED) : "");
     gui_title((CONST_STRPTR)title);
     gui_icon_title((CONST_STRPTR)doc_name());
+    update_tools();
 }
 
 /*****************************************************************************/
@@ -643,6 +659,7 @@ static void tick(void)
     if (poll_changes()) pending = REFRESH_DELAY;
     else if (pending && --pending == 0 && set.autorefresh) update_preview();
     if (set.syncscroll) sync_poll();
+    update_tools();
 
     GetAttr(GA_TEXTEDITOR_CursorX, gui.editor, &x);
     GetAttr(GA_TEXTEDITOR_CursorY, gui.editor, &y);

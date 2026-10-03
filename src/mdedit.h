@@ -43,6 +43,8 @@ struct GUI {
     struct Window *win;
     struct List buttons;            /* speedbar nodes */
     Object *images[MAXTOOLS];       /* bitmap.image objects of the buttons */
+    Object *ghosts[MAXTOOLS];       /* their ghosted variants (AISS <name>_g) */
+    ULONG disabled;                 /* ghosted buttons, bit 1 << cmd */
 };
 
 extern struct GUI gui;
@@ -60,6 +62,8 @@ void gui_activate_editor(void);
 BOOL gui_checked(ULONG cmd);
 void gui_set_checked(ULONG cmd, BOOL on);
 void gui_busy(BOOL on);
+void gui_tools_disabled(ULONG mask);
+#define TOOLBIT(cmd) (1UL << (cmd))
 struct DiskObject;
 void gui_set_icon(struct DiskObject *icon);
 void gui_icon_title(CONST_STRPTR title);
