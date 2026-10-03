@@ -4,7 +4,7 @@ Uploader:     André Gewert <agewert@ubergeek.de>
 Type:         text/edit
 Version:      1.0
 Architecture: m68k-amigaos >= 3.2.0
-Requires:     AmigaOS 3.2, dev/gui/html_gadget.lha, AISS (toolbar)
+Requires:     AmigaOS 3.2, dev/gui/html_gadget.lha (1.1), AISS (toolbar)
 Distribution: Aminet
 
 Kickdown is a Markdown editor for AmigaOS 3.2 with a live HTML preview,
@@ -29,12 +29,18 @@ Kickdown
    copied as well
  - find and replace (case sensitive, whole words, backwards, wrap
    around, replace all as one undo step)
- - toolbar with AISS images (TBIMAGES:), text buttons if they are
-   missing
+ - formatting from the toolbar and the Format menu: heading, bold,
+   italic, underline, code, link, image, bulleted, numbered and task
+   list, quote; on the selection or the lines, each one undo step
+ - toolbar with AISS images (TBIMAGES:), images and text or text only,
+   flat or with frames; buttons that would do nothing are ghosted,
+   buttons that do not fit into a narrow window are in a drop-down list;
+   the formatting buttons can be hidden
  - AppWindow: drop a Markdown icon on the window to open it; iconify
+ - splash window while starting (can be switched off)
  - settings window: editor, preview (renderer, TrueType fonts), Markdown
    dialect, charset, page template, highlighting colours, window size
-   and position; saved as tool types of the Kickdown icon
+   and position, toolbar; saved as tool types of the Kickdown icon
  - options as tool types or Shell arguments:
    Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
             [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
@@ -87,7 +93,7 @@ Contents
 
 History
 -------
-1.0 (02.10.2026)
+1.0 (03.10.2026)
  - first release
 
 License
@@ -109,6 +115,10 @@ Markdown-Syntax farbig hervor, die Vorschau folgt beim Schreiben, beide
 scrollen gemeinsam. Überschriften erhalten Anker, Links
 auf andere .md-Dateien öffnen diese im Editor, Bilder werden relativ zur
 Schublade des Dokuments geladen. Export als HTML mit eigenem Template.
+Formatierung per Toolbar und Menü Format (Überschrift, fett, kursiv,
+unterstrichen, Code, Link, Bild, Listen, Zitat); die Toolbar zeigt
+Bilder, Bilder und Text oder nur Text, Knöpfe, die nicht passen, stehen
+in einer Aufklappliste. Startfenster beim Programmstart (abschaltbar).
 Voraussetzungen: AmigaOS 3.2, html.gadget (Aminet dev/gui/html_gadget.lha)
 und AISS für die Toolbar-Bilder. Ausführliche deutsche Dokumentation:
 Docs/LiesMich.md. Installation mit dem Installer-Skript Install, das
@@ -116,5 +126,5 @@ auch nach den gewünschten Sprachen fragt.
 
 Versionsgeschichte
 ------------------
-1.0 (02.10.2026)
+1.0 (03.10.2026)
  - erste Veröffentlichung

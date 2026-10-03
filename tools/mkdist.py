@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from icons import ROOT, STYLES, WBDRAWER, WBTOOL, WBPROJECT, write_icon  # noqa: E402
 
 NAME = 'Kickdown'
+DRAWER_ICON = NAME + '-Drawer'      # Icons/<Style>/: icon of the package drawer
 DIST = os.path.join(ROOT, 'dist')
 PKG = os.path.join(DIST, NAME)
 
@@ -58,13 +59,16 @@ def main():
             text = to_latin1_text(f.read())
         with open(os.path.join(docs, dst), 'wb') as f:
             f.write(text)
+    # the READMEs show the screenshot
+    copy(b('screenshot-amiga.png'), os.path.join(docs, 'screenshot-amiga.png'))
 
     # sources in the same layout as the repository, so "make" works there
     src = os.path.join(PKG, 'Source')
     for d in ('src', 'test', 'tools', 'package', 'catalogs'):
         copytree(b(d), os.path.join(src, d), ignore=('__pycache__', 'hostconv', 'hostsync', 'hosthl', 'hostset', 'hostfmt'))
-    for f in ('Makefile', 'README.md', 'README.de.md', 'LICENSE', 'CLAUDE.md'):
+    for f in ('Makefile', 'README.md', 'README.de.md', 'LICENSE', 'CLAUDE.md', 'screenshot-amiga.png'):
         copy(b(f), os.path.join(src, f))
+    copy(b('icons', 'preview.png'), os.path.join(src, 'icons', 'preview.png'))
     copytree(b('md4c', 'src'), os.path.join(src, 'md4c', 'src'), ignore=('*.pc.in', '*.cmake', 'CMakeLists.txt'))
     copy(b('md4c', 'LICENSE.md'), os.path.join(src, 'md4c', 'LICENSE.md'))
     ver = subprocess.run(['make', '-s', '--no-print-directory', 'md4cversion'], cwd=ROOT,
@@ -98,7 +102,9 @@ def main():
         write_icon(os.path.join(PKG, name), 'Classic', role, kind, **kw)
     for style in STYLES:
         sets = os.path.join(PKG, 'Icons', style)
-        write_icon(os.path.join(sets, NAME), style, 'drawer', WBDRAWER)
+        # The icon of the package drawer has a name of its own here: the
+        # drawer is called like the program, whose icon is Kickdown.info.
+        write_icon(os.path.join(sets, DRAWER_ICON), style, 'drawer', WBDRAWER)
         for name, role, kind, kw in icons:
             write_icon(os.path.join(sets, name), style, role, kind, **kw)
         script = os.path.join(PKG, 'Icons', 'Use' + style)
@@ -106,9 +112,9 @@ def main():
             f.write('; gives the files of %s the %s icons\n'
                     '; (double click, IconX runs it in this drawer)\n'
                     'Copy %s/~(%s.info) / ALL CLONE QUIET\n'
-                    'Copy %s/%s.info // CLONE QUIET\n'
+                    'Copy %s/%s.info //%s.info CLONE QUIET\n'
                     'Echo "%s icons copied. Close and reopen the drawers to see them."\n'
-                    % (NAME, style, style, NAME, style, NAME, style))
+                    % (NAME, style, style, DRAWER_ICON, style, DRAWER_ICON, NAME, style))
         write_icon(script, style, 'tiles', WBPROJECT, default_tool='C:IconX')
 
     # archive

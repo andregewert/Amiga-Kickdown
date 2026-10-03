@@ -35,9 +35,8 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   nach `mdconv.c`. `src/entity_stub.c` ersetzt md4cs `entity.c` (Entities bleiben wörtlich
   stehen, `MD_HTML_FLAG_VERBATIM_ENTITIES`).
 - `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget); benutzt werden die Header aus
-  `html_gadget/include` und das Icon-Werkzeug `html_gadget/tools/mkicons.py`. Zur Zeit auf
-  einem Commit nach `v1.0` (mkicons.py gibt es erst seitdem); sobald html_gadget 1.1
-  getaggt ist, auf das Tag setzen. Braucht Kickdown neue Attribute, das Submodule auf
+  `html_gadget/include` und das Icon-Werkzeug `html_gadget/tools/mkicons.py`. Auf das
+  Release-Tag `v1.1` gepinnt. Braucht Kickdown neue Attribute, das Submodule auf
   ein neueres Tag/Commit setzen (`git -C html_gadget checkout <tag>`, dann `git add html_gadget`).
   Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
 

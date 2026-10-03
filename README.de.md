@@ -12,6 +12,10 @@ Beide nutzen denselben Konvertierungskern (`src/mdconv.c`) auf Basis von
 (als Git-Submodule eingebunden). Sie lösen den ARexx/MUI-Editor und das Free-Pascal-`mdtohtml`
 aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
 
+![Kickdown unter AmigaOS 3.2: Editor mit Syntax-Hervorhebung und HTML-Vorschau](screenshot-amiga.png)
+
+*Kickdown unter AmigaOS 3.2: Editor mit Syntax-Hervorhebung, Live-Vorschau*
+
 ## Voraussetzungen
 
 * AmigaOS 3.2 (ReAction-Klassen ab V44, `texteditor.gadget`, `speedbar.gadget`, `bitmap.image`)
