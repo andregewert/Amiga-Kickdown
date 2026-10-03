@@ -168,6 +168,7 @@ static void update_tools(void)
     if (!redo)     mask |= TOOLBIT(CMD_REDO);
     if (!marked)   mask |= TOOLBIT(CMD_CUT) | TOOLBIT(CMD_COPY);
     gui_tools_disabled(mask);
+    gui_update_overflow();
 }
 
 static void update_title(void)
@@ -882,6 +883,11 @@ int main(void)
                 switch (result & WMHI_GADGETMASK) {
                 case GID_TOOLBAR:
                 case GID_TOOLBAR2: done = command(code); break;
+                case GID_OVERFLOW: {
+                    ULONG cmd = gui_overflow_cmd(code);
+                    if (cmd) done = command(cmd);
+                    break;
+                }
                 case GID_HTML:    follow_link(); break;
                 }
                 break;

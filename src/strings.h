@@ -195,7 +195,8 @@
 #define MSG_TB_TASK                  190
 #define MSG_MENU_FORMATBAR           191
 #define MSG_SET_FMTBUTTONS           192
-#define MSG_COUNT                    193
+#define MSG_TBH_MORE                 193
+#define MSG_COUNT                    194
 
 /* the built-in (English) strings, defined where MDEDIT_STRINGS is set */
 #ifdef MDEDIT_STRINGS
@@ -393,6 +394,7 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Tasks",
     "Show formatting buttons",
     "Show f_ormatting buttons",
+    "Buttons that do not fit",
 };
 #endif
 

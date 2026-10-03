@@ -35,14 +35,17 @@ enum {
 
 enum {
     GID_TOOLBAR = 1, GID_EDITOR, GID_ESCROLL, GID_HTML, GID_VSCROLL, GID_HSCROLL,
-    GID_STATUS, GID_POS, GID_TOOLBAR2
+    GID_STATUS, GID_POS, GID_TOOLBAR2, GID_OVERFLOW
 };
 
 #define MAXTOOLS 32
 
 struct GUI {
     struct Screen *screen;
-    Object *winobj, *layout, *tbgroup, *toolbar, *toolbar2, *editor, *escroll;
+    Object *winobj, *layout, *tbouter, *tbgroup, *toolbar, *toolbar2, *editor, *escroll;
+    Object *overflow;               /* drop-down: the buttons that do not fit */
+    struct List oflist;             /* its chooser nodes */
+    ULONG ofkey[3];                 /* what the list was made for */
     Object *html, *vscroll, *hscroll, *status, *pos;
     struct Window *win;
     struct List buttons, buttons2;  /* speedbar nodes; buttons2: the formatting
@@ -78,6 +81,8 @@ void gui_set_checked(ULONG cmd, BOOL on);
 void gui_busy(BOOL on);
 void gui_tools_disabled(ULONG mask);
 BOOL gui_show_format(BOOL on);
+void gui_update_overflow(void);
+ULONG gui_overflow_cmd(ULONG index);
 #define TOOLBIT(cmd) ((cmd) < 32 ? 1UL << (cmd) : 0)  /* only commands below 32 */
 struct DiskObject;
 void gui_set_icon(struct DiskObject *icon);

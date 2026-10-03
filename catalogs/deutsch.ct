@@ -794,3 +794,7 @@ MSG_SET_FMTBUTTONS
 _Formatierungsknöpfe zeigen
 ; Show f_ormatting buttons
 ;
+MSG_TBH_MORE
+Knöpfe, die nicht hineinpassen
+; Buttons that do not fit
+;

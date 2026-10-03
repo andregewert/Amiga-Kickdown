@@ -601,3 +601,6 @@ Show formatting buttons
 MSG_SET_FMTBUTTONS (//)
 Show f_ormatting buttons
 ;
+MSG_TBH_MORE (//)
+Buttons that do not fit
+;

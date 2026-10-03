@@ -66,6 +66,8 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   Zeile einzeln hinter ihrem Listen-, Zitat- oder Überschriftenzeichen; Listenformate gelten für
   alle markierten Zeilen. Jeder
   Befehl ist ein Rückgängig-Schritt.
+* Knöpfe, die in ein schmales Fenster nicht hineinpassen, stehen in der Liste hinter dem Pfeil
+  am rechten Ende der Toolbar.
 * Toolbar-Knöpfe werden ausgegraut, wenn sie nichts bewirken würden (Speichern,
   Rückgängig/Wiederholen, Ausschneiden/Kopieren); Hilfe-Bubbles an den Knöpfen.
 * Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.

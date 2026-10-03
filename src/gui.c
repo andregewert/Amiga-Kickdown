@@ -20,6 +20,7 @@
 #include <images/bitmap.h>
 #include <images/bevel.h>
 #include <images/label.h>
+#include <gadgets/chooser.h>
 #include <intuition/screens.h>
 #include <graphics/view.h>
 
@@ -33,6 +34,7 @@
 #include <proto/speedbar.h>
 #include <proto/bitmap.h>
 #include <proto/label.h>
+#include <proto/chooser.h>
 #include <proto/graphics.h>
 #include <proto/diskfont.h>
 #include <diskfont/diskfont.h>
@@ -47,6 +49,7 @@
 
 extern struct Library *LabelBase;   /* prefswin.c, closed by prefs_cleanup() */
 extern struct Library *LayoutBase;  /* mdedit.c */
+extern struct Library *ChooserBase; /* prefswin.c, closed by prefs_cleanup() */
 
 /* initialised explicitly, see mdedit.c */
 struct Library *DiskfontBase = NULL;
@@ -141,7 +144,7 @@ static void build_menus(const struct Settings *set, BOOL highlight)
 }
 
 /* help bubbles of the speedbar buttons (window.class), see make_buttons() */
-static struct HintInfo hints[MAXTOOLS + 1];
+static struct HintInfo hints[MAXTOOLS + 2];   /* + the overflow chooser */
 
 /* Speedbar buttons. The images come from AISS (TBIMAGES:<name>, the
  * selected state from <name>_s, the ghosted one from <name>_g); "a|b"
@@ -379,6 +382,11 @@ static BOOL make_buttons(const struct Settings *set)
         hints[i].hi_Text = (STRPTR)S(tools[i].help);
         hints[i].hi_Flags = 0;
     }
+    hints[i].hi_GadgetID = GID_OVERFLOW;
+    hints[i].hi_Code = -1;
+    hints[i].hi_Text = (STRPTR)S(MSG_TBH_MORE);
+    hints[i].hi_Flags = 0;
+    i++;
     hints[i].hi_GadgetID = hints[i].hi_Code = -1;
     return TRUE;
 }
@@ -449,6 +457,40 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         gui.toolbar2 ? LAYOUT_AddChild : TAG_IGNORE, (ULONG)gui.toolbar2,
         TAG_DONE) : NULL;
     if (!gui.tbgroup) return FALSE;
+    /* right of the bars: a drop-down chooser (only its arrow) with the
+     * buttons that do not fit (gui_update_overflow())               */
+    NewList(&gui.oflist);
+    if (!ChooserBase) ChooserBase = OpenLibrary((STRPTR)"gadgets/chooser.gadget", 44);
+    if (ChooserBase)
+        gui.overflow = NewObject(CHOOSER_GetClass(), NULL,
+            GA_ID,             GID_OVERFLOW,
+            GA_RelVerify,      TRUE,
+            GA_Disabled,       TRUE,
+            CHOOSER_DropDown,  TRUE,        /* no title: only the arrow */
+            CHOOSER_Labels,    (ULONG)&gui.oflist,
+            CHOOSER_MaxLabels, MAXTOOLS,
+            CHOOSER_AutoFit,   TRUE,
+            TAG_DONE);
+    gui.tbouter = NewObject(LAYOUT_GetClass(), NULL,
+        LAYOUT_Orientation,    LAYOUT_ORIENT_HORIZ,
+        LAYOUT_VertAlignment,  LALIGN_CENTER,
+        LAYOUT_AddChild,       (ULONG)gui.tbgroup,
+        CHILD_CacheDomain,     FALSE,
+        gui.overflow ? LAYOUT_AddChild : TAG_IGNORE, (ULONG)gui.overflow,
+        gui.overflow ? CHILD_WeightedWidth : TAG_IGNORE, 0,
+        /* just wide enough for the arrow (chooser style guide) */
+        gui.overflow ? CHILD_MinWidth : TAG_IGNORE, 20,
+        gui.overflow ? CHILD_MaxWidth : TAG_IGNORE, 20,
+        /* as high as a text line, not as the bars */
+        gui.overflow ? CHILD_MaxHeight : TAG_IGNORE, gui.screen->Font->ta_YSize + 6,
+        TAG_DONE);
+    if (!gui.tbouter) {
+        DisposeObject(gui.tbgroup);
+        gui.tbgroup = NULL;
+        if (gui.overflow) DisposeObject(gui.overflow);
+        gui.overflow = NULL;
+        return FALSE;
+    }
     highlight_colours(gui.screen, set->colours);
     gui.editor = NewObject(TEXTEDITOR_GetClass(), NULL,
         GA_ID,                    GID_EDITOR,
@@ -518,7 +560,7 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         LAYOUT_SpaceOuter,  TRUE,
         LAYOUT_DeferLayout, TRUE,
 
-        LAYOUT_AddChild,    (ULONG)gui.tbgroup,
+        LAYOUT_AddChild,    (ULONG)gui.tbouter,
         CHILD_WeightedHeight, 0,
         CHILD_CacheDomain,  FALSE,
 
@@ -618,7 +660,7 @@ void gui_close(void)
     if (gui.winobj) DisposeObject(gui.winobj);      /* disposes all gadgets */
     else if (gui.layout) DisposeObject(gui.layout);
     else {
-        Object *objs[] = { gui.tbgroup ? gui.tbgroup : gui.toolbar, gui.tbgroup ? NULL : gui.toolbar2,
+        Object *objs[] = { gui.tbouter ? gui.tbouter : gui.toolbar, gui.tbouter ? NULL : gui.toolbar2,
                            gui.editor, gui.escroll, gui.html,
                            gui.vscroll, gui.hscroll, gui.status, gui.pos };
         for (i = 0; i < sizeof(objs) / sizeof(objs[0]); i++)
@@ -628,6 +670,11 @@ void gui_close(void)
      * disposes its image                                          */
     free_nodes(&gui.buttons);
     free_nodes(&gui.buttons2);
+    if (gui.oflist.lh_Head) {
+        struct Node *node, *next;
+        for (node = gui.oflist.lh_Head; (next = node->ln_Succ); node = next)
+            FreeChooserNode(node);
+    }
     for (i = 0; i < MAXTOOLS; i++)
         if (gui.images[i]) DisposeObject(gui.images[i]);
     for (i = 0; i < MAXTOOLS; i++)
@@ -742,7 +789,90 @@ BOOL gui_show_format(BOOL on)
                        SPEEDBAR_Buttons, (ULONG)&gui.buttons, TAG_DONE);
     }
     if (gui.win) RethinkLayout((struct Gadget *)gui.layout, gui.win, NULL, TRUE);
+    gui_update_overflow();
     return TRUE;
+}
+
+/* index of button node n in tools[], NUMTOOLS if none */
+static ULONG tool_of(struct Node *n)
+{
+    ULONG i;
+    for (i = 0; i < NUMTOOLS && gui.nodes[i] != n; i++) ;
+    return i;
+}
+
+/* The buttons a bar does not show: those after the visible ones (the
+ * bar is never scrolled, the first button is always the first one
+ * shown). Adds them to the overflow list.                           */
+static void add_hidden(Object *bar, struct List *list, ULONG mask)
+{
+    ULONG vis = 0, n = 0, i;
+    struct Node *node, *c;
+
+    if (!bar) return;
+    GetAttr(SPEEDBAR_Visible, bar, &vis);
+    for (node = list->lh_Head; node->ln_Succ; node = node->ln_Succ, n++) {
+        if (n < vis || (i = tool_of(node)) == NUMTOOLS) continue;
+        if ((c = AllocChooserNode(
+                CNA_Text,     (ULONG)S(tools[i].label),
+                CNA_UserData, (ULONG)tools[i].cmd,
+                CNA_Disabled, (mask & TOOLBIT(tools[i].cmd)) != 0,
+                TAG_DONE)))
+            AddTail(&gui.oflist, c);
+    }
+}
+
+/* Updates the overflow list when the visible buttons or the ghosted
+ * ones changed; called on every tick. The chooser is ghosted when
+ * every button fits.                                                      */
+void gui_update_overflow(void)
+{
+    ULONG key[3] = { 0, 0, 0 };
+    struct Node *node, *next;
+
+    if (!gui.overflow || !gui.win) return;
+    if (gui.toolbar) GetAttr(SPEEDBAR_Visible, gui.toolbar, &key[0]);
+    if (gui.toolbar2) GetAttr(SPEEDBAR_Visible, gui.toolbar2, &key[1]);
+    else key[1] = ~0UL;
+    /* the number of buttons in the first bar changes with the
+     * formatting buttons, the ghosted ones with the mask          */
+    for (node = gui.buttons.lh_Head; node->ln_Succ; node = node->ln_Succ) key[0] += 0x10000;
+    key[2] = gui.disabled;
+    if (!memcmp(key, gui.ofkey, sizeof(key))) return;
+    memcpy(gui.ofkey, key, sizeof(key));
+
+    SetGadgetAttrs((struct Gadget *)gui.overflow, gui.win, NULL, CHOOSER_Labels, ~0UL, TAG_DONE);
+    for (node = gui.oflist.lh_Head; (next = node->ln_Succ); node = next) {
+        Remove(node);
+        FreeChooserNode(node);
+    }
+    add_hidden(gui.toolbar, &gui.buttons, gui.disabled);
+    /* a separator between the buttons of the two bars */
+    if (!IsListEmpty(&gui.oflist)) {
+        struct Node *sep = AllocChooserNode(CNA_Separator, TRUE, TAG_DONE);
+        if (sep) AddTail(&gui.oflist, sep);
+        add_hidden(gui.toolbar2, &gui.buttons2, gui.disabled);
+        if (sep && gui.oflist.lh_TailPred == sep) {
+            Remove(sep);                /* nothing hidden in the second bar */
+            FreeChooserNode(sep);
+        }
+    } else add_hidden(gui.toolbar2, &gui.buttons2, gui.disabled);
+    SetGadgetAttrs((struct Gadget *)gui.overflow, gui.win, NULL,
+                   CHOOSER_Labels, (ULONG)&gui.oflist,
+                   GA_Disabled,    IsListEmpty(&gui.oflist),
+                   TAG_DONE);
+}
+
+/* the command of entry 'index' of the overflow list, 0 if none */
+ULONG gui_overflow_cmd(ULONG index)
+{
+    struct Node *node;
+    ULONG cmd = 0;
+
+    for (node = gui.oflist.lh_Head; node->ln_Succ && index; node = node->ln_Succ) index--;
+    if (!node->ln_Succ) return 0;
+    GetChooserNodeAttrs(node, CNA_UserData, (ULONG)&cmd, TAG_DONE);
+    return cmd;
 }
 
 void gui_status(CONST_STRPTR text)

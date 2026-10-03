@@ -60,6 +60,8 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
   task list, quote. Inline formats wrap the selection or are removed if it already has them;
   bold, italic and underline over several lines format each line after its list, quote or heading marker;
   list formats work on all selected lines. Each command is one undo step.
+* Buttons that do not fit into a narrow window are listed under the arrow at the right end of
+  the toolbar.
 * Toolbar buttons are ghosted when they would do nothing (Save, Undo/Redo, Cut/Copy); help
   bubbles on the buttons.
 * Status line with the cursor position, mouse wheel scrolls the pane under the pointer.
