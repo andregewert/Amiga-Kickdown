@@ -1,4 +1,4 @@
-; MDEdit.cd - catalog description of MDEdit (built-in language: english)
+; Kickdown.cd - catalog description of Kickdown (built-in language: english)
 ;
 ; Format of CatComp/FlexCat. tools/catcomp.py makes src/strings.h and the
 ; catalogs from it; translations are catalogs/<language>.ct. Keep the
@@ -166,7 +166,7 @@ MSG_TB_ABOUT (//)
 About
 ;
 MSG_TBH_ABOUT (//)
-About MDEdit
+About Kickdown
 ;
 ; main window, status line and requesters
 MSG_UNTITLED (//)
@@ -279,7 +279,7 @@ Could not open the window.
 ;
 ; settings window; labels end with a space, it is the gap to the gadget
 MSG_SET_TITLE (//)
-MDEdit settings
+Kickdown settings
 ;
 ; categories
 MSG_SET_EDITOR (//)

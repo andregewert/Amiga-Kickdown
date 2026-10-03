@@ -1,5 +1,5 @@
 /*
- * MDEdit - message and question requesters, centred over the main window
+ * Kickdown - message and question requesters, centred over the main window
  *
  * EasyRequest() places its window where Intuition likes; this one is a
  * window.class window with WINDOW_RefWindow and WPOS_CENTERWINDOW. The
@@ -36,7 +36,7 @@
 
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 
 extern struct Library *LabelBase;   /* prefswin.c, closed by prefs_cleanup() */
 

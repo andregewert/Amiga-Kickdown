@@ -1,18 +1,18 @@
 /*
- * MDEdit - Markdown editor with HTML preview (ReAction, AmigaOS 3.2)
+ * Kickdown - Markdown editor with HTML preview (ReAction, AmigaOS 3.2)
  *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
  */
-#ifndef MDEDIT_H
-#define MDEDIT_H
+#ifndef KICKDOWN_H
+#define KICKDOWN_H
 
 #include <exec/types.h>
 #include <exec/lists.h>
 #include <intuition/classes.h>
 #include <utility/hooks.h>
 
-#define APPNAME "MDEdit"
+#define APPNAME "Kickdown"
 
 #include "strings.h"
 
@@ -90,7 +90,7 @@ void gui_icon_title(CONST_STRPTR title);
 void gui_iconify(void);
 BOOL gui_uniconify(void);
 
-/* mdedit.c: the text was changed from outside the editor (find.c) */
+/* kickdown.c: the text was changed from outside the editor (find.c) */
 void editor_changed(void);
 
 void splash_open(CONST_STRPTR iconname, CONST_STRPTR name, CONST_STRPTR version, ULONG steps);
@@ -129,4 +129,4 @@ void sync_reset(void);
 void sync_poll(void);
 void sync_free(void);
 
-#endif /* MDEDIT_H */
+#endif /* KICKDOWN_H */

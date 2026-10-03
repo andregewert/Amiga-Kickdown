@@ -3,7 +3,7 @@
  */
 #ifndef HOSTSTUBS_H
 #define HOSTSTUBS_H
-#define MDEDIT_H                /* sync.c must not see the real one */
+#define KICKDOWN_H                /* sync.c must not see the real one */
 
 #include <stdlib.h>
 #include <string.h>

@@ -1,5 +1,5 @@
 /*
- * mdformat - Markdown formatting commands of MDEdit (toolbar, Format menu)
+ * mdformat - Markdown formatting commands of Kickdown (toolbar, Format menu)
  *
  * Plain ANSI C without the editor, so it builds for the host (make check,
  * test/hostfmt.c). The glue to texteditor.gadget is in format.c.

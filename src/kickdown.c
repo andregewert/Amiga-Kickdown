@@ -1,14 +1,14 @@
 /*
- * MDEdit - Markdown editor with HTML preview (ReAction, AmigaOS 3.2)
+ * Kickdown - Markdown editor with HTML preview (ReAction, AmigaOS 3.2)
  *
- *   MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
+ *   Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
  *          [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
  *          [NOHIGHLIGHT] [LINENUMBERS] [FONTSET Vera|DejaVu|Noto] [SIZE n]
  *
  * The settings are the tool types of the program icon (also when started
  * from the Shell), Shell arguments or the tool types of a project icon
  * take precedence. Project/Settings edits them and saves them back into
- * the program icon. A project icon with MDEdit as default tool is opened,
+ * the program icon. A project icon with Kickdown as default tool is opened,
  * icons dropped on the window as well. The preview uses html.gadget (htmlttf.gadget with TTF), the
  * speedbar the AISS images in TBIMAGES:.
  *
@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 #include "mdconv.h"
 #include "fileio.h"
 #include "settings.h"
@@ -72,7 +72,7 @@ extern struct WBStartup *_WBenchMsg;
  * the Shell arguments                                                   */
 static struct Settings set;
 static char startfile[PATHLEN];     /* document from the Shell or the Workbench */
-static char iconname[PATHLEN];      /* "PROGDIR:MDEdit", where the settings are saved */
+static char iconname[PATHLEN];      /* "PROGDIR:Kickdown", where the settings are saved */
 
 static struct MDConvOptions conv;
 static STRPTR template_text;
@@ -754,7 +754,7 @@ static void set_iconname(CONST_STRPTR program)
     AddPart((STRPTR)iconname, FilePart((STRPTR)program), sizeof(iconname));
 }
 
-/* Workbench start: tool types of MDEdit.info, then of a project icon */
+/* Workbench start: tool types of Kickdown.info, then of a project icon */
 static void wb_options(struct WBStartup *wbs)
 {
     struct WBArg *wa = wbs->sm_ArgList;

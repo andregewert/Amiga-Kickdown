@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# icons.py - Workbench icons of the Amiga-MDTools distribution
+# icons.py - Workbench icons of the Amiga-Kickdown distribution
 #
 # Copyright (c) 2026 André Gewert <agewert@ubergeek.de>, MIT License
 #
 # The icon writer (classic 4 colour icons, GlowIcons, NewIcons) comes from
 # html_gadget/tools/mkicons.py (git submodule). This file adds the motifs of
-# MDEdit and of Markdown documents and registers them there.
+# Kickdown and of Markdown documents and registers them there.
 #
 # Run directly (or "make icons") to write sample icons of all styles to
 # icons/<Style>/ and a preview picture icons/preview.png.
@@ -43,7 +43,7 @@ def c_markmark(c, x, y):
     c.rect(x + 9, y + 5, x + 9, y + 5, 2)
 
 
-def pic_mdedit():
+def pic_kickdown():
     c = gi.Canvas(40, 24)
     c.rect(1, 1, 38, 22, 2)
     c.frame(1, 1, 38, 22, 1, 1)
@@ -65,7 +65,7 @@ def pic_markdown():
     return c
 
 
-gi.CLASSIC['mdedit'] = pic_mdedit
+gi.CLASSIC['kickdown'] = pic_kickdown
 gi.CLASSIC['markdown'] = pic_markdown
 
 
@@ -86,7 +86,7 @@ def mark(s, c, x, y):
     c.put(x + 12, y + 7, WHITE)
 
 
-def m_mdedit(s, c):
+def m_kickdown(s, c):
     frame = s.line(GREY[1])
     c.rect(1, 3, 40, 35, frame)                      # window
     c.rect(2, 4, 39, 8, s.ramp(*BLUE)(2, 4, 39, 8))  # title bar
@@ -110,17 +110,17 @@ def m_markdown(s, c):
     mark(s, c, 12, 23)
 
 
-gi.MOTIFS['mdedit'] = m_mdedit
+gi.MOTIFS['kickdown'] = m_kickdown
 gi.MOTIFS['markdown'] = m_markdown
 
 
 # ---------------------------------------------------------------- samples ---
 
-ROLES = ('drawer', 'mdedit', 'markdown', 'readme', 'license', 'tiles')
+ROLES = ('drawer', 'kickdown', 'markdown', 'readme', 'license', 'tiles')
 
 SAMPLES = (('Drawer', 'drawer', WBDRAWER, {}),
-           ('MDEdit', 'mdedit', WBTOOL, {'stack': 65536}),
-           ('Example.md', 'markdown', WBPROJECT, {'default_tool': 'MDEdit'}),
+           ('Kickdown', 'kickdown', WBTOOL, {'stack': 65536}),
+           ('Example.md', 'markdown', WBPROJECT, {'default_tool': 'Kickdown'}),
            ('ReadMe', 'readme', WBPROJECT, {'default_tool': 'SYS:Utilities/MultiView'}),
            ('License', 'license', WBPROJECT, {'default_tool': 'SYS:Utilities/MultiView'}),
            ('Script', 'tiles', WBPROJECT, {'default_tool': 'C:IconX'}))

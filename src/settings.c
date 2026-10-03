@@ -1,5 +1,5 @@
 /*
- * MDEdit - settings, stored as tool types of the program icon
+ * Kickdown - settings, stored as tool types of the program icon
  *
  * Writing replaces only our own tool types. A setting with its default
  * value is written as a disabled entry "(KEY=...)" if the icon had it

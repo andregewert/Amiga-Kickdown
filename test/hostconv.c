@@ -3,7 +3,7 @@
  *
  *   hostconv <file.md> [template.html] [dialect]
  *
- * Prints the HTML page that mdtohtml and MDEdit would produce.
+ * Prints the HTML page that mdtohtml and Kickdown would produce.
  */
 #include <stdio.h>
 #include <stdlib.h>

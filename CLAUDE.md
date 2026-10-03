@@ -1,6 +1,6 @@
-# Amiga-MDTools – Hinweise für Claude
+# Amiga-Kickdown – Hinweise für Claude
 
-MDEdit (ReAction-Markdown-Editor mit HTML-Vorschau) und mdtohtml (CLI) für AmigaOS 3.2,
+Kickdown (ReAction-Markdown-Editor mit HTML-Vorschau) und mdtohtml (CLI) für AmigaOS 3.2,
 cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README.de.md`.
 Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 
@@ -9,7 +9,7 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 - `src/mdconv.c`: gemeinsamer Konverter (reines ANSI-C, baut auch auf dem Host). Ruft md4c
   auf, vergibt Überschriften-IDs, setzt das Template zusammen.
 - `src/mdtohtml.c`: CLI (ReadArgs, dos.library). `src/fileio.c`: Datei-I/O für beide Programme.
-- `src/mdedit.c`: Programmlogik des Editors, `src/gui.c`: Fenster, Menü, Speedbar,
+- `src/kickdown.c`: Programmlogik des Editors, `src/gui.c`: Fenster, Menü, Speedbar,
   `src/sync.c`: Scroll-Synchronisation (Überschriften als Fixpunkte, Umbruch des Editors wird
   geschätzt und an `GA_TEXTEDITOR_Prop_Entries` kalibriert), `src/highlight.c`: Syntax-Hook,
   `src/settings.c`: Einstellungen in den Tooltypes des Programm-Icons, `src/prefswin.c`:
@@ -21,10 +21,10 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 - Formatierung (Toolbar, Menü *Format*): `src/mdformat.c` ändert den Text (reines ANSI-C,
   Host-Test `test/hostfmt.c`), `src/format.c` verbindet es mit texteditor.gadget (Positionen
   x/y = Zeichen im Absatz/Absatznummer, Absatz = Zeile der Datei). Die Reihenfolge von
-  `CMD_BOLD`…`CMD_QUOTE` (mdedit.h) entspricht `FMT_...` (mdformat.h).
+  `CMD_BOLD`…`CMD_QUOTE` (kickdown.h) entspricht `FMT_...` (mdformat.h).
 - Neue Einstellung: Feld in `struct Settings`, Standard in `settings_default()`, Tooltype in
   `settings_from_tooltypes()` und `settings_save_icon()`, Gadget in `prefswin.c`, Übernahme in
-  `apply_settings()` (mdedit.c), Test in `test/hostset.c`.
+  `apply_settings()` (kickdown.c), Test in `test/hostset.c`.
 - Syntax-Hook (`GA_TEXTEDITOR_HighlighterHook`, V47): läuft beim Tippen im input.device-Kontext,
   also kein DOS, kein malloc, wenig Stack. `HighlightSetFormat(obj, pos, end, style)`: `end`
   exklusiv, Stile werden verodert, eine Farbe (`TBSTYLE_SETCOLOR | n << 8`, n = Eintrag n-1 von
@@ -37,13 +37,13 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 - `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget); benutzt werden die Header aus
   `html_gadget/include` und das Icon-Werkzeug `html_gadget/tools/mkicons.py`. Zur Zeit auf
   einem Commit nach `v1.0` (mkicons.py gibt es erst seitdem); sobald html_gadget 1.1
-  getaggt ist, auf das Tag setzen. Braucht MDEdit neue Attribute, das Submodule auf
+  getaggt ist, auf das Tag setzen. Braucht Kickdown neue Attribute, das Submodule auf
   ein neueres Tag/Commit setzen (`git -C html_gadget checkout <tag>`, dann `git add html_gadget`).
   Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
 
 ## Übersetzungen (locale.library)
 
-- Kein sichtbarer Text fest im Code: jeder Text steht in `catalogs/MDEdit.cd` (Englisch, eingebaut)
+- Kein sichtbarer Text fest im Code: jeder Text steht in `catalogs/Kickdown.cd` (Englisch, eingebaut)
   und in `catalogs/deutsch.ct`, im Code `S(MSG_...)` (`src/locale.c`). `src/strings.h` erzeugt
   `make` aus der `.cd` (`tools/catcomp.py`); die Datei ist eingecheckt, nicht von Hand ändern.
 - Neue Texte ans Ende der `.cd` oder an passender Stelle einfügen, die Nummern ergeben sich aus
@@ -93,17 +93,17 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 
 ## Icons und Aminet-Paket
 
-- `tools/icons.py` registriert die Motive von MDEdit und Markdown-Dokumenten in
+- `tools/icons.py` registriert die Motive von Kickdown und Markdown-Dokumenten in
   `html_gadget/tools/mkicons.py` (Stile, Dateiformat, Vorschau kommen von dort). Die Dateien in
   `icons/` sind Beispiele und werden mit `make icons` erzeugt, nie von Hand bearbeitet.
-- `tools/mkdist.py` (`make dist`) baut `dist/MDTools.lha` samt Icons, Doku (README*.md nach
+- `tools/mkdist.py` (`make dist`) baut `dist/Kickdown.lha` samt Icons, Doku (README*.md nach
   ISO-8859-1) und Quellen (inkl. md4c und html.gadget-Headern, `md4c/VERSION`). Die Quellen im
   Archiv müssen ohne Git bauen.
-- `package/MDTools.readme` ist die Aminet-Readme: ISO-8859-1, Zeilen höchstens 78 Zeichen.
+- `package/Kickdown.readme` ist die Aminet-Readme: ISO-8859-1, Zeilen höchstens 78 Zeichen.
   Für Anwender sichtbare Änderungen englisch (`History`) und deutsch (`Versionsgeschichte`)
   unter der Version aus `VERSION_TEXT` eintragen und `Version:` anpassen.
 
 ## Versionen
 
-- `$VER` in `src/mdedit.c` (`VERSION_TEXT`) und `src/mdtohtml.c` bei Änderungen erhöhen.
+- `$VER` in `src/kickdown.c` (`VERSION_TEXT`) und `src/mdtohtml.c` bei Änderungen erhöhen.
 - Datumsangaben immer `TT.MM.JJJJ`, Tag und Monat zweistellig, z. B. `02.10.2026`.

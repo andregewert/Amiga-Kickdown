@@ -1,5 +1,5 @@
 /*
- * mdformat - Markdown formatting commands of MDEdit, see mdformat.h
+ * mdformat - Markdown formatting commands of Kickdown, see mdformat.h
  *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.

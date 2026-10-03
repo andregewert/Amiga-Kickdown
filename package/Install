@@ -1,27 +1,27 @@
 ;
-; $VER: Install_MDTools 1.0 (03.10.2026)
-; Installer script for MDEdit and mdtohtml
+; $VER: Install_Kickdown 1.0 (03.10.2026)
+; Installer script for Kickdown and mdtohtml
 ; Copyright (c) 2026 André Gewert, MIT License
 ;
-; Languages: English is built into MDEdit. Every translation is a catalog
-; Catalogs/<language>/MDEdit.catalog in this archive; for a new one add
+; Languages: English is built into Kickdown. Every translation is a catalog
+; Catalogs/<language>/Kickdown.catalog in this archive; for a new one add
 ; its name to #langs and a choice to the language question below.
 ;
 (set #l (if (= @language "deutsch") 1 0))
-(set @app-name "MDEdit")
+(set @app-name "Kickdown")
 (set @default-dest "Work:")
 
 (welcome
     (select #l
-        "Welcome to the installation of MDEdit, a Markdown editor with HTML preview, and mdtohtml, a Markdown to HTML converter for the Shell."
-        "Willkommen zur Installation von MDEdit, einem Markdown-Editor mit HTML-Vorschau, und mdtohtml, einem Markdown-HTML-Konverter für die Shell."))
+        "Welcome to the installation of Kickdown, a Markdown editor with HTML preview, and mdtohtml, a Markdown to HTML converter for the Shell."
+        "Willkommen zur Installation von Kickdown, einem Markdown-Editor mit HTML-Vorschau, und mdtohtml, einem Markdown-HTML-Konverter für die Shell."))
 
 ; html.gadget is needed for the preview (Aminet dev/gui/html_gadget.lha)
 (if (= (exists "SYS:Classes/Gadgets/html.gadget" (noreq)) 0)
     (message
         (select #l
-            "html.gadget is not installed in SYS:Classes/Gadgets. MDEdit needs it for the preview: please install it from Aminet (dev/gui/html_gadget.lha), or put it next to MDEdit."
-            "html.gadget ist nicht in SYS:Classes/Gadgets installiert. MDEdit braucht es für die Vorschau: bitte von Aminet installieren (dev/gui/html_gadget.lha) oder neben MDEdit legen.")))
+            "html.gadget is not installed in SYS:Classes/Gadgets. Kickdown needs it for the preview: please install it from Aminet (dev/gui/html_gadget.lha), or put it next to Kickdown."
+            "html.gadget ist nicht in SYS:Classes/Gadgets installiert. Kickdown braucht es für die Vorschau: bitte von Aminet installieren (dev/gui/html_gadget.lha) oder neben Kickdown legen.")))
 
 ; copies one file of the archive (with its icon) to #dest
 (procedure P_COPYFILE #file #prompt
@@ -37,7 +37,7 @@
         (prompt (select #l "Which parts do you want to install?" "Welche Teile sollen installiert werden?"))
         (help @askoptions-help)
         (choices
-            (select #l "MDEdit (with page template and example)" "MDEdit (mit Seiten-Template und Beispiel)")
+            (select #l "Kickdown (with page template and example)" "Kickdown (mit Seiten-Template und Beispiel)")
             (select #l "mdtohtml to C:" "mdtohtml nach C:")
             (select #l "Documentation" "Dokumentation"))
         (default 7)))
@@ -46,25 +46,25 @@
     (
         (set #dest
             (askdir
-                (prompt (select #l "Where should MDEdit go? A drawer \"MDEdit\" will be created there."
-                                   "Wohin soll MDEdit? Dort wird eine Schublade \"MDEdit\" angelegt."))
+                (prompt (select #l "Where should Kickdown go? A drawer \"Kickdown\" will be created there."
+                                   "Wohin soll Kickdown? Dort wird eine Schublade \"Kickdown\" angelegt."))
                 (help @askdir-help)
                 (default @default-dest)))
-        (set #dest (tackon #dest "MDEdit"))
+        (set #dest (tackon #dest "Kickdown"))
         (if (= (exists #dest) 0)
             (makedir #dest (infos)))
         (set @default-dest #dest)))
 
 (if (IN #parts 0)
     (
-        (P_COPYFILE "MDEdit" (select #l "Copying MDEdit" "MDEdit wird kopiert"))
+        (P_COPYFILE "Kickdown" (select #l "Copying Kickdown" "Kickdown wird kopiert"))
         (P_COPYFILE "Template.html" (select #l "Copying the page template" "Das Seiten-Template wird kopiert"))
         (P_COPYFILE "Example.md" (select #l "Copying the example" "Das Beispiel wird kopiert"))
         (P_COPYFILE "boing.gif" (select #l "Copying the example" "Das Beispiel wird kopiert"))
-        ; the example opens with the installed MDEdit
+        ; the example opens with the installed Kickdown
         (tooltype
             (dest (tackon #dest "Example.md"))
-            (setdefaulttool (tackon #dest "MDEdit")))))
+            (setdefaulttool (tackon #dest "Kickdown")))))
 
 (if (IN #parts 1)
     (copyfiles
@@ -90,8 +90,8 @@
 (set #langs
     (askoptions
         (prompt (select #l
-            "Which languages should MDEdit speak? English is always included. The catalogs go to LOCALE:Catalogs."
-            "Welche Sprachen soll MDEdit sprechen? Englisch ist immer dabei. Die Kataloge kommen nach LOCALE:Catalogs."))
+            "Which languages should Kickdown speak? English is always included. The catalogs go to LOCALE:Catalogs."
+            "Welche Sprachen soll Kickdown sprechen? Englisch ist immer dabei. Die Kataloge kommen nach LOCALE:Catalogs."))
         (help @askoptions-help)
         (choices "Deutsch")
         (default (if (= @language "deutsch") 1 0))))
@@ -103,10 +103,10 @@
         (copyfiles
             (prompt (select #l "Copying the German catalog" "Der deutsche Katalog wird kopiert"))
             (help @copyfiles-help)
-            (source "Catalogs/deutsch/MDEdit.catalog")
+            (source "Catalogs/deutsch/Kickdown.catalog")
             (dest "LOCALE:Catalogs/deutsch"))))
 
 (exit
     (select #l
-        "MDEdit has been installed."
-        "MDEdit ist installiert."))
+        "Kickdown has been installed."
+        "Kickdown ist installiert."))

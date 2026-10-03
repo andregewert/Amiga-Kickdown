@@ -7,14 +7,14 @@ Architecture: m68k-amigaos >= 3.2.0
 Requires:     AmigaOS 3.2, dev/gui/html_gadget.lha, AISS (toolbar)
 Distribution: Aminet
 
-MDEdit is a Markdown editor for AmigaOS 3.2 with a live HTML preview,
+Kickdown is a Markdown editor for AmigaOS 3.2 with a live HTML preview,
 built with ReAction. mdtohtml converts Markdown files to HTML pages from
 the Shell. Both use md4c, a fast CommonMark compliant parser written in
 C, and understand GitHub flavoured Markdown: tables, strikethrough, task
 lists, autolinks and footnotes.
 
-MDEdit
-------
+Kickdown
+--------
  - editor (texteditor.gadget) and preview (html.gadget) side by side,
    the bar between them adjusts the split
  - syntax highlighting of headings, emphasis, code, quotes, lists, links,
@@ -34,11 +34,11 @@ MDEdit
  - AppWindow: drop a Markdown icon on the window to open it; iconify
  - settings window: editor, preview (renderer, TrueType fonts), Markdown
    dialect, charset, page template, highlighting colours, window size
-   and position; saved as tool types of the MDEdit icon
+   and position; saved as tool types of the Kickdown icon
  - options as tool types or Shell arguments:
-   MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
-          [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
-          [NOHIGHLIGHT] [LINENUMBERS] [FONTSET Vera|DejaVu|Noto] [SIZE n]
+   Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>]
+            [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC]
+            [NOHIGHLIGHT] [LINENUMBERS] [FONTSET Vera|DejaVu|Noto] [SIZE n]
    TTF uses htmlttf.gadget (anti-aliased TrueType fonts) for the preview.
 
 mdtohtml
@@ -56,23 +56,23 @@ $body$, see Template.html.
 
 Installation
 ------------
-Double click Install: it copies MDEdit with the page template and the
+Double click Install: it copies Kickdown with the page template and the
 example into a drawer of your choice, mdtohtml to C:, the documentation,
-and the catalogs of the languages you select to LOCALE:Catalogs. MDEdit
+and the catalogs of the languages you select to LOCALE:Catalogs. Kickdown
 also runs directly from the archive. html.gadget must be installed in
-SYS:Classes/Gadgets/ or lie next to MDEdit. Set the default tool of your
-Markdown icons to MDEdit to open them with a double click.
+SYS:Classes/Gadgets/ or lie next to Kickdown. Set the default tool of your
+Markdown icons to Kickdown to open them with a double click.
 
 Languages
 ---------
-MDEdit speaks English (built in) and German (Catalogs/deutsch). New
-translations: Source/catalogs/MDEdit.cd lists all strings, a translation
+Kickdown speaks English (built in) and German (Catalogs/deutsch). New
+translations: Source/catalogs/Kickdown.cd lists all strings, a translation
 is a .ct file as for CatComp or FlexCat.
 
 Contents
 --------
  Install              Installer script (English/German)
- MDEdit               the editor
+ Kickdown             the editor
  Catalogs/            translations (German)
  C/mdtohtml           the Shell converter
  Example.md           Markdown example
@@ -98,12 +98,12 @@ Source/md4c/LICENSE.md.
 
 Deutsch
 -------
-MDEdit ist ein Markdown-Editor für AmigaOS 3.2 mit Live-HTML-Vorschau,
+Kickdown ist ein Markdown-Editor für AmigaOS 3.2 mit Live-HTML-Vorschau,
 gebaut mit ReAction; mdtohtml wandelt Markdown-Dateien in der Shell in
 HTML-Seiten um. Beide verstehen GitHub-Markdown mit Tabellen,
 Durchstreichen, Aufgabenlisten, Autolinks und Fußnoten.
 
-MDEdit spricht Deutsch (Katalog Catalogs/deutsch) und Englisch.
+Kickdown spricht Deutsch (Katalog Catalogs/deutsch) und Englisch.
 Editor und Vorschau stehen nebeneinander, der Editor hebt die
 Markdown-Syntax farbig hervor, die Vorschau folgt beim Schreiben, beide
 scrollen gemeinsam. Überschriften erhalten Anker, Links

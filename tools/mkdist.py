@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# mkdist.py - builds the Aminet archive MDTools.lha from the built tree
+# mkdist.py - builds the Aminet archive Kickdown.lha from the built tree
 #
 # Copyright (c) 2026 André Gewert <agewert@ubergeek.de>, MIT License
 #
-# Creates dist/MDTools/ with the programs, an example, the documentation
+# Creates dist/Kickdown/ with the programs, an example, the documentation
 # (README*.md converted to ISO-8859-1), the sources and icons (classic
 # icons next to the files, complete GlowIcons and NewIcons sets in Icons/,
 # see icons.py), then packs it with lha. Run "make dist".
@@ -13,7 +13,7 @@ import os, shutil, subprocess, glob, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from icons import ROOT, STYLES, WBDRAWER, WBTOOL, WBPROJECT, write_icon  # noqa: E402
 
-NAME = 'MDTools'
+NAME = 'Kickdown'
 DIST = os.path.join(ROOT, 'dist')
 PKG = os.path.join(DIST, NAME)
 
@@ -40,12 +40,12 @@ def main():
 
     copy(b('package', NAME + '.readme'), os.path.join(PKG, NAME + '.readme'))
     copy(b('package', 'Install'), os.path.join(PKG, 'Install'))
-    # translations; next to MDEdit they work without installing (PROGDIR:Catalogs)
+    # translations; next to Kickdown they work without installing (PROGDIR:Catalogs)
     languages = sorted(os.listdir(b('bin', 'Catalogs')))
     for lang in languages:
-        copy(b('bin', 'Catalogs', lang, 'MDEdit.catalog'), os.path.join(PKG, 'Catalogs', lang, 'MDEdit.catalog'))
+        copy(b('bin', 'Catalogs', lang, 'Kickdown.catalog'), os.path.join(PKG, 'Catalogs', lang, 'Kickdown.catalog'))
     copy(b('LICENSE'), os.path.join(PKG, 'LICENSE'))
-    copy(b('bin', 'MDEdit'), os.path.join(PKG, 'MDEdit'))
+    copy(b('bin', 'Kickdown'), os.path.join(PKG, 'Kickdown'))
     copy(b('bin', 'mdtohtml'), os.path.join(PKG, 'C', 'mdtohtml'))
     copy(b('test', 'features.md'), os.path.join(PKG, 'Example.md'))
     copy(b('html_gadget', 'demo', 'boing.gif'), os.path.join(PKG, 'boing.gif'))
@@ -78,14 +78,14 @@ def main():
     # icons: classic ones next to the files, every style also in Icons/<Style>/
     mv = 'SYS:Utilities/MultiView'
     icons = [('Install', 'install', WBPROJECT,
-              dict(default_tool='Installer', tooltypes=('APPNAME=MDEdit', 'MINUSER=AVERAGE'))),
-             ('MDEdit', 'mdedit', WBTOOL,
+              dict(default_tool='Installer', tooltypes=('APPNAME=Kickdown', 'MINUSER=AVERAGE'))),
+             ('Kickdown', 'kickdown', WBTOOL,
               dict(stack=65536, tooltypes=('(TEMPLATE=Template.html)', '(DIALECT=GitHub)',
                                            '(CHARSET=ISO-8859-1)', '(TTF)', '(FONTSET=Vera)',
                                            '(SIZE=12)',
                                            '(NOAUTOREFRESH)', '(NOSYNC)', '(NOHIGHLIGHT)',
                                            '(LINENUMBERS)'))),
-             ('Example.md', 'markdown', WBPROJECT, dict(default_tool='MDEdit')),
+             ('Example.md', 'markdown', WBPROJECT, dict(default_tool='Kickdown')),
              ('Template.html', 'readme', WBPROJECT, dict(default_tool=mv)),
              (NAME + '.readme', 'readme', WBPROJECT, dict(default_tool=mv)),
              ('LICENSE', 'license', WBPROJECT, dict(default_tool=mv)),

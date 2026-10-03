@@ -1,5 +1,5 @@
 /*
- * MDEdit - settings window
+ * Kickdown - settings window
  *
  * A list of categories on the left, the options of the selected one on
  * the right (page.gadget), Save/Use/Cancel below. The window is modal:
@@ -48,10 +48,10 @@
 
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 #include "settings.h"
 
-/* initialised explicitly, see mdedit.c */
+/* initialised explicitly, see kickdown.c */
 struct Library *ListBrowserBase = NULL, *ChooserBase = NULL, *CheckBoxBase = NULL,
                *IntegerBase = NULL, *StringBase = NULL, *GetFileBase = NULL,
                *GetColorBase = NULL, *LabelBase = NULL;

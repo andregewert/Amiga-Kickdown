@@ -1,10 +1,10 @@
-# Amiga-MDTools
+# Amiga-Kickdown
 
 *[English version](README.md)*
 
 Markdown-Werkzeuge für AmigaOS 3.2 in C:
 
-* **MDEdit** – ReAction-basierter Markdown-Editor mit Live-HTML-Vorschau
+* **Kickdown** – ReAction-basierter Markdown-Editor mit Live-HTML-Vorschau
 * **mdtohtml** – Kommandozeilen-Konverter von Markdown nach HTML
 
 Beide nutzen denselben Konvertierungskern (`src/mdconv.c`) auf Basis von
@@ -15,18 +15,18 @@ aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
 ## Voraussetzungen
 
 * AmigaOS 3.2 (ReAction-Klassen ab V44, `texteditor.gadget`, `speedbar.gadget`, `bitmap.image`)
-* [html.gadget](https://github.com/andregewert/Amiga-HTML-Gadget) in `SYS:Classes/Gadgets/` oder neben MDEdit
+* [html.gadget](https://github.com/andregewert/Amiga-HTML-Gadget) in `SYS:Classes/Gadgets/` oder neben Kickdown
   (optional `htmlttf.gadget`)
 * [AISS](http://masonicons.info/) für die Toolbar-Bilder (Assign `TBIMAGES:`). Fehlende Bilder
   werden durch Text-Buttons ersetzt.
 
 `mdtohtml` braucht nur die dos.library.
 
-## MDEdit
+## Kickdown
 
 ```
-MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT] [LINENUMBERS]
-       [FONTSET Vera|DejaVu|Noto] [SIZE n]
+Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT] [LINENUMBERS]
+         [FONTSET Vera|DejaVu|Noto] [SIZE n]
 ```
 
 * Links der Editor (`texteditor.gadget`, Festbreitenschrift), rechts die Vorschau (`html.gadget`),
@@ -44,7 +44,7 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   Knöpfe; ab dem nächsten Start, nur Text startet schneller, weil keine Bilder geladen werden, mit
   Texten erhalten die Formatierungsknöpfe eine zweite Zeile; die Formatierungsknöpfe lassen sich
   ausblenden, auch sofort mit *Format/Show formatting buttons*). *Save* schreibt sie in die Tooltypes des
-  MDEdit-Icons, *Use* gilt für die laufende Sitzung; andere Tooltypes bleiben unverändert.
+  Kickdown-Icons, *Use* gilt für die laufende Sitzung; andere Tooltypes bleiben unverändert.
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
 * Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
@@ -74,10 +74,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Comm
   auf der Seite Window der Einstellungen).
 * Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
 * AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
-* Ikonifizieren (Gadget in der Titelleiste oder *Project/Iconify*): Das MDEdit-Icon erscheint auf
+* Ikonifizieren (Gadget in der Titelleiste oder *Project/Iconify*): Das Kickdown-Icon erscheint auf
   der Workbench, ein Doppelklick oder ein darauf gezogenes Markdown-Icon öffnet das Fenster wieder.
 
-Die Einstellungen kommen aus den Tooltypes des MDEdit-Icons, auch beim Start aus der Shell;
+Die Einstellungen kommen aus den Tooltypes des Kickdown-Icons, auch beim Start aus der Shell;
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
@@ -105,15 +105,15 @@ Hinweis: Die Pascal-Version hatte Unix-Optionen (`-f`, `-o`, `-t` …). Diese Ve
 ### Templates
 
 HTML-Datei mit den Platzhaltern `$title$`, `$encoding$` (oder `$charset$`) und `$body$`, siehe
-`test/template.html`. MDEdit verwendet das Template für Vorschau und Export.
+`test/template.html`. Kickdown verwendet das Template für Vorschau und Export.
 
 ## Sprachen
 
-MDEdit ist über die locale.library übersetzbar: Englisch ist eingebaut, Deutsch kommt als Katalog
-(`Catalogs/deutsch/MDEdit.catalog`). MDEdit findet Kataloge neben dem Programm
+Kickdown ist über die locale.library übersetzbar: Englisch ist eingebaut, Deutsch kommt als Katalog
+(`Catalogs/deutsch/Kickdown.catalog`). Kickdown findet Kataloge neben dem Programm
 (`PROGDIR:Catalogs`) oder in `LOCALE:Catalogs`; das Installer-Skript kopiert die ausgewählten.
 
-`catalogs/MDEdit.cd` enthält alle Texte, `catalogs/<sprache>.ct` die Übersetzungen, beide im
+`catalogs/Kickdown.cd` enthält alle Texte, `catalogs/<sprache>.ct` die Übersetzungen, beide im
 Format von CatComp und FlexCat. `tools/catcomp.py` (Teil von `make`) erzeugt daraus
 `src/strings.h` und die Kataloge und lehnt Übersetzungen ab, deren Platzhalter (`%s`, `%lu` …)
 vom Original abweichen. Für eine neue Sprache `catalogs/<sprache>.ct` anlegen (z. B. als Kopie
@@ -135,10 +135,10 @@ und Python 3 für die Kataloge.
 
 ```
 git submodule update --init
-make                # bin/MDEdit, bin/mdtohtml
+make                # bin/Kickdown, bin/mdtohtml
 make check          # Konverter-, Scroll-Sync- und Highlighting-Tests auf dem Host (ASan)
 make check-update   # gewollte Ausgabeänderungen als neue Referenz übernehmen
-make dist           # Aminet-Archiv dist/MDTools.lha (+ MDTools.readme)
+make dist           # Aminet-Archiv dist/Kickdown.lha (+ Kickdown.readme)
 make icons          # Beispiel-Icons aller Stile in icons/, Vorschau in icons/preview.png
 ```
 

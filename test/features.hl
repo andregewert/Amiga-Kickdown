@@ -1,14 +1,14 @@
-# Markdown-Beispiel für MDEdit
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+# Markdown-Beispiel für Kickdown
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 
 
 
 
-Dieses Dokument zeigt, was **MDEdit** und `mdtohtml` darstellen.
-...........................MM......MM.....CCCCCCCCCC............
-.............................bbbbbb.............................
+Dieses Dokument zeigt, was **Kickdown** und `mdtohtml` darstellen.
+...........................MM........MM.....CCCCCCCCCC............
+.............................bbbbbbbb.............................
 
 Umlaute (äöü ÄÖÜ ß) bleiben in ISO-8859-1 erhalten, Entities wie &copy; und &#228; auch.
 .................................................................TTTTTT.....TTTTTT......

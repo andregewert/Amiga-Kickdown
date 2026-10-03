@@ -1,5 +1,5 @@
 /*
- * MDEdit - formatting commands (toolbar and Format menu)
+ * Kickdown - formatting commands (toolbar and Format menu)
  *
  * The text changes are made by mdformat.c; this is the glue to
  * texteditor.gadget. Positions in the editor are (x, y): character in the
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 #include "mdformat.h"
 
 static ULONG method(ULONG id, ULONG a, ULONG b, ULONG c, ULONG d)

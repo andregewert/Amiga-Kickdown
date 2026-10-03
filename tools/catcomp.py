@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# catcomp.py - catalog tool for MDEdit (a small CatComp/FlexCat replacement)
+# catcomp.py - catalog tool for Kickdown (a small CatComp/FlexCat replacement)
 #
 # Copyright (c) 2026 André Gewert <agewert@ubergeek.de>, MIT License
 #
@@ -138,8 +138,8 @@ def header(cd, out):
     for n, (name, _) in enumerate(entries):
         lines.append('#define %-28s %d' % (name, n))
     lines += ['#define MSG_COUNT                    %d' % len(entries), '',
-              '/* the built-in (English) strings, defined where MDEDIT_STRINGS is set */',
-              '#ifdef MDEDIT_STRINGS',
+              '/* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */',
+              '#ifdef KICKDOWN_STRINGS',
               'static const char *const msg_builtin[MSG_COUNT] = {']
     for name, text in entries:
         lines.append('    %s,' % c_string(text))

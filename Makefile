@@ -1,4 +1,4 @@
-# Amiga-MDTools - MDEdit (ReAction Markdown editor) and mdtohtml
+# Amiga-Kickdown - Kickdown (ReAction Markdown editor) and mdtohtml
 # Cross build with bebbo's amiga-gcc (m68k-amigaos-gcc) and NDK 3.2.
 
 PREFIX  ?= /opt/amiga
@@ -22,24 +22,24 @@ CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter 
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
-EDITOBJ := $(B)/mdedit.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(B)/format.o $(B)/mdformat.o $(B)/splash.o $(CONVOBJ)
+EDITOBJ := $(B)/kickdown.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(B)/format.o $(B)/mdformat.o $(B)/splash.o $(CONVOBJ)
 TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
-# translations: catalogs/<language>.ct -> bin/Catalogs/<language>/MDEdit.catalog
-# (MDEdit finds them through PROGDIR:Catalogs, so bin/ works as it is)
+# translations: catalogs/<language>.ct -> bin/Catalogs/<language>/Kickdown.catalog
+# (Kickdown finds them through PROGDIR:Catalogs, so bin/ works as it is)
 LANGUAGES := $(basename $(notdir $(wildcard catalogs/*.ct)))
-CATALOGS  := $(foreach l,$(LANGUAGES),$(O)/Catalogs/$(l)/MDEdit.catalog)
+CATALOGS  := $(foreach l,$(LANGUAGES),$(O)/Catalogs/$(l)/Kickdown.catalog)
 
-all: charcheck $(O)/MDEdit $(O)/mdtohtml $(CATALOGS)
+all: charcheck $(O)/Kickdown $(O)/mdtohtml $(CATALOGS)
 
 # the built-in strings; src/strings.h is in git, so building needs no Python
-# as long as catalogs/MDEdit.cd is not changed
-src/strings.h: catalogs/MDEdit.cd tools/catcomp.py
+# as long as catalogs/Kickdown.cd is not changed
+src/strings.h: catalogs/Kickdown.cd tools/catcomp.py
 	python3 tools/catcomp.py header $< $@
 
-$(O)/Catalogs/%/MDEdit.catalog: catalogs/%.ct catalogs/MDEdit.cd tools/catcomp.py
+$(O)/Catalogs/%/Kickdown.catalog: catalogs/%.ct catalogs/Kickdown.cd tools/catcomp.py
 	@mkdir -p $(dir $@)
-	python3 tools/catcomp.py catalog catalogs/MDEdit.cd $< $@
+	python3 tools/catcomp.py catalog catalogs/Kickdown.cd $< $@
 
 $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h:
 	@echo "*** submodules are missing: git submodule update --init"; exit 1
@@ -52,11 +52,11 @@ $(B)/md4c-html.o: $(MD4C)/md4c-html.c $(MD4C)/md4c-html.h $(MD4C)/md4c.h
 	@mkdir -p $(B)
 	$(CC) $(MD4CFLAGS) -c $< -o $@
 
-$(B)/%.o: src/%.c src/mdedit.h src/strings.h src/settings.h src/mdconv.h src/mdformat.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
+$(B)/%.o: src/%.c src/kickdown.h src/strings.h src/settings.h src/mdconv.h src/mdformat.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
 	@mkdir -p $(B)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(O)/MDEdit: $(EDITOBJ)
+$(O)/Kickdown: $(EDITOBJ)
 	@mkdir -p $(O)
 	$(CC) $(CPU) -noixemul -Wl,-u,___stkinit -o $@.debug $(EDITOBJ)
 	$(STRIP) -o $@ $@.debug
@@ -131,7 +131,7 @@ icons:
 md4cversion:
 	@echo $(MD4CVER)
 
-# Aminet archive dist/MDTools.lha (+ MDTools.readme), see tools/mkdist.py
+# Aminet archive dist/Kickdown.lha (+ Kickdown.readme), see tools/mkdist.py
 dist: all
 	python3 tools/mkdist.py
 

@@ -1,8 +1,8 @@
-## version $VER: MDEdit.catalog 1.0 (03.10.2026)
+## version $VER: Kickdown.catalog 1.0 (03.10.2026)
 ## codeset 0
 ## language deutsch
 ;
-; German translation of MDEdit (catalogs/MDEdit.cd)
+; German translation of Kickdown (catalogs/Kickdown.cd)
 ;
 ; menu titles and items; the shortcuts are fixed
 MSG_MENU_PROJECT
@@ -219,8 +219,8 @@ MSG_TB_ABOUT
 ; About
 ;
 MSG_TBH_ABOUT
-Über MDEdit
-; About MDEdit
+Über Kickdown
+; About Kickdown
 ;
 ; main window, status line and requesters
 MSG_UNTITLED
@@ -366,8 +366,8 @@ Das Fenster kann nicht geöffnet werden.
 ;
 ; settings window; labels end with a space, it is the gap to the gadget
 MSG_SET_TITLE
-MDEdit-Einstellungen
-; MDEdit settings
+Kickdown-Einstellungen
+; Kickdown settings
 ;
 ; categories
 MSG_SET_EDITOR

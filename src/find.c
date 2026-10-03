@@ -1,5 +1,5 @@
 /*
- * MDEdit - find and replace
+ * Kickdown - find and replace
  *
  * A window that stays open next to the editor (like the one of TextEdit):
  * search text, replacement, case sensitive, whole words, backwards, wrap
@@ -39,7 +39,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 
 enum {
     FG_FIND = 300, FG_REPLACE, FG_CASE, FG_WORDS, FG_BACKWARDS, FG_WRAP,

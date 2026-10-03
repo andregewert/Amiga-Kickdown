@@ -1,5 +1,5 @@
 /*
- * mdconv - Markdown to HTML conversion shared by MDEdit and mdtohtml
+ * mdconv - Markdown to HTML conversion shared by Kickdown and mdtohtml
  *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.

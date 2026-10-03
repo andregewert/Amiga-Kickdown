@@ -1,5 +1,5 @@
 /*
- * MDEdit - window, menus and speedbar
+ * Kickdown - window, menus and speedbar
  *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
@@ -44,14 +44,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 #include "settings.h"
 
 extern struct Library *LabelBase;   /* prefswin.c, closed by prefs_cleanup() */
-extern struct Library *LayoutBase;  /* mdedit.c */
+extern struct Library *LayoutBase;  /* kickdown.c */
 extern struct Library *ChooserBase; /* prefswin.c, closed by prefs_cleanup() */
 
-/* initialised explicitly, see mdedit.c */
+/* initialised explicitly, see kickdown.c */
 struct Library *DiskfontBase = NULL;
 
 struct GUI gui;

@@ -1,5 +1,5 @@
 /*
- * mdconv - Markdown to HTML conversion shared by MDEdit and mdtohtml
+ * mdconv - Markdown to HTML conversion shared by Kickdown and mdtohtml
  *
  * Plain ANSI C on top of md4c, so it builds for the Amiga and for the
  * host (make check). Input is treated byte by byte (MD4C_USE_ASCII):

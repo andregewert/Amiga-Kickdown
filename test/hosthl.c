@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MDEDIT_H                    /* highlight.c must not see the real one */
+#define KICKDOWN_H                    /* highlight.c must not see the real one */
 
 typedef unsigned long ULONG;
 typedef long LONG;

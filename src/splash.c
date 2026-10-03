@@ -1,5 +1,5 @@
 /*
- * MDEdit - splash window while the program starts, and the About window
+ * Kickdown - splash window while the program starts, and the About window
  *
  * Opening the ReAction classes, html.gadget and the toolbar images can
  * take a while. The splash window shows the program icon, name, version
@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 
 extern struct Library *DiskfontBase;    /* gui.c, closed by gui_close() */
 

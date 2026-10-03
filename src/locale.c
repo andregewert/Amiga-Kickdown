@@ -1,8 +1,8 @@
 /*
- * MDEdit - translations through locale.library
+ * Kickdown - translations through locale.library
  *
  * The built-in strings are English (src/strings.h, made from
- * catalogs/MDEdit.cd). OpenCatalog() looks for MDEdit.catalog in
+ * catalogs/Kickdown.cd). OpenCatalog() looks for Kickdown.catalog in
  * PROGDIR:Catalogs/<language>/ and LOCALE:Catalogs/<language>/ for the
  * languages the user prefers; for English (or without a catalog or
  * locale.library) the built-in strings are used.
@@ -19,22 +19,22 @@
 #include <proto/exec.h>
 #include <proto/locale.h>
 
-#define MDEDIT_STRINGS
+#define KICKDOWN_STRINGS
 #include "strings.h"
-#include "mdedit.h"
+#include "kickdown.h"
 
 /* catalog version: raise it together with the version in the .ct files
  * when strings are removed or reordered                                */
 #define CATALOG_VERSION 1
 
-/* initialised explicitly, see mdedit.c */
+/* initialised explicitly, see kickdown.c */
 struct LocaleBase *LocaleBase = NULL;
 static struct Catalog *catalog;
 
 void locale_open(void)
 {
     if (!(LocaleBase = (struct LocaleBase *)OpenLibrary((STRPTR)"locale.library", 38))) return;
-    catalog = OpenCatalog(NULL, (STRPTR)"MDEdit.catalog",
+    catalog = OpenCatalog(NULL, (STRPTR)"Kickdown.catalog",
                           OC_BuiltInLanguage, (ULONG)"english",
                           OC_Version,         CATALOG_VERSION,
                           TAG_DONE);

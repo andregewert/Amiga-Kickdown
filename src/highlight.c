@@ -1,5 +1,5 @@
 /*
- * MDEdit - Markdown syntax highlighting for texteditor.gadget (V47)
+ * Kickdown - Markdown syntax highlighting for texteditor.gadget (V47)
  *
  * GA_TEXTEDITOR_HighlighterHook is called for every line (block) with a
  * struct HighlightMessage; HighlightSetFormat(object, pos, end, style)
@@ -32,7 +32,7 @@
 #include <proto/texteditor.h>
 #include <clib/alib_protos.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 #include "settings.h"
 
 static UBYTE pens[NUMCOLOURS];      /* screen pens of the colours (settings.h) */

@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MDEDIT_H
+#define KICKDOWN_H
 
 typedef unsigned long ULONG;
 typedef long LONG;
@@ -36,7 +36,7 @@ static APTR AllocVec(ULONG size, ULONG flags) { return flags & MEMF_CLEAR ? call
 static void FreeVec(APTR p) { free(p); }
 static BPTR Lock(STRPTR n, LONG m) { (void)n; (void)m; return 1; }
 static void UnLock(BPTR l) { (void)l; }
-static BOOL NameFromLock(BPTR l, STRPTR buf, LONG len) { (void)l; snprintf((char *)buf, len, "Work:MDTools"); return TRUE; }
+static BOOL NameFromLock(BPTR l, STRPTR buf, LONG len) { (void)l; snprintf((char *)buf, len, "Work:Kickdown"); return TRUE; }
 static STRPTR FilePart(STRPTR p)
 {
     char *s = strrchr((char *)p, '/'), *c = strrchr((char *)p, ':');
@@ -138,7 +138,7 @@ int main(void)
     s.ttf = TRUE;
     s.linenumbers = TRUE;
     s.fontsize = 14;
-    strcpy(s.template, "Work:MDTools/My page.html");
+    strcpy(s.template, "Work:Kickdown/My page.html");
     s.colours[C_HEADING] = 0x123456;
     s.winwidth = 800;
     s.winheight = 560;
@@ -148,7 +148,7 @@ int main(void)
     s.tbframes = TRUE;
     s.fmtbuttons = FALSE;
     s.splash = FALSE;
-    check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:MDEdit"), "save");
+    check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:Kickdown"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 
     check(!strcmp(icon[nicon - 2], "IM1=abc") && !strcmp(icon[nicon - 1], "IM2=def") &&
@@ -159,7 +159,7 @@ int main(void)
           "own entries replaced in place, defaults stay disabled");
 
     settings_default(&r);
-    settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:MDEdit");
+    settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");
 
     s.ttf = FALSE;
@@ -168,7 +168,7 @@ int main(void)
     s.syncscroll = FALSE;
     s.tbmode = TBMODE_BOTH;
     s.tbframes = FALSE;
-    check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:MDEdit"), "save again");
+    check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:Kickdown"), "save again");
     show("after switching ttf off, size 0, default heading colour, nosync:");
     check(!strcmp(icon[2], "(TTF)") && !strcmp(icon[3], "NOSYNC"), "TTF disabled, NOSYNC active");
     for (i = 0; i < nicon && strncmp(icon[i], "(SIZE", 5); i++) ;
@@ -182,7 +182,7 @@ int main(void)
     for (i = 0; i < nicon && strcmp(icon[i], "NOSPLASH"); i++) ;
     check(i < nicon, "NOSPLASH kept");
     settings_default(&r);
-    settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:MDEdit");
+    settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");
     return failed;
 }

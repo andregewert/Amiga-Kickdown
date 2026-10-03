@@ -1,5 +1,5 @@
 /*
- * MDEdit - keeps editor and preview at the same place in the document
+ * Kickdown - keeps editor and preview at the same place in the document
  *
  * The headings are fixed points: their source line is known from the
  * Markdown text, their position in the preview from the anchors that
@@ -24,7 +24,7 @@
 
 #include <string.h>
 
-#include "mdedit.h"
+#include "kickdown.h"
 
 #define FRAC 1024                   /* fixed point for line fractions */
 

@@ -1,6 +1,6 @@
 # Style Guide für ReAction-Anwendungen (AmigaOS 3.2)
 
-Vorgaben für Programme mit ReAction-Oberfläche, entstanden bei MDEdit (Amiga-MDTools). Gedacht als
+Vorgaben für Programme mit ReAction-Oberfläche, entstanden bei Kickdown (Repository Amiga-Kickdown). Gedacht als
 Arbeitsgrundlage für KI-unterstützte Projekte: Die Regeln sind verbindlich, sofern das Projekt
 nichts anderes festlegt. Die Begründungen stehen dabei, damit Ausnahmen bewusst entschieden werden.
 
