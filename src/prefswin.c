@@ -44,6 +44,7 @@
 #include <proto/getfile.h>
 #include <proto/getcolor.h>
 #include <proto/label.h>
+#include <proto/graphics.h>
 #include <clib/alib_protos.h>
 
 #include <string.h>
@@ -190,6 +191,19 @@ static ULONG find_label(STRPTR *labels, const char *text)
 static Object *filler(void)
 {
     return NewObject(LAYOUT_GetClass(), NULL, TAG_DONE);
+}
+
+/* width of the longest category name in the screen font, plus room
+ * for the list's frame and margins                                 */
+static LONG list_width(void)
+{
+    LONG w = 0, t;
+    ULONG i;
+    for (i = 0; i < NUMCATEGORIES; i++) {
+        const char *c = S(categories[i]);
+        if ((t = TextLength(&gui.screen->RastPort, (STRPTR)c, strlen(c))) > w) w = t;
+    }
+    return w + 24;
 }
 
 static Object *build(const struct Settings *s)
@@ -381,11 +395,15 @@ static Object *build(const struct Settings *s)
         LAYOUT_DeferLayout,   TRUE,
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation,  LAYOUT_ORIENT_HORIZ,
-            LAYOUT_InnerSpacing, AREA_SPACING,
+            /* default spacing: with the weight bar it is there twice */
+            /* the list as wide as its longest entry; the bar lets the
+             * user move the border between list and page             */
             LAYOUT_AddChild,     (ULONG)pw.list,
-            CHILD_WeightedWidth, 0,
-            CHILD_MinWidth,      gui.screen->RastPort.TxWidth * 12,
+            CHILD_WeightedWidth, 20,
+            CHILD_MinWidth,      list_width(),
+            LAYOUT_WeightBar,    TRUE,
             LAYOUT_AddChild,     (ULONG)pw.page,
+            CHILD_WeightedWidth, 80,
             TAG_DONE),
         /* positive actions left, negative right, each as wide as its text */
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,

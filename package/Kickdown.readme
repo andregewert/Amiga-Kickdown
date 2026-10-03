@@ -98,6 +98,8 @@ History
    in the settings window
  - "images and text" toolbar: pressed buttons show the AISS selected
    image again
+ - settings window: the category list is as wide as its longest entry,
+   a bar between list and page adjusts the split
 1.0 (03.10.2026)
  - first release
 
@@ -136,5 +138,7 @@ Versionsgeschichte
    Änderungen im Einstellungsfenster
  - Toolbar "Bilder und Text": gedrückte Knöpfe zeigen wieder das
    AISS-Bild für den gedrückten Zustand
+ - Einstellungsfenster: die Kategorienliste ist so breit wie ihr längster
+   Eintrag, ein Balken zwischen Liste und Seite verschiebt die Aufteilung
 1.0 (03.10.2026)
  - erste Veröffentlichung
