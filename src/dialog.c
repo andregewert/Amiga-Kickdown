@@ -17,6 +17,8 @@
 #include <exec/types.h>
 #include <intuition/intuition.h>
 #include <intuition/gadgetclass.h>
+#include <intuition/screens.h>
+#include <graphics/view.h>
 #include <classes/window.h>
 #include <gadgets/layout.h>
 #include <gadgets/button.h>
@@ -25,6 +27,7 @@
 
 #include <proto/exec.h>
 #include <proto/intuition.h>
+#include <proto/graphics.h>
 #include <proto/window.h>
 #include <proto/layout.h>
 #include <proto/button.h>
@@ -47,7 +50,8 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
     char labels[MAXBUTTONS][40];
     struct TagItem tags[4 + 2 * MAXBUTTONS];
     struct DrawInfo *dri;
-    WORD fillpen = 2;
+    struct ColorMap *cm = gui.screen->ViewPort.ColorMap;
+    LONG fillpen = 0, obtained = -1;
     Object *winobj, *row, *b;
     struct Window *win;
     ULONG sig = 0, mainsig = 0, result, n = 0, i, t;
@@ -101,10 +105,19 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
     tags[t].ti_Tag = TAG_DONE;
     if (!(row = NewObjectA(LAYOUT_GetClass(), NULL, tags))) return -1;
 
-    /* light background of the text: the screen's shine pen (white on
-     * the Workbench), so it follows the user's colours               */
+    /* light grey background of the text: halfway between the window
+     * background and the shine pen (white), so it follows the user's
+     * colours. With few colours the nearest pen may be the background
+     * itself; the recessed frame still marks the field.             */
     if ((dri = GetScreenDrawInfo(gui.screen))) {
-        fillpen = dri->dri_Pens[SHINEPEN];
+        ULONG bg[3], shine[3];
+        fillpen = dri->dri_Pens[BACKGROUNDPEN];
+        GetRGB32(cm, dri->dri_Pens[BACKGROUNDPEN], 1, bg);
+        GetRGB32(cm, dri->dri_Pens[SHINEPEN], 1, shine);
+        obtained = ObtainBestPen(cm, (bg[0] >> 1) + (shine[0] >> 1),
+                                 (bg[1] >> 1) + (shine[1] >> 1), (bg[2] >> 1) + (shine[2] >> 1),
+                                 OBP_Precision, PRECISION_IMAGE, TAG_DONE);
+        if (obtained >= 0) fillpen = obtained;
         FreeScreenDrawInfo(gui.screen, dri);
     }
 
@@ -129,7 +142,8 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
             /* the text in a recessed field with a light background */
             LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
                 LAYOUT_Orientation,     LAYOUT_ORIENT_VERT,
-                LAYOUT_BevelStyle,      BVS_FIELD,
+                LAYOUT_BevelStyle,      BVS_BUTTON,
+                LAYOUT_BevelState,      IDS_SELECTED,
                 LAYOUT_FillPen,         fillpen,
                 LAYOUT_HorizAlignment,  centred ? LALIGN_CENTER : LALIGN_LEFT,
                 LAYOUT_SpaceOuter,      TRUE,
@@ -149,10 +163,12 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
         TAG_DONE);
     if (!winobj) {
         DisposeObject(row);
+        if (obtained >= 0) ReleasePen(cm, obtained);
         return -1;
     }
     if (!(win = (struct Window *)DoMethod(winobj, WM_OPEN))) {
         DisposeObject(winobj);
+        if (obtained >= 0) ReleasePen(cm, obtained);
         return -1;
     }
 
@@ -183,5 +199,6 @@ LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL ce
     }
     gui_busy(FALSE);
     DisposeObject(winobj);
+    if (obtained >= 0) ReleasePen(cm, obtained);
     return rc;
 }
