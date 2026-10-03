@@ -19,6 +19,9 @@
 #include <gadgets/htmlttf.h>
 #include <images/bitmap.h>
 #include <images/bevel.h>
+#include <images/label.h>
+#include <intuition/screens.h>
+#include <graphics/view.h>
 
 #include <proto/exec.h>
 #include <proto/dos.h>
@@ -29,6 +32,10 @@
 #include <proto/scroller.h>
 #include <proto/speedbar.h>
 #include <proto/bitmap.h>
+#include <proto/label.h>
+#include <proto/graphics.h>
+#include <proto/diskfont.h>
+#include <diskfont/diskfont.h>
 #include <proto/texteditor.h>
 #include <clib/alib_protos.h>
 
@@ -37,6 +44,12 @@
 
 #include "mdedit.h"
 #include "settings.h"
+
+extern struct Library *LabelBase;   /* prefswin.c, closed by prefs_cleanup() */
+extern struct Library *LayoutBase;  /* mdedit.c */
+
+/* initialised explicitly, see mdedit.c */
+struct Library *DiskfontBase = NULL;
 
 struct GUI gui;
 
@@ -93,6 +106,8 @@ static const struct {
     { NM_ITEM,  MSG_MENU_NUMBERED,     0,   0, CMD_NUMBERED },
     { NM_ITEM,  MSG_MENU_TASK,         0,   0, CMD_TASK },
     { NM_ITEM,  MSG_MENU_QUOTE,        0,   0, CMD_QUOTE },
+    { NM_ITEM,  -1,                    0,   0, 0 },
+    { NM_ITEM,  MSG_MENU_FORMATBAR,    0,   CHECKIT | MENUTOGGLE, CMD_FORMATBAR },
     { NM_TITLE, MSG_MENU_PREVIEW,      0,   0, 0 },
     { NM_ITEM,  MSG_MENU_REFRESH,      "R", 0, CMD_REFRESH },
     { NM_ITEM,  MSG_MENU_AUTOREFRESH,  0,   CHECKIT | MENUTOGGLE, CMD_AUTOREFRESH },
@@ -114,7 +129,8 @@ static void build_menus(const struct Settings *set, BOOL highlight)
         struct NewMenu *nm = &menus[i];
         ULONG cmd = menudef[i].cmd;
         BOOL on = (cmd == CMD_HIGHLIGHT && highlight) || (cmd == CMD_LINENUMBERS && set->linenumbers) ||
-                  (cmd == CMD_AUTOREFRESH && set->autorefresh) || (cmd == CMD_SYNCSCROLL && set->syncscroll);
+                  (cmd == CMD_AUTOREFRESH && set->autorefresh) || (cmd == CMD_SYNCSCROLL && set->syncscroll) ||
+                  (cmd == CMD_FORMATBAR && set->fmtbuttons);
         nm->nm_Type = menudef[i].type;
         nm->nm_Label = menudef[i].msg < 0 ? NM_BARLABEL : (STRPTR)S(menudef[i].msg);
         nm->nm_CommKey = (STRPTR)menudef[i].key;
@@ -130,38 +146,44 @@ static struct HintInfo hints[MAXTOOLS + 1];
 /* Speedbar buttons. The images come from AISS (TBIMAGES:<name>, the
  * selected state from <name>_s, the ghosted one from <name>_g); "a|b"
  * takes the first one that exists (AISS 4 has more images than AISS
- * Classic). Without an image the label is used.                       */
+ * Classic).
+ *
+ * speedbar.gadget (47.10) stores SBNA_Text but never draws it, so
+ * texts are label.images given as SBNA_Image: text alone, or the AISS
+ * image with the text below. With texts the bar would be too wide, the
+ * formatting buttons (row 1) then get a second bar below.          */
 static const struct {
     UWORD cmd;
     WORD spacing;
+    UBYTE row;
     const char *image;
     LONG label, help;
 } tools[] = {
-    { CMD_NEW,      0, "new",      MSG_TB_NEW,      MSG_TBH_NEW },
-    { CMD_OPEN,     0, "open",     MSG_TB_OPEN,     MSG_TBH_OPEN },
-    { CMD_SAVE,     0, "save",     MSG_TB_SAVE,     MSG_TBH_SAVE },
-    { CMD_SAVEAS,   0, "saveas",   MSG_TB_SAVEAS,   MSG_TBH_SAVEAS },
-    { CMD_CUT,      8, "cut",      MSG_TB_CUT,      MSG_TBH_CUT },
-    { CMD_COPY,     0, "copy",     MSG_TB_COPY,     MSG_TBH_COPY },
-    { CMD_PASTE,    0, "paste",    MSG_TB_PASTE,    MSG_TBH_PASTE },
-    { CMD_UNDO,     8, "undo",     MSG_TB_UNDO,     MSG_TBH_UNDO },
-    { CMD_REDO,     0, "redo",     MSG_TB_REDO,     MSG_TBH_REDO },
-    { CMD_FIND,     8, "find",     MSG_TB_FIND,     MSG_TBH_FIND },
-    { CMD_HEADING,  8, "font_larger|font", MSG_MENU_HEADING, MSG_TBH_HEADING },
-    { CMD_BOLD,     0, "font_bold",     MSG_MENU_BOLD,     MSG_TBH_BOLD },
-    { CMD_ITALIC,   0, "font_italic",   MSG_MENU_ITALIC,   MSG_TBH_ITALIC },
-    { CMD_UNDERLINE, 0, "font_uline",   MSG_MENU_UNDERLINE, MSG_TBH_UNDERLINE },
-    { CMD_CODE,     0, "brackets|hexview", MSG_MENU_CODE,  MSG_TBH_CODE },
-    { CMD_LINK,     8, "hyperlink|internet", MSG_MENU_LINK, MSG_TBH_LINK },
-    { CMD_IMAGE,    0, "image",         MSG_MENU_IMAGE,    MSG_TBH_IMAGE },
-    { CMD_BULLET,   8, "capitalpoints", MSG_MENU_BULLET,   MSG_TBH_BULLET },
-    { CMD_NUMBERED, 0, "capitalnumber", MSG_MENU_NUMBERED, MSG_TBH_NUMBERED },
-    { CMD_QUOTE,    0, "quote|definitions", MSG_MENU_QUOTE, MSG_TBH_QUOTE },
-    { CMD_TASK,     0, "task",          MSG_MENU_TASK,     MSG_TBH_TASK },
-    { CMD_REFRESH,  8, "refresh",  MSG_TB_REFRESH,  MSG_TBH_REFRESH },
-    { CMD_EXPORT,   0, "copyfile", MSG_TB_EXPORT,   MSG_TBH_EXPORT },
-    { CMD_SETTINGS, 8, "prefs",    MSG_TB_SETTINGS, MSG_TBH_SETTINGS },
-    { CMD_ABOUT,    0, "info",     MSG_TB_ABOUT,    MSG_TBH_ABOUT },
+    { CMD_NEW,      0, 0, "new",      MSG_TB_NEW,      MSG_TBH_NEW },
+    { CMD_OPEN,     0, 0, "open",     MSG_TB_OPEN,     MSG_TBH_OPEN },
+    { CMD_SAVE,     0, 0, "save",     MSG_TB_SAVE,     MSG_TBH_SAVE },
+    { CMD_SAVEAS,   0, 0, "saveas",   MSG_TB_SAVEAS,   MSG_TBH_SAVEAS },
+    { CMD_CUT,      8, 0, "cut",      MSG_TB_CUT,      MSG_TBH_CUT },
+    { CMD_COPY,     0, 0, "copy",     MSG_TB_COPY,     MSG_TBH_COPY },
+    { CMD_PASTE,    0, 0, "paste",    MSG_TB_PASTE,    MSG_TBH_PASTE },
+    { CMD_UNDO,     8, 0, "undo",     MSG_TB_UNDO,     MSG_TBH_UNDO },
+    { CMD_REDO,     0, 0, "redo",     MSG_TB_REDO,     MSG_TBH_REDO },
+    { CMD_FIND,     8, 0, "find",     MSG_TB_FIND,     MSG_TBH_FIND },
+    { CMD_HEADING,  8, 1, "font_larger|font", MSG_TB_HEADING, MSG_TBH_HEADING },
+    { CMD_BOLD,     0, 1, "font_bold",     MSG_TB_BOLD,       MSG_TBH_BOLD },
+    { CMD_ITALIC,   0, 1, "font_italic",   MSG_TB_ITALIC,     MSG_TBH_ITALIC },
+    { CMD_UNDERLINE, 0, 1, "font_uline",   MSG_TB_UNDERLINE, MSG_TBH_UNDERLINE },
+    { CMD_CODE,     0, 1, "brackets|hexview", MSG_TB_CODE,    MSG_TBH_CODE },
+    { CMD_LINK,     8, 1, "hyperlink|internet", MSG_TB_LINK, MSG_TBH_LINK },
+    { CMD_IMAGE,    0, 1, "image",         MSG_TB_IMAGE,      MSG_TBH_IMAGE },
+    { CMD_BULLET,   8, 1, "capitalpoints", MSG_TB_BULLET,     MSG_TBH_BULLET },
+    { CMD_NUMBERED, 0, 1, "capitalnumber", MSG_TB_NUMBERED,   MSG_TBH_NUMBERED },
+    { CMD_QUOTE,    0, 1, "quote|definitions", MSG_TB_QUOTE,   MSG_TBH_QUOTE },
+    { CMD_TASK,     0, 1, "task",          MSG_TB_TASK,       MSG_TBH_TASK },
+    { CMD_REFRESH,  8, 0, "refresh",  MSG_TB_REFRESH,  MSG_TBH_REFRESH },
+    { CMD_EXPORT,   0, 0, "copyfile", MSG_TB_EXPORT,   MSG_TBH_EXPORT },
+    { CMD_SETTINGS, 8, 0, "prefs",    MSG_TB_SETTINGS, MSG_TBH_SETTINGS },
+    { CMD_ABOUT,    0, 0, "info",     MSG_TB_ABOUT,    MSG_TBH_ABOUT },
 };
 #define NUMTOOLS (sizeof(tools) / sizeof(tools[0]))
 
@@ -228,31 +250,164 @@ static Object *load_image(const char *names, BOOL *hassel, Object **ghost)
         TAG_DONE);
 }
 
-static BOOL make_buttons(void)
+static BOOL same_name(const char *a, const char *b)
 {
+    while (*a && (*a | 0x20) == (*b | 0x20)) a++, b++;
+    return *a == *b;
+}
+
+/* The screen font in its smallest size (at least 6 pixels), opened for
+ * the texts below the images. NULL: the screen font as it is.         */
+static struct TextAttr *small_font(void)
+{
+    static struct TextAttr attr;
+    static char name[64];
+    struct TextAttr *scr = gui.screen->Font;
+    struct AvailFontsHeader *afh = NULL;
+    struct AvailFonts *af;
+    LONG size = 2048, more;
+    UWORD best = 0, n;
+
+    if (!scr || !scr->ta_Name) return NULL;
+    if (!DiskfontBase && !(DiskfontBase = OpenLibrary((STRPTR)"diskfont.library", 39))) return NULL;
+    for (;;) {
+        if (!(afh = AllocVec(size, MEMF_ANY))) return NULL;
+        if (!(more = AvailFonts(afh, size, AFF_MEMORY | AFF_DISK))) break;
+        FreeVec(afh);
+        size += more;
+    }
+    af = (struct AvailFonts *)(afh + 1);
+    for (n = 0; n < afh->afh_NumEntries; n++, af++)
+        if (af->af_Attr.ta_YSize >= 6 && (!best || af->af_Attr.ta_YSize < best) &&
+            same_name((const char *)af->af_Attr.ta_Name, (const char *)scr->ta_Name))
+            best = af->af_Attr.ta_YSize;
+    FreeVec(afh);
+    if (!best) return NULL;
+
+    strncpy(name, (const char *)scr->ta_Name, sizeof(name) - 1);
+    attr.ta_Name = (STRPTR)name;
+    attr.ta_YSize = best;
+    attr.ta_Style = FS_NORMAL;
+    attr.ta_Flags = 0;
+    if (!(gui.smallfont = OpenDiskFont(&attr))) return NULL;
+    return &attr;
+}
+
+/* A label.image with the text of button i, below 'image' if there is
+ * one (the label disposes it), in pen 'pen'. NULL on failure.         */
+static Object *make_label(ULONG i, Object *image, LONG pen)
+{
+    Object *o;
+
+    snprintf(gui.labels[i], sizeof(gui.labels[i]), "%s%s", image ? "\n" : "", S(tools[i].label));
+    o = LabelBase ? NewObject(LABEL_GetClass(), NULL,
+        LABEL_DrawInfo,      (ULONG)gui.dri,
+        LABEL_Justification, LJ_CENTRE,
+        LABEL_Underscore,    0,
+        IA_FGPen,            pen,
+        /* below an image the smallest size of the screen font */
+        image && gui.smallattr ? IA_Font : TAG_IGNORE, (ULONG)gui.smallattr,
+        image ? LABEL_DisposeImage : TAG_IGNORE, TRUE,
+        image ? LABEL_Image : TAG_IGNORE,        (ULONG)image,
+        LABEL_Text,          (ULONG)gui.labels[i],
+        TAG_DONE) : NULL;
+    if (!o && image) DisposeObject(image);
+    return o;
+}
+
+/* pen for ghosted texts: halfway between text and background */
+static void obtain_ghostpen(void)
+{
+    struct ColorMap *cm = gui.screen->ViewPort.ColorMap;
+    ULONG t[3], b[3];
+
+    GetRGB32(cm, gui.dri->dri_Pens[TEXTPEN], 1, t);
+    GetRGB32(cm, gui.dri->dri_Pens[BACKGROUNDPEN], 1, b);
+    gui.ghostpen = ObtainBestPen(cm, (t[0] >> 1) + (b[0] >> 1), (t[1] >> 1) + (b[1] >> 1),
+                                 (t[2] >> 1) + (b[2] >> 1), OBP_Precision, PRECISION_IMAGE, TAG_DONE);
+}
+
+static LONG ghost_pen(void)
+{
+    return gui.ghostpen >= 0 ? gui.ghostpen : gui.dri->dri_Pens[TEXTPEN];
+}
+
+static BOOL make_buttons(const struct Settings *set)
+{
+    BOOL rows = gui.rows = set->tbmode != TBMODE_IMAGES;     /* texts: two bars */
+    LONG text = gui.dri->dri_Pens[TEXTPEN];
     ULONG i;
-    BOOL sel;
-    struct Node *node;
 
     NewList(&gui.buttons);
+    NewList(&gui.buttons2);
+    if (set->tbmode == TBMODE_BOTH) gui.smallattr = small_font();
     for (i = 0; i < NUMTOOLS; i++) {
-        Object *img = gui.images[i] = load_image(tools[i].image, &sel, &gui.ghosts[i]);
+        Object *bm = NULL, *ghost = NULL, *img;
+        BOOL sel = FALSE, second = tools[i].row && (rows || !set->fmtbuttons);
+        struct Node *node;
+
+        /* text only: no image is loaded at all */
+        if (set->tbmode != TBMODE_TEXT) bm = load_image(tools[i].image, &sel, &ghost);
+        if (set->tbmode == TBMODE_IMAGES && bm) {
+            img = bm;
+        } else {
+            /* the text, with the image above it if there is one; a
+             * missing image in image mode gives the text as well    */
+            img = make_label(i, set->tbmode == TBMODE_BOTH ? bm : NULL, text);
+            if (set->tbmode != TBMODE_BOTH && bm) DisposeObject(bm);
+            if (ghost && bm && set->tbmode == TBMODE_BOTH) ghost = make_label(i, ghost, ghost_pen());
+            else {
+                if (ghost) DisposeObject(ghost);
+                ghost = !bm || set->tbmode == TBMODE_TEXT ? make_label(i, NULL, ghost_pen()) : NULL;
+            }
+            sel = FALSE;
+        }
+        gui.images[i] = img;
+        gui.ghosts[i] = ghost;
         /* pressed: the AISS selected image if there is one, else recessed */
         node = AllocSpeedButtonNode(tools[i].cmd,
             img ? SBNA_Image : SBNA_Text, img ? (ULONG)img : (ULONG)S(tools[i].label),
             SBNA_Enabled,   TRUE,
-            SBNA_Spacing,   tools[i].spacing,
-            SBNA_Highlight, img && sel ? SBH_IMAGE : SBH_RECESS,
+            SBNA_Spacing,   rows && tools[i].row && !tools[i - 1].row ? 0 : tools[i].spacing,
+            SBNA_Highlight, sel ? SBH_IMAGE : SBH_RECESS,
             TAG_DONE);
         if (!node) return FALSE;
-        AddTail(&gui.buttons, node);
-        hints[i].hi_GadgetID = GID_TOOLBAR;
+        gui.nodes[i] = node;
+        AddTail(second ? &gui.buttons2 : &gui.buttons, node);
+        hints[i].hi_GadgetID = rows && tools[i].row ? GID_TOOLBAR2 : GID_TOOLBAR;
         hints[i].hi_Code = tools[i].cmd;
         hints[i].hi_Text = (STRPTR)S(tools[i].help);
         hints[i].hi_Flags = 0;
     }
     hints[i].hi_GadgetID = hints[i].hi_Code = -1;
     return TRUE;
+}
+
+static Object *make_bar(ULONG id, struct List *buttons, BOOL frames)
+{
+    return NewObject(SPEEDBAR_GetClass(), NULL,
+        GA_ID,                id,
+        GA_RelVerify,         TRUE,
+        SPEEDBAR_Orientation, SBORIENT_HORIZ,
+        SPEEDBAR_Buttons,     (ULONG)buttons,
+        /* No frame around the bar. Flat buttons get one only while
+         * pressed (ButtonBevelStyle is V47, older versions ignore it);
+         * with BVS_NONE bevel.image draws no ghost pattern for disabled
+         * buttons either, they show the ghosted image instead.        */
+        SPEEDBAR_BevelStyle,       BVS_NONE,
+        SPEEDBAR_ButtonBevelStyle, frames ? BVS_BUTTON : BVS_NONE,
+        TAG_DONE);
+}
+
+/* the window for the help texts of the speedbars */
+static void bars_window(struct Window *win)
+{
+    Object *bars[2];
+    ULONG i;
+    bars[0] = gui.toolbar;
+    bars[1] = gui.toolbar2;
+    for (i = 0; i < 2; i++)
+        if (bars[i]) SetGadgetAttrs((struct Gadget *)bars[i], win, NULL, SPEEDBAR_Window, (ULONG)win, TAG_DONE);
 }
 
 /* window size from the settings: at most the screen, 0 = default */
@@ -269,22 +424,31 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
     LONG width, height, left, top;
 
     /* the tool images are remapped for this screen */
-    if (!(gui.screen = LockPubScreen(NULL))) return FALSE;
-    if (!make_buttons()) return FALSE;
+    gui.ghostpen = -1;
+    if (!(gui.screen = LockPubScreen(NULL)) || !(gui.dri = GetScreenDrawInfo(gui.screen)))
+        return FALSE;
+    /* texts of the buttons; prefs_cleanup() closes it at the end */
+    if (!LabelBase) LabelBase = OpenLibrary((STRPTR)"images/label.image", 44);
+    obtain_ghostpen();
+    if (!make_buttons(set)) return FALSE;
     build_menus(set, highlight);
 
-    gui.toolbar = NewObject(SPEEDBAR_GetClass(), NULL,
-        GA_ID,                GID_TOOLBAR,
-        GA_RelVerify,         TRUE,
-        SPEEDBAR_Orientation, SBORIENT_HORIZ,
-        SPEEDBAR_Buttons,     (ULONG)&gui.buttons,
-        /* flat: no frame around the bar, buttons get one only while
-         * pressed (ButtonBevelStyle is V47, older versions ignore it).
-         * With BVS_NONE bevel.image draws no ghost pattern for disabled
-         * buttons either, they show the ghosted image instead.        */
-        SPEEDBAR_BevelStyle,       BVS_NONE,
-        SPEEDBAR_ButtonBevelStyle, BVS_NONE,
-        TAG_DONE);
+    gui.tbframes = set->tbframes;
+    gui.toolbar = make_bar(GID_TOOLBAR, &gui.buttons, set->tbframes);
+    if (gui.rows && set->fmtbuttons &&
+        !(gui.toolbar2 = make_bar(GID_TOOLBAR2, &gui.buttons2, set->tbframes)))
+        return FALSE;
+    /* the bars in a group of their own: the second one can be removed
+     * and added again (gui_show_format())                           */
+    gui.tbgroup = gui.toolbar ? NewObject(LAYOUT_GetClass(), NULL,
+        LAYOUT_Orientation,   LAYOUT_ORIENT_VERT,
+        LAYOUT_InnerSpacing,  0,
+        LAYOUT_AddChild,      (ULONG)gui.toolbar,
+        /* its size changes when the formatting buttons come and go */
+        CHILD_CacheDomain,    FALSE,
+        gui.toolbar2 ? LAYOUT_AddChild : TAG_IGNORE, (ULONG)gui.toolbar2,
+        TAG_DONE) : NULL;
+    if (!gui.tbgroup) return FALSE;
     highlight_colours(gui.screen, set->colours);
     gui.editor = NewObject(TEXTEDITOR_GetClass(), NULL,
         GA_ID,                    GID_EDITOR,
@@ -354,8 +518,9 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         LAYOUT_SpaceOuter,  TRUE,
         LAYOUT_DeferLayout, TRUE,
 
-        LAYOUT_AddChild,    (ULONG)gui.toolbar,
+        LAYOUT_AddChild,    (ULONG)gui.tbgroup,
         CHILD_WeightedHeight, 0,
+        CHILD_CacheDomain,  FALSE,
 
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
@@ -433,64 +598,151 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
     if (!gui.winobj) return FALSE;              /* gui_close() disposes the layout */
     if (!(gui.win = (struct Window *)DoMethod(gui.winobj, WM_OPEN))) return FALSE;
 
-    SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL,
-                   SPEEDBAR_Window, (ULONG)gui.win, TAG_DONE);
+    bars_window(gui.win);
     gui_activate_editor();
     return TRUE;
 }
 
-void gui_close(void)
+static void free_nodes(struct List *l)
 {
     struct Node *node, *next;
+    if (l->lh_Head)
+        for (node = l->lh_Head; (next = node->ln_Succ); node = next)
+            FreeSpeedButtonNode(node);
+}
+
+void gui_close(void)
+{
     ULONG i;
 
     if (gui.winobj) DisposeObject(gui.winobj);      /* disposes all gadgets */
     else if (gui.layout) DisposeObject(gui.layout);
     else {
-        Object *objs[] = { gui.toolbar, gui.editor, gui.escroll, gui.html,
+        Object *objs[] = { gui.tbgroup ? gui.tbgroup : gui.toolbar, gui.tbgroup ? NULL : gui.toolbar2,
+                           gui.editor, gui.escroll, gui.html,
                            gui.vscroll, gui.hscroll, gui.status, gui.pos };
         for (i = 0; i < sizeof(objs) / sizeof(objs[0]); i++)
             if (objs[i]) DisposeObject(objs[i]);
     }
-    /* the speedbar neither frees its nodes nor their images */
-    if (gui.buttons.lh_Head) {
-        for (node = gui.buttons.lh_Head; (next = node->ln_Succ); node = next)
-            FreeSpeedButtonNode(node);
-    }
+    /* the speedbar neither frees its nodes nor their images; a label
+     * disposes its image                                          */
+    free_nodes(&gui.buttons);
+    free_nodes(&gui.buttons2);
     for (i = 0; i < MAXTOOLS; i++)
         if (gui.images[i]) DisposeObject(gui.images[i]);
     for (i = 0; i < MAXTOOLS; i++)
         if (gui.ghosts[i]) DisposeObject(gui.ghosts[i]);
+    if (gui.smallfont) CloseFont(gui.smallfont);   /* after the labels */
+    if (DiskfontBase) CloseLibrary(DiskfontBase);
+    DiskfontBase = NULL;
     highlight_release();                            /* after the editor is gone */
-    if (gui.screen) UnlockPubScreen(NULL, gui.screen);
+    if (gui.screen) {
+        if (gui.ghostpen >= 0) ReleasePen(gui.screen->ViewPort.ColorMap, gui.ghostpen);
+        if (gui.dri) FreeScreenDrawInfo(gui.screen, gui.dri);
+        UnlockPubScreen(NULL, gui.screen);
+    }
     memset(&gui, 0, sizeof(gui));
 }
 
 /* Ghosts the buttons whose bit (TOOLBIT(cmd)) is set in 'mask': they
- * show the ghosted AISS image and cannot be selected. The node list has
- * to be taken from the speedbar while it is changed and the bar redrawn,
- * so this only happens when the mask differs.                       */
+ * show the ghosted image or text and cannot be selected. The node list
+ * has to be taken from the speedbar while it is changed and the bar
+ * redrawn, so this only happens for a bar whose buttons change.     */
 void gui_tools_disabled(ULONG mask)
 {
-    struct Node *node;
-    ULONG i = 0;
+    ULONG changed = mask ^ gui.disabled, b, i;
 
-    if (!gui.toolbar || mask == gui.disabled) return;
+    if (!gui.toolbar || !changed) return;
     gui.disabled = mask;
-    SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL, SPEEDBAR_Buttons, ~0UL, TAG_DONE);
-    /* the nodes are in the order of tools[] */
-    for (node = gui.buttons.lh_Head; node->ln_Succ && i < NUMTOOLS; node = node->ln_Succ, i++) {
-        BOOL off = (mask & TOOLBIT(tools[i].cmd)) != 0;
-        Object *img = off && gui.images[i] && gui.ghosts[i] ? gui.ghosts[i] : gui.images[i];
-        SetSpeedButtonNodeAttrs(node,
-            SBNA_Disabled, off,
-            img ? SBNA_Image : TAG_IGNORE, (ULONG)img,
-            TAG_DONE);
+    for (b = 0; b < 2; b++) {
+        Object *bar = b ? gui.toolbar2 : gui.toolbar;
+        struct List *list = b ? &gui.buttons2 : &gui.buttons;
+        struct Node *node;
+        BOOL detached = FALSE;
+
+        if (!bar) continue;
+        for (node = list->lh_Head; node->ln_Succ; node = node->ln_Succ) {
+            BOOL off;
+            Object *img;
+            for (i = 0; i < NUMTOOLS && gui.nodes[i] != node; i++) ;
+            if (i == NUMTOOLS || !(changed & TOOLBIT(tools[i].cmd))) continue;
+            off = (mask & TOOLBIT(tools[i].cmd)) != 0;
+            img = off && gui.images[i] && gui.ghosts[i] ? gui.ghosts[i] : gui.images[i];
+            if (!detached) {
+                SetGadgetAttrs((struct Gadget *)bar, gui.win, NULL, SPEEDBAR_Buttons, ~0UL, TAG_DONE);
+                detached = TRUE;
+            }
+            SetSpeedButtonNodeAttrs(gui.nodes[i],
+                SBNA_Disabled, off,
+                img ? SBNA_Image : TAG_IGNORE, (ULONG)img,
+                TAG_DONE);
+        }
+        if (!detached) continue;
+        SetGadgetAttrs((struct Gadget *)bar, gui.win, NULL, SPEEDBAR_Buttons, (ULONG)list, TAG_DONE);
+        /* the speedbar does not draw itself when the list is attached */
+        if (gui.win) RefreshGList((struct Gadget *)bar, gui.win, NULL, 1);
     }
-    SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL,
-                   SPEEDBAR_Buttons, (ULONG)&gui.buttons, TAG_DONE);
-    /* the speedbar does not draw itself when the list is attached */
-    if (gui.win) RefreshGList((struct Gadget *)gui.toolbar, gui.win, NULL, 1);
+}
+
+/* Shows or hides the formatting buttons. With one bar their nodes move
+ * between the bar's list and gui.buttons2; the second bar is removed
+ * from the layout (which disposes it) and made anew. Adding a child to
+ * a layout needs layout.gadget V47: FALSE if it cannot be done now.  */
+BOOL gui_show_format(BOOL on)
+{
+    ULONG i;
+
+    if (!gui.toolbar) return FALSE;
+    if (gui.rows) {
+        if (!on == !gui.toolbar2) return TRUE;
+        if (on) {
+            if (LayoutBase->lib_Version < 47) return FALSE;
+            if (!(gui.toolbar2 = make_bar(GID_TOOLBAR2, &gui.buttons2, gui.tbframes))) return FALSE;
+            /* The bar draws itself when it is added, before the layout
+             * places it: put it where it goes, below the first bar,
+             * not at 0/0 over the window title.                      */
+            {
+                struct Gadget *g = (struct Gadget *)gui.toolbar;
+                SetAttrs(gui.toolbar2, GA_Left, g->LeftEdge, GA_Top, g->TopEdge + g->Height,
+                         GA_Width, g->Width, GA_Height, g->Height, TAG_DONE);
+            }
+            SetGadgetAttrs((struct Gadget *)gui.tbgroup, gui.win, NULL,
+                           LAYOUT_AddChild, (ULONG)gui.toolbar2, TAG_DONE);
+            if (gui.win) bars_window(gui.win);
+        } else {
+            SetGadgetAttrs((struct Gadget *)gui.tbgroup, gui.win, NULL,
+                           LAYOUT_RemoveChild, (ULONG)gui.toolbar2, TAG_DONE);
+            gui.toolbar2 = NULL;
+        }
+    } else {
+        struct Node *pred = NULL;
+        BOOL shown = FALSE;
+        for (i = 0; i < NUMTOOLS; i++)
+            if (tools[i].row) {
+                struct Node *n;
+                for (n = gui.buttons.lh_Head; n->ln_Succ; n = n->ln_Succ)
+                    if (n == gui.nodes[i]) shown = TRUE;
+                break;
+            }
+        if (!on == !shown) return TRUE;
+        SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL, SPEEDBAR_Buttons, ~0UL, TAG_DONE);
+        for (i = 0; i < NUMTOOLS; i++) {
+            if (!tools[i].row) {
+                if (on && !pred && i + 1 < NUMTOOLS && tools[i + 1].row) pred = gui.nodes[i];
+                continue;
+            }
+            Remove(gui.nodes[i]);
+            if (on) {
+                /* in their place, after the button before them */
+                Insert(&gui.buttons, gui.nodes[i], pred);
+                pred = gui.nodes[i];
+            } else AddTail(&gui.buttons2, gui.nodes[i]);
+        }
+        SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL,
+                       SPEEDBAR_Buttons, (ULONG)&gui.buttons, TAG_DONE);
+    }
+    if (gui.win) RethinkLayout((struct Gadget *)gui.layout, gui.win, NULL, TRUE);
+    return TRUE;
 }
 
 void gui_status(CONST_STRPTR text)
@@ -546,6 +798,7 @@ void gui_iconify(void)
 {
     if (!gui.win) return;
     SetAttrs(gui.toolbar, SPEEDBAR_Window, 0, TAG_DONE);
+    if (gui.toolbar2) SetAttrs(gui.toolbar2, SPEEDBAR_Window, 0, TAG_DONE);
     DoMethod(gui.winobj, WM_ICONIFY);
     gui.win = NULL;
 }
@@ -555,8 +808,7 @@ BOOL gui_uniconify(void)
 {
     if (gui.win) return TRUE;
     if (!(gui.win = (struct Window *)DoMethod(gui.winobj, WM_OPEN))) return FALSE;
-    SetGadgetAttrs((struct Gadget *)gui.toolbar, gui.win, NULL,
-                   SPEEDBAR_Window, (ULONG)gui.win, TAG_DONE);
+    bars_window(gui.win);
     gui_activate_editor();
     return TRUE;
 }

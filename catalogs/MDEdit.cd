@@ -537,3 +537,67 @@ Underline
 MSG_TBH_UNDERLINE (//)
 Underline (<u>text</u>)
 ;
+; toolbar settings and short toolbar labels of the formatting buttons
+MSG_SET_TOOLBAR (//)
+Toolbar
+;
+MSG_SET_TBMODE (//)
+_Display 
+;
+MSG_SET_TB_IMAGES (//)
+Images
+;
+MSG_SET_TB_BOTH (//)
+Images and text
+;
+MSG_SET_TB_TEXT (//)
+Text
+;
+MSG_SET_TBFRAMES (//)
+_Frames around the buttons
+;
+MSG_SET_TOOLBAR_NOTE (//)
+Display and frames take effect at the next start.\nText only starts faster, no images are loaded.\nWith texts the formatting buttons get a second row.
+;
+MSG_TOOLBAR_NEXT_START (//)
+The toolbar changes at the next start
+;
+MSG_TB_HEADING (//)
+Heading
+;
+MSG_TB_BOLD (//)
+Bold
+;
+MSG_TB_ITALIC (//)
+Italic
+;
+MSG_TB_UNDERLINE (//)
+Underline
+;
+MSG_TB_CODE (//)
+Code
+;
+MSG_TB_LINK (//)
+Link
+;
+MSG_TB_IMAGE (//)
+Image
+;
+MSG_TB_BULLET (//)
+List
+;
+MSG_TB_NUMBERED (//)
+Numbered
+;
+MSG_TB_QUOTE (//)
+Quote
+;
+MSG_TB_TASK (//)
+Tasks
+;
+MSG_MENU_FORMATBAR (//)
+Show formatting buttons
+;
+MSG_SET_FMTBUTTONS (//)
+Show f_ormatting buttons
+;

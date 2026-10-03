@@ -39,7 +39,10 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 * Line numbers can be shown in the editor (*Edit/Line numbers*).
 * Settings window (*Project/Settings...*): categories Editor, Preview (renderer, TrueType fonts,
   refresh, scrolling), Markdown (dialect, charset, page template), Colours (syntax
-  highlighting) and Window (start size and position, "Current" takes them from the open window). *Save* writes them into the tool types of the MDEdit icon, *Use* keeps them for
+  highlighting), Window (start size and position, "Current" takes them from the open window) and
+  Toolbar (images, images and text or text only, frames around the buttons; from the next start,
+  text only starts faster as no images are loaded, with texts the formatting buttons get a second
+  row; the formatting buttons can be hidden, also at once with *Format/Show formatting buttons*). *Save* writes them into the tool types of the MDEdit icon, *Use* keeps them for
   this session; other tool types of the icon are left alone.
 * Editor and preview scroll together (*Preview/Synchronize scrolling*, both directions). Headings
   are the fixed points, positions between them are interpolated.
@@ -67,7 +70,8 @@ MDEdit [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Commo
 The settings are read from the tool types of the MDEdit icon, also when MDEdit is started from
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
-`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`); a relative `TEMPLATE` is relative to the icon's drawer.
+`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`,
+`COLOR_HEADING=RRGGBB` … `COLOR_HTML=`); a relative `TEMPLATE` is relative to the icon's drawer.
 Set MDEdit as default tool of your `.md` icons to open them by double click.
 
 ## mdtohtml

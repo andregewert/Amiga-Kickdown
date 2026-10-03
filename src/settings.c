@@ -41,10 +41,14 @@ const char *const colour_names[NUMCOLOURS] = {
     "COLOR_LINK", "COLOR_URL", "COLOR_HTML"
 };
 
+/* values of TOOLBAR= */
+const char *const tbmode_names[NUMTBMODES] = { "IMAGES", "BOTH", "TEXT" };
+
 void settings_default(struct Settings *s)
 {
     memset(s, 0, sizeof(*s));
     s->highlight = TRUE;
+    s->fmtbuttons = TRUE;
     s->autorefresh = TRUE;
     s->syncscroll = TRUE;
     s->winleft = s->wintop = -1;
@@ -97,6 +101,11 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if (!tt) return;
     if (FindToolType(tt, (STRPTR)"NOHIGHLIGHT")) s->highlight = FALSE;
     if (FindToolType(tt, (STRPTR)"LINENUMBERS")) s->linenumbers = TRUE;
+    if ((v = FindToolType(tt, (STRPTR)"TOOLBAR")))
+        for (i = 0; i < NUMTBMODES; i++)
+            if (same_text((const char *)v, tbmode_names[i])) s->tbmode = i;
+    if (FindToolType(tt, (STRPTR)"TOOLBARFRAMES")) s->tbframes = TRUE;
+    if (FindToolType(tt, (STRPTR)"NOFORMATBUTTONS")) s->fmtbuttons = FALSE;
     if (FindToolType(tt, (STRPTR)"TTF")) s->ttf = TRUE;
     if ((v = FindToolType(tt, (STRPTR)"FONTSET"))) copy_str(s->fontset, sizeof(s->fontset), v);
     if ((v = FindToolType(tt, (STRPTR)"SIZE")) && StrToLong(v, &n) > 0 && n >= 0) s->fontsize = n;
@@ -140,7 +149,7 @@ BOOL settings_load_icon(struct Settings *s, CONST_STRPTR name)
 /*****************************************************************************/
 /* writing                                                                   */
 
-#define NUMKEYS (14 + NUMCOLOURS)
+#define NUMKEYS (17 + NUMCOLOURS)
 #define ENTRYLEN (PATHLEN + 24)
 
 struct Entry {
@@ -191,6 +200,10 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     k = 0;
     entry(&e[k++], "NOHIGHLIGHT", !s->highlight, NULL);
     entry(&e[k++], "LINENUMBERS", s->linenumbers, NULL);
+    entry(&e[k++], "TOOLBAR", s->tbmode != TBMODE_IMAGES,
+          tbmode_names[s->tbmode >= 0 && s->tbmode < NUMTBMODES ? s->tbmode : 0]);
+    entry(&e[k++], "TOOLBARFRAMES", s->tbframes, NULL);
+    entry(&e[k++], "NOFORMATBUTTONS", !s->fmtbuttons, NULL);
     entry(&e[k++], "TTF", s->ttf, NULL);
     entry(&e[k++], "FONTSET", s->fontset[0] != 0, s->fontset);
     sprintf(num, "%ld", (long)s->fontsize);

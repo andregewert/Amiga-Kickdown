@@ -144,6 +144,9 @@ int main(void)
     s.winheight = 560;
     s.winleft = 0;                  /* 0 is a position, not "unset" */
     s.wintop = 24;
+    s.tbmode = TBMODE_TEXT;
+    s.tbframes = TRUE;
+    s.fmtbuttons = FALSE;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:MDEdit"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 
@@ -162,11 +165,19 @@ int main(void)
     s.fontsize = 0;
     s.colours[C_HEADING] = default_colours[C_HEADING];
     s.syncscroll = FALSE;
+    s.tbmode = TBMODE_BOTH;
+    s.tbframes = FALSE;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:MDEdit"), "save again");
     show("after switching ttf off, size 0, default heading colour, nosync:");
     check(!strcmp(icon[2], "(TTF)") && !strcmp(icon[3], "NOSYNC"), "TTF disabled, NOSYNC active");
     for (i = 0; i < nicon && strncmp(icon[i], "(SIZE", 5); i++) ;
     check(i < nicon && !strcmp(icon[i], "(SIZE=14)"), "SIZE disabled with its old value");
+    for (i = 0; i < nicon && strncmp(icon[i], "TOOLBAR=", 8); i++) ;
+    check(i < nicon && !strcmp(icon[i], "TOOLBAR=BOTH"), "TOOLBAR=BOTH");
+    for (i = 0; i < nicon && strcmp(icon[i], "(TOOLBARFRAMES)"); i++) ;
+    check(i < nicon, "TOOLBARFRAMES disabled");
+    for (i = 0; i < nicon && strcmp(icon[i], "NOFORMATBUTTONS"); i++) ;
+    check(i < nicon, "NOFORMATBUTTONS kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:MDEdit");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

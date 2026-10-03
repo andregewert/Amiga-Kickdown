@@ -62,15 +62,17 @@ enum {
     PG_DIALECT, PG_CHARSET, PG_TEMPLATE, PG_NOTEMPLATE,
     PG_COLOUR, PG_DEFCOLOURS = PG_COLOUR + NUMCOLOURS,
     PG_WIDTH, PG_HEIGHT, PG_LEFT, PG_TOP, PG_CURSIZE, PG_AUTOSIZE,
+    PG_TBMODE, PG_TBFRAMES, PG_FMTBUTTONS,
     PG_SAVE, PG_USE, PG_CANCEL
 };
 
 static const LONG categories[] = { MSG_SET_EDITOR, MSG_SET_PREVIEW, MSG_SET_MARKDOWN,
-                                   MSG_SET_COLOURS, MSG_SET_WINDOW };
-#define NUMCATEGORIES 5
+                                   MSG_SET_COLOURS, MSG_SET_WINDOW, MSG_SET_TOOLBAR };
+#define NUMCATEGORIES 6
 
 /* chooser labels; the translated ones are set in build() */
 static STRPTR renderers[] = { NULL, NULL, NULL };
+static STRPTR tbmodes[] = { NULL, NULL, NULL, NULL };     /* order of TBMODE_... */
 static STRPTR fontsets[] = { NULL, (STRPTR)"Vera", (STRPTR)"DejaVu", (STRPTR)"Noto", NULL };
 static STRPTR dialects[] = { (STRPTR)"GitHub", (STRPTR)"CommonMark", NULL };
 static const LONG colour_labels[NUMCOLOURS] = {
@@ -87,6 +89,7 @@ static struct {
     Object *highlight, *linenumbers, *renderer, *fontset, *fontsize, *autorefresh, *sync;
     Object *dialect, *charset, *template, *colours[NUMCOLOURS];
     Object *width, *height, *left, *top;
+    Object *tbmode, *tbframes, *fmtbuttons;
     struct Window *win;
     struct List catlist;
 } pw;
@@ -191,12 +194,15 @@ static Object *filler(void)
 
 static Object *build(const struct Settings *s)
 {
-    Object *editor, *preview, *markdown, *colours, *window;
+    Object *editor, *preview, *markdown, *colours, *window, *toolbar;
     ULONG i;
 
     renderers[0] = (STRPTR)S(MSG_SET_RENDER_HTML);
     renderers[1] = (STRPTR)S(MSG_SET_RENDER_TTF);
     fontsets[0] = (STRPTR)S(MSG_SET_FONTS_AUTO);
+    tbmodes[TBMODE_IMAGES] = (STRPTR)S(MSG_SET_TB_IMAGES);
+    tbmodes[TBMODE_BOTH] = (STRPTR)S(MSG_SET_TB_BOTH);
+    tbmodes[TBMODE_TEXT] = (STRPTR)S(MSG_SET_TB_TEXT);
 
     /* categories */
     NewList(&pw.catlist);
@@ -336,12 +342,29 @@ static Object *build(const struct Settings *s)
         LAYOUT_AddChild, (ULONG)filler(),
         TAG_DONE);
 
+    /* Toolbar */
+    pw.tbmode = chooser(PG_TBMODE, tbmodes,
+                        s->tbmode >= 0 && s->tbmode < NUMTBMODES ? s->tbmode : 0, FALSE);
+    pw.tbframes = checkbox(PG_TBFRAMES, S(MSG_SET_TBFRAMES), s->tbframes, FALSE);
+    pw.fmtbuttons = checkbox(PG_FMTBUTTONS, S(MSG_SET_FMTBUTTONS), s->fmtbuttons, FALSE);
+    toolbar = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[5])),
+        LAYOUT_AddChild, (ULONG)pw.tbmode,   FIXED,
+        CHILD_Label,     (ULONG)label(S(MSG_SET_TBMODE)),
+        LAYOUT_AddChild, (ULONG)pw.tbframes, FIXED,
+        LAYOUT_AddImage, (ULONG)label(S(MSG_SET_TOOLBAR_NOTE)),
+        FIXED,
+        /* takes effect at once */
+        LAYOUT_AddChild, (ULONG)pw.fmtbuttons, FIXED,
+        LAYOUT_AddChild, (ULONG)filler(),
+        TAG_DONE);
+
     pw.page = NewObject(PAGE_GetClass(), NULL,
         PAGE_Add,     (ULONG)editor,
         PAGE_Add,     (ULONG)preview,
         PAGE_Add,     (ULONG)markdown,
         PAGE_Add,     (ULONG)colours,
         PAGE_Add,     (ULONG)window,
+        PAGE_Add,     (ULONG)toolbar,
         PAGE_Current, 0,
         TAG_DONE);
 
@@ -410,6 +433,9 @@ static void read_gadgets(struct Settings *s)
     s->winheight = (LONG)get(pw.height, INTEGER_Number);
     s->winleft = (LONG)get(pw.left, INTEGER_Number);
     s->wintop = (LONG)get(pw.top, INTEGER_Number);
+    s->tbmode = (LONG)get(pw.tbmode, CHOOSER_Selected);
+    s->tbframes = get(pw.tbframes, CHECKBOX_Checked) != 0;
+    s->fmtbuttons = get(pw.fmtbuttons, CHECKBOX_Checked) != 0;
 }
 
 /* gadgets on a hidden page need SetPageGadgetAttrs() */

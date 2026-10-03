@@ -174,7 +174,28 @@
 #define MSG_TBH_QUOTE                169
 #define MSG_MENU_UNDERLINE           170
 #define MSG_TBH_UNDERLINE            171
-#define MSG_COUNT                    172
+#define MSG_SET_TOOLBAR              172
+#define MSG_SET_TBMODE               173
+#define MSG_SET_TB_IMAGES            174
+#define MSG_SET_TB_BOTH              175
+#define MSG_SET_TB_TEXT              176
+#define MSG_SET_TBFRAMES             177
+#define MSG_SET_TOOLBAR_NOTE         178
+#define MSG_TOOLBAR_NEXT_START       179
+#define MSG_TB_HEADING               180
+#define MSG_TB_BOLD                  181
+#define MSG_TB_ITALIC                182
+#define MSG_TB_UNDERLINE             183
+#define MSG_TB_CODE                  184
+#define MSG_TB_LINK                  185
+#define MSG_TB_IMAGE                 186
+#define MSG_TB_BULLET                187
+#define MSG_TB_NUMBERED              188
+#define MSG_TB_QUOTE                 189
+#define MSG_TB_TASK                  190
+#define MSG_MENU_FORMATBAR           191
+#define MSG_SET_FMTBUTTONS           192
+#define MSG_COUNT                    193
 
 /* the built-in (English) strings, defined where MDEDIT_STRINGS is set */
 #ifdef MDEDIT_STRINGS
@@ -351,6 +372,27 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Quote (> )",
     "Underline",
     "Underline (<u>text</u>)",
+    "Toolbar",
+    "_Display ",
+    "Images",
+    "Images and text",
+    "Text",
+    "_Frames around the buttons",
+    "Display and frames take effect at the next start.\nText only starts faster, no images are loaded.\nWith texts the formatting buttons get a second row.",
+    "The toolbar changes at the next start",
+    "Heading",
+    "Bold",
+    "Italic",
+    "Underline",
+    "Code",
+    "Link",
+    "Image",
+    "List",
+    "Numbered",
+    "Quote",
+    "Tasks",
+    "Show formatting buttons",
+    "Show f_ormatting buttons",
 };
 #endif
 

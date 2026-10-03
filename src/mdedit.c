@@ -563,6 +563,14 @@ static void set_linenumbers(void)
 }
 
 /* takes over changed settings while the program runs */
+/* formatting buttons as set.fmtbuttons says, at once if possible */
+static void show_format(void)
+{
+    gui_set_checked(CMD_FORMATBAR, set.fmtbuttons);
+    if (!gui_show_format(set.fmtbuttons))
+        gui_status((CONST_STRPTR)S(MSG_TOOLBAR_NEXT_START));
+}
+
 static void apply_settings(const struct Settings *n)
 {
     struct Settings old = set;
@@ -588,6 +596,9 @@ static void apply_settings(const struct Settings *n)
     }
     if (old.ttf != set.ttf || strcmp(old.fontset, set.fontset) || old.fontsize != set.fontsize)
         gui_status((CONST_STRPTR)S(MSG_FONTS_NEXT_START));
+    else if (old.tbmode != set.tbmode || old.tbframes != set.tbframes)
+        gui_status((CONST_STRPTR)S(MSG_TOOLBAR_NEXT_START));
+    if (old.fmtbuttons != set.fmtbuttons) show_format();
 }
 
 static void edit_settings(void)
@@ -647,6 +658,10 @@ static BOOL command(ULONG cmd)
     case CMD_FIND:        find_open(); break;
     case CMD_FINDNEXT:    find_next(); break;
     case CMD_COPYPREVIEW: copy_preview(); break;
+    case CMD_FORMATBAR:
+        set.fmtbuttons = gui_checked(CMD_FORMATBAR);
+        show_format();
+        break;
     default:
         if (cmd >= CMD_BOLD && cmd <= CMD_QUOTE) format_apply((int)(cmd - CMD_BOLD));
         break;
@@ -865,7 +880,8 @@ int main(void)
                 break;
             case WMHI_GADGETUP:
                 switch (result & WMHI_GADGETMASK) {
-                case GID_TOOLBAR: done = command(code); break;
+                case GID_TOOLBAR:
+                case GID_TOOLBAR2: done = command(code); break;
                 case GID_HTML:    follow_link(); break;
                 }
                 break;

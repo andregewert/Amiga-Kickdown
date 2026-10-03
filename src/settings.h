@@ -12,6 +12,9 @@
 
 #define PATHLEN 512
 
+/* toolbar: what the buttons show */
+enum { TBMODE_IMAGES, TBMODE_BOTH, TBMODE_TEXT, NUMTBMODES };
+
 /* colours of the syntax highlighting */
 enum { C_HEADING, C_CODE, C_QUOTE, C_MARKER, C_LINK, C_URL, C_HTML, NUMCOLOURS };
 
@@ -19,6 +22,10 @@ struct Settings {
     /* editor */
     BOOL  highlight;
     BOOL  linenumbers;
+    /* toolbar, takes effect at the next start */
+    LONG  tbmode;                   /* TBMODE_... */
+    BOOL  tbframes;                 /* frames around the buttons */
+    BOOL  fmtbuttons;               /* formatting buttons shown (at once) */
     /* preview; ttf, fontset and fontsize take effect at the next start */
     BOOL  ttf;
     char  fontset[16];              /* "" = first one found */
@@ -41,6 +48,7 @@ struct Settings {
 
 extern const ULONG default_colours[NUMCOLOURS];
 extern const char *const colour_names[NUMCOLOURS];
+extern const char *const tbmode_names[NUMTBMODES];
 
 void settings_default(struct Settings *s);
 

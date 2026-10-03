@@ -29,24 +29,35 @@ enum {
     CMD_REFRESH, CMD_AUTOREFRESH, CMD_SYNCSCROLL, CMD_COPYPREVIEW,
     /* formatting, in the order of FMT_... (mdformat.h) */
     CMD_BOLD, CMD_ITALIC, CMD_UNDERLINE, CMD_CODE, CMD_LINK, CMD_IMAGE,
-    CMD_HEADING, CMD_BULLET, CMD_NUMBERED, CMD_TASK, CMD_QUOTE
+    CMD_HEADING, CMD_BULLET, CMD_NUMBERED, CMD_TASK, CMD_QUOTE,
+    CMD_FORMATBAR
 };
 
 enum {
     GID_TOOLBAR = 1, GID_EDITOR, GID_ESCROLL, GID_HTML, GID_VSCROLL, GID_HSCROLL,
-    GID_STATUS, GID_POS
+    GID_STATUS, GID_POS, GID_TOOLBAR2
 };
 
 #define MAXTOOLS 32
 
 struct GUI {
     struct Screen *screen;
-    Object *winobj, *layout, *toolbar, *editor, *escroll;
+    Object *winobj, *layout, *tbgroup, *toolbar, *toolbar2, *editor, *escroll;
     Object *html, *vscroll, *hscroll, *status, *pos;
     struct Window *win;
-    struct List buttons;            /* speedbar nodes */
-    Object *images[MAXTOOLS];       /* bitmap.image objects of the buttons */
+    struct List buttons, buttons2;  /* speedbar nodes; buttons2: the formatting
+                                       buttons (second row, or kept here while
+                                       hidden with one row) */
+    BOOL rows;                      /* formatting buttons in a second row */
+    BOOL tbframes;
+    struct Node *nodes[MAXTOOLS];   /* the node of each button */
+    Object *images[MAXTOOLS];       /* bitmap.image or label.image of the buttons */
     Object *ghosts[MAXTOOLS];       /* their ghosted variants (AISS <name>_g) */
+    char labels[MAXTOOLS][40];      /* texts of the label.images */
+    struct DrawInfo *dri;
+    LONG ghostpen;                  /* pen of ghosted texts, -1: not obtained */
+    struct TextAttr *smallattr;     /* small font of image and text buttons ... */
+    struct TextFont *smallfont;     /* ... kept open while they exist */
     ULONG disabled;                 /* ghosted buttons, bit 1 << cmd */
 };
 
@@ -66,6 +77,7 @@ BOOL gui_checked(ULONG cmd);
 void gui_set_checked(ULONG cmd, BOOL on);
 void gui_busy(BOOL on);
 void gui_tools_disabled(ULONG mask);
+BOOL gui_show_format(BOOL on);
 #define TOOLBIT(cmd) ((cmd) < 32 ? 1UL << (cmd) : 0)  /* only commands below 32 */
 struct DiskObject;
 void gui_set_icon(struct DiskObject *icon);

@@ -709,3 +709,88 @@ MSG_TBH_UNDERLINE
 Unterstrichen (<u>Text</u>)
 ; Underline (<u>text</u>)
 ;
+; toolbar settings and short toolbar labels
+MSG_SET_TOOLBAR
+Werkzeugleiste
+; Toolbar
+;
+MSG_SET_TBMODE
+_Darstellung 
+; _Display 
+;
+MSG_SET_TB_IMAGES
+Bilder
+; Images
+;
+MSG_SET_TB_BOTH
+Bilder und Text
+; Images and text
+;
+MSG_SET_TB_TEXT
+Text
+; Text
+;
+MSG_SET_TBFRAMES
+_Rahmen um die Knöpfe
+; _Frames around the buttons
+;
+MSG_SET_TOOLBAR_NOTE
+Darstellung und Rahmen gelten ab dem nächsten Start.\nNur Text startet schneller, es werden keine Bilder geladen.\nMit Texten erhalten die Formatierungsknöpfe eine zweite Zeile.
+; Takes effect at the next start. Text only starts faster,\nno images are loaded. With texts the formatting\nbuttons get a second row.
+;
+MSG_TOOLBAR_NEXT_START
+Die Werkzeugleiste ändert sich beim nächsten Start
+; The toolbar changes at the next start
+;
+MSG_TB_HEADING
+Überschr.
+; Heading
+;
+MSG_TB_BOLD
+Fett
+; Bold
+;
+MSG_TB_ITALIC
+Kursiv
+; Italic
+;
+MSG_TB_UNDERLINE
+Unterstr.
+; Underline
+;
+MSG_TB_CODE
+Code
+; Code
+;
+MSG_TB_LINK
+Link
+; Link
+;
+MSG_TB_IMAGE
+Bild
+; Image
+;
+MSG_TB_BULLET
+Liste
+; List
+;
+MSG_TB_NUMBERED
+Nummern
+; Numbered
+;
+MSG_TB_QUOTE
+Zitat
+; Quote
+;
+MSG_TB_TASK
+Aufgaben
+; Tasks
+;
+MSG_MENU_FORMATBAR
+Formatierungsknöpfe zeigen
+; Show formatting buttons
+;
+MSG_SET_FMTBUTTONS
+_Formatierungsknöpfe zeigen
+; Show f_ormatting buttons
+;
