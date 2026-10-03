@@ -97,6 +97,7 @@ void splash_open(CONST_STRPTR iconname, CONST_STRPTR name, CONST_STRPTR version,
 void splash_status(CONST_STRPTR text);
 void splash_step(void);
 void splash_close(void);
+BOOL about_window(CONST_STRPTR iconname, CONST_STRPTR name, CONST_STRPTR version, const char *details);
 ULONG gui_tool_count(void);
 
 void format_apply(int kind);

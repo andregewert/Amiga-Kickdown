@@ -629,3 +629,6 @@ Opening the window...
 MSG_SET_SPLASH (//)
 Show s_plash window at the start
 ;
+MSG_ABOUT_DETAILS (//)
+www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
+;

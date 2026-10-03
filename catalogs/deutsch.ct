@@ -831,3 +831,7 @@ MSG_SET_SPLASH
 Startfenster beim Programmstart _zeigen
 ; Show s_plash window at the start
 ;
+MSG_ABOUT_DETAILS
+www.ubergeek.de - agewert@ubergeek.de\nVeröffentlicht unter der MIT-Lizenz\n\nMarkdown-Parser: %s\nVorschau: %s %ld.%ld
+; www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
+;

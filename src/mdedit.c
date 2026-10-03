@@ -510,6 +510,14 @@ static void export_html(void)
 
 static void about(void)
 {
+    char details[300];
+
+    snprintf(details, sizeof(details), S(MSG_ABOUT_DETAILS), mdconv_version(),
+             (const char *)HTMLBase->lib_Node.ln_Name,
+             (long)HTMLBase->lib_Version, (long)HTMLBase->lib_Revision);
+    if (about_window((CONST_STRPTR)iconname, (CONST_STRPTR)APPNAME, (CONST_STRPTR)VERSION_TEXT, details))
+        return;
+    /* without the window: a requester */
     request_centred((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_ABOUT),
             (CONST_STRPTR)APPNAME, (CONST_STRPTR)VERSION_TEXT,
             (CONST_STRPTR)mdconv_version(),

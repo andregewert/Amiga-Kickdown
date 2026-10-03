@@ -204,7 +204,8 @@
 #define MSG_SPLASH_TOOLBAR           199
 #define MSG_SPLASH_WINDOW            200
 #define MSG_SET_SPLASH               201
-#define MSG_COUNT                    202
+#define MSG_ABOUT_DETAILS            202
+#define MSG_COUNT                    203
 
 /* the built-in (English) strings, defined where MDEDIT_STRINGS is set */
 #ifdef MDEDIT_STRINGS
@@ -411,6 +412,7 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Preparing the toolbar...",
     "Opening the window...",
     "Show s_plash window at the start",
+    "www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld",
 };
 #endif
 
