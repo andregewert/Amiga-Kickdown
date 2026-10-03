@@ -2,6 +2,7 @@
 
 MDEdit (ReAction-Markdown-Editor mit HTML-Vorschau) und mdtohtml (CLI) für AmigaOS 3.2,
 cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README.de.md`.
+Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 
 ## Aufbau
 
@@ -59,7 +60,7 @@ cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README
 
 - Amiga-Quellen, Kataloge und Testdateien (`src/`, `catalogs/`, `test/`, `package/`, `Makefile`,
   `LICENSE`) sind
-  **ISO-8859-1**. Ausnahmen (UTF-8): `README*.md`, `CLAUDE.md` und `test/utf8.*` (testet die
+  **ISO-8859-1**. Ausnahmen (UTF-8): `README*.md`, `CLAUDE.md`, `docs/*.md` und `test/utf8.*` (testet die
   Zeichensatzerkennung).
 - Namen richtig schreiben, auch in C-Quellen: „André Gewert“ (é als ISO-8859-1 0xE9), nicht
   „Andre“. Sonst in C-Kommentaren möglichst ASCII. Dateien mit Umlauten mit Python schreiben
