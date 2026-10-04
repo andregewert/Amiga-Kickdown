@@ -431,15 +431,24 @@ static ULONG export_progress(struct Hook *h __asm("a0"), Object *o __asm("a2"),
 }
 
 struct PrintSrc {
-    Object *gadget;
-    LONG    page;
+    Object        *gadget;
+    LONG           page;
+    struct Task   *task;            /* told about each strip, for the progress */
+    ULONG          sigmask;
+    volatile LONG  row;             /* rows of the page delivered so far */
 };
 
 /* called by printer.device on its task: the pixels of a strip */
 static ULONG print_source(struct Hook *h __asm("a0"), APTR o __asm("a2"), struct DRPSourceMsg *m __asm("a1"))
 {
     struct PrintSrc *ps = h->h_Data;
-    return DoMethod(ps->gadget, HTMLM_PrintRender, ps->page, m->x, m->y, m->width, m->height, (ULONG)m->buf);
+    ULONG rc = DoMethod(ps->gadget, HTMLM_PrintRender, ps->page, m->x, m->y, m->width, m->height, (ULONG)m->buf);
+
+    if ((LONG)(m->y + m->height) > ps->row) {
+        ps->row = m->y + m->height;
+        if (ps->sigmask) Signal(ps->task, ps->sigmask);
+    }
+    return rc;
 }
 
 /* a print to printer.device */
@@ -459,6 +468,7 @@ static void print_send(struct BitmapPrint *bp, LONG page)
     struct IODRPTagsReq *io = bp->io;
 
     bp->src.page = page;
+    bp->src.row = 0;
     io->io_Command = PRD_DUMPRPORTTAGS;
     io->io_RastPort = &bp->rp;
     io->io_ColorMap = bp->cmap;
@@ -486,6 +496,7 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
     ULONG sig = 0, mainsig = 0, portsig = 1UL << bp->port->mp_SigBit, result;
     UWORD code;
     LONG page = first, copy = 0, printed = 0, total = (last - first + 1) * copies, err = 0;
+    LONG level, shown = -1, stripbit;
     BOOL stopped = FALSE, done = FALSE;
     char buf[100];
 
@@ -494,7 +505,7 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
         GA_ReadOnly, TRUE, GA_Text, (ULONG)buf, BUTTON_BevelStyle, BVS_NONE,
         BUTTON_Justification, BCJ_LEFT, TAG_DONE);
     gauge = NewObject(FUELGAUGE_GetClass(), NULL,
-        FUELGAUGE_Min, 0, FUELGAUGE_Max, total, FUELGAUGE_Level, 0,
+        FUELGAUGE_Min, 0, FUELGAUGE_Max, total * 100, FUELGAUGE_Level, 0,
         FUELGAUGE_Percent, TRUE, FUELGAUGE_Ticks, 0, TAG_DONE);
     stop = button(PW_STOP, S(MSG_PR_STOP));
     winobj = NewObject(WINDOW_GetClass(), NULL,
@@ -528,18 +539,30 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
     if (win) GetAttr(WINDOW_SigMask, winobj, &sig);
     GetAttr(WINDOW_SigMask, gui.winobj, &mainsig);
     gui_busy(TRUE);
+    /* the source hook signals each strip: the gauge moves within a page,
+     * in 1/100 page                                                    */
+    bp->src.task = FindTask(NULL);
+    if ((stripbit = AllocSignal(-1)) >= 0) bp->src.sigmask = 1UL << stripbit;
 
     for (;;) {
         snprintf(buf, sizeof(buf), S(MSG_PR_PRINTING), (long)page, (long)last);
         gui_status((CONST_STRPTR)buf);
         if (win) {
             SetGadgetAttrs((struct Gadget *)text, win, NULL, GA_Text, (ULONG)buf, TAG_DONE);
-            SetGadgetAttrs((struct Gadget *)gauge, win, NULL, FUELGAUGE_Level, printed, TAG_DONE);
+            if ((level = printed * 100) != shown)
+                SetGadgetAttrs((struct Gadget *)gauge, win, NULL, FUELGAUGE_Level, shown = level, TAG_DONE);
         }
         print_send(bp, page);
         done = FALSE;
         while (!done) {
-            ULONG got = Wait(sig | mainsig | portsig);
+            ULONG got = Wait(sig | mainsig | portsig | bp->src.sigmask);
+
+            if ((got & bp->src.sigmask) && win && bp->sh > 0) {
+                LONG row = bp->src.row;
+                if (row > bp->sh) row = bp->sh;
+                if ((level = printed * 100 + row * 100 / bp->sh) != shown)
+                    SetGadgetAttrs((struct Gadget *)gauge, win, NULL, FUELGAUGE_Level, shown = level, TAG_DONE);
+            }
 
             /* the main window waits: its input is dropped */
             if (got & mainsig)
@@ -576,6 +599,8 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
         }
     }
 
+    bp->src.sigmask = 0;
+    if (stripbit >= 0) FreeSignal(stripbit);
     gui_busy(FALSE);
     if (winobj) DisposeObject(winobj);
     if (stopped || err == PDERR_CANCEL) return -1;
