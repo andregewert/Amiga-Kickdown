@@ -484,7 +484,7 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Pages fro_m ",
     "t_o ",
     "Cop_ies ",
-    "\"to\" 0 = up to the last page.\nQuality and copies: printer only; the quality\nis at most the printer's resolution.",
+    "\"to\" 0 = up to the last page.\nThe quality is at most the printer's resolution.",
     "Pape_r ",
     "Margins (mm) ",
     "left ",
