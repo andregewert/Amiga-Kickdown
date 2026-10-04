@@ -20,7 +20,9 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   (html_gadget 1.2): PS/PDF mit `HTMLM_Export`, Bitmap-Druck mit `HTMLM_PrintBegin/Render` und
   printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers aus `ped_XDotsInch`/`ped_YDotsInch`,
   ohne Skalierung durch printer.device (die staucht vertikal), der Hook skaliert selbst; asynchron
-  mit `SendIO()` hinter einem modalen Fortschrittsfenster mit fuelgauge.gadget). Seitenbereich und Kopien sind nicht Teil der Einstellungen.
+  mit `SendIO()` hinter einem modalen Fortschrittsfenster mit fuelgauge.gadget, `progress_...()`). Beim
+  PS/PDF-Export läuft der Fortschritts-Hook auf dem Stack des Gadgets: dort nur das Fortschrittsfenster
+  bedienen, nicht das Hauptfenster (die Vorschau würde denselben Stack noch einmal benutzen). Seitenbereich und Kopien sind nicht Teil der Einstellungen.
 - `src/splash.c`: Startfenster, nur Intuition/graphics (öffnet vor den ReAction-Klassen);
   `splash_step()` an jeder Ladestufe, die Schrittzahl steht in `main()`.
 - Formatierung (Toolbar, Menü *Format*): `src/mdformat.c` ändert den Text (reines ANSI-C,

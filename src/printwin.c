@@ -432,15 +432,6 @@ static BOOL gadget_can_print(void)
     return HTMLBase && (HTMLBase->lib_Version > 1 || (HTMLBase->lib_Version == 1 && HTMLBase->lib_Revision >= 2));
 }
 
-static ULONG export_progress(struct Hook *h __asm("a0"), Object *o __asm("a2"),
-                             struct HTMLExportProgress *p __asm("a1"))
-{
-    char buf[80];
-    snprintf(buf, sizeof(buf), S(MSG_PR_WRITING), (long)p->Page, (long)p->Pages);
-    gui_status((CONST_STRPTR)buf);
-    return 0;
-}
-
 struct PrintSrc {
     Object        *gadget;
     LONG           page;
@@ -526,30 +517,33 @@ static void print_send(struct BitmapPrint *bp, LONG page)
     SendIO((struct IORequest *)io);
 }
 
-/* The pages one after the other with a modal progress window: the page
- * being printed, a gauge over all pages and copies, Stop (also the close
- * gadget and Esc). Returns the pages printed, -1 when stopped, or the
- * negative printer error - 1.                                         */
-static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copies)
-{
-    Object *winobj, *text, *gauge, *stop;
-    struct Window *win = NULL;
-    ULONG sig = 0, mainsig = 0, portsig = 1UL << bp->port->mp_SigBit, result;
-    UWORD code;
-    LONG page = first, copy = 0, printed = 0, total = (last - first + 1) * copies, err = 0;
-    LONG level, shown = -1, stripbit;
-    BOOL stopped = FALSE, done = FALSE;
-    char buf[100];
+/* the modal progress window of printing and export */
+struct Progress {
+    Object        *winobj, *text, *gauge, *stop;
+    struct Window *win;
+    ULONG          sig, mainsig;
+    LONG           shown;
+    BOOL           stopped;
+    LONG           first, last;     /* export: the page range (last 0 = to the end) */
+    LONG           max;
+    char           buf[100];
+};
 
-    snprintf(buf, sizeof(buf), S(MSG_PR_PRINTING), (long)last, (long)last);
-    text = NewObject(BUTTON_GetClass(), NULL,
-        GA_ReadOnly, TRUE, GA_Text, (ULONG)buf, BUTTON_BevelStyle, BVS_NONE,
+/* 'widest': a text as wide as the longest one to come */
+static void progress_open(struct Progress *p, const char *widest, LONG max)
+{
+    memset(p, 0, sizeof(*p));
+    p->shown = -1;
+    p->max = max > 0 ? max : 1;
+    strncpy(p->buf, widest, sizeof(p->buf) - 1);
+    p->text = NewObject(BUTTON_GetClass(), NULL,
+        GA_ReadOnly, TRUE, GA_Text, (ULONG)p->buf, BUTTON_BevelStyle, BVS_NONE,
         BUTTON_Justification, BCJ_LEFT, TAG_DONE);
-    gauge = NewObject(FUELGAUGE_GetClass(), NULL,
-        FUELGAUGE_Min, 0, FUELGAUGE_Max, total * 100, FUELGAUGE_Level, 0,
+    p->gauge = NewObject(FUELGAUGE_GetClass(), NULL,
+        FUELGAUGE_Min, 0, FUELGAUGE_Max, p->max, FUELGAUGE_Level, 0,
         FUELGAUGE_Percent, TRUE, FUELGAUGE_Ticks, 0, TAG_DONE);
-    stop = button(PW_STOP, S(MSG_PR_STOP));
-    winobj = NewObject(WINDOW_GetClass(), NULL,
+    p->stop = button(PW_STOP, S(MSG_PR_STOP));
+    p->winobj = NewObject(WINDOW_GetClass(), NULL,
         WA_Title,           (ULONG)S(MSG_PR_PROGRESS_TITLE),
         WA_PubScreen,       (ULONG)gui.screen,
         WA_Activate,        TRUE,
@@ -563,23 +557,83 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
             LAYOUT_Orientation,  LAYOUT_ORIENT_VERT,
             LAYOUT_SpaceOuter,   TRUE,
             LAYOUT_DeferLayout,  TRUE,
-            LAYOUT_AddChild,     (ULONG)text,
-            LAYOUT_AddChild,     (ULONG)gauge,
+            LAYOUT_AddChild,     (ULONG)p->text,
+            LAYOUT_AddChild,     (ULONG)p->gauge,
             CHILD_MinWidth,      240,
             LAYOUT_AddChild,     (ULONG)NewObject(LAYOUT_GetClass(), NULL,
                 LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
                 LAYOUT_AddChild,    (ULONG)filler(),
-                LAYOUT_AddChild,    (ULONG)stop,
+                LAYOUT_AddChild,    (ULONG)p->stop,
                 CHILD_WeightedWidth, 0,
                 LAYOUT_AddChild,    (ULONG)filler(),
                 TAG_DONE),
             CHILD_WeightedHeight, 0,
             TAG_DONE),
         TAG_DONE);
-    if (winobj) win = (struct Window *)DoMethod(winobj, WM_OPEN);
-    if (win) GetAttr(WINDOW_SigMask, winobj, &sig);
-    GetAttr(WINDOW_SigMask, gui.winobj, &mainsig);
+    if (p->winobj) p->win = (struct Window *)DoMethod(p->winobj, WM_OPEN);
+    if (p->win) GetAttr(WINDOW_SigMask, p->winobj, &p->sig);
+    GetAttr(WINDOW_SigMask, gui.winobj, &p->mainsig);
     gui_busy(TRUE);
+}
+
+/* a new text (also in the status bar) or NULL, and the gauge */
+static void progress_set(struct Progress *p, const char *text, LONG level)
+{
+    if (text) {
+        strncpy(p->buf, text, sizeof(p->buf) - 1);
+        gui_status((CONST_STRPTR)p->buf);
+        if (p->win) SetGadgetAttrs((struct Gadget *)p->text, p->win, NULL, GA_Text, (ULONG)p->buf, TAG_DONE);
+    }
+    if (p->win && level != p->shown)
+        SetGadgetAttrs((struct Gadget *)p->gauge, p->win, NULL, FUELGAUGE_Level, p->shown = level, TAG_DONE);
+}
+
+/* The window's input; TRUE once Stop, the close gadget or Esc came. The
+ * main window's input is dropped if 'main' (not while the gadget works
+ * on our stack: the preview must not be drawn then).                   */
+static BOOL progress_input(struct Progress *p, BOOL main)
+{
+    ULONG result;
+    UWORD code;
+    BOOL stop = FALSE;
+
+    if (main) while (DoMethod(gui.winobj, WM_HANDLEINPUT, &code) != WMHI_LASTMSG) ;
+    if (p->win)
+        while ((result = DoMethod(p->winobj, WM_HANDLEINPUT, &code)) != WMHI_LASTMSG)
+            switch (result & WMHI_CLASSMASK) {
+            case WMHI_CLOSEWINDOW: stop = TRUE; break;
+            case WMHI_GADGETUP: if ((result & WMHI_GADGETMASK) == PW_STOP) stop = TRUE; break;
+            case WMHI_RAWKEY: if ((result & WMHI_KEYMASK) == 0x45) stop = TRUE; break;     /* Esc */
+            }
+    if (stop && !p->stopped) {
+        p->stopped = TRUE;
+        if (p->win) SetGadgetAttrs((struct Gadget *)p->stop, p->win, NULL, GA_Disabled, TRUE, TAG_DONE);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void progress_close(struct Progress *p)
+{
+    gui_busy(FALSE);
+    if (p->winobj) DisposeObject(p->winobj);
+    p->winobj = NULL;
+    p->win = NULL;
+}
+
+/* The pages one after the other with the progress window: the page being
+ * printed, a gauge over all pages and copies, Stop. Returns the pages
+ * printed, -1 when stopped, or the negative printer error - 1.        */
+static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copies)
+{
+    struct Progress pr;
+    ULONG portsig = 1UL << bp->port->mp_SigBit;
+    LONG page = first, copy = 0, printed = 0, total = (last - first + 1) * copies, err = 0, stripbit;
+    BOOL done;
+    char buf[100];
+
+    snprintf(buf, sizeof(buf), S(MSG_PR_PRINTING), (long)last, (long)last);
+    progress_open(&pr, buf, total * 100);
     /* the source hook signals each strip: the gauge moves within a page,
      * in 1/100 page                                                    */
     bp->src.task = FindTask(NULL);
@@ -587,52 +641,24 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
 
     for (;;) {
         snprintf(buf, sizeof(buf), S(MSG_PR_PRINTING), (long)page, (long)last);
-        gui_status((CONST_STRPTR)buf);
-        if (win) {
-            SetGadgetAttrs((struct Gadget *)text, win, NULL, GA_Text, (ULONG)buf, TAG_DONE);
-            if ((level = printed * 100) != shown)
-                SetGadgetAttrs((struct Gadget *)gauge, win, NULL, FUELGAUGE_Level, shown = level, TAG_DONE);
-        }
+        progress_set(&pr, buf, printed * 100);
         print_send(bp, page);
         done = FALSE;
         while (!done) {
-            ULONG got = Wait(sig | mainsig | portsig | bp->src.sigmask);
+            ULONG got = Wait(pr.sig | pr.mainsig | portsig | bp->src.sigmask);
 
-            if ((got & bp->src.sigmask) && win && bp->dh > 0) {
+            if ((got & bp->src.sigmask) && bp->dh > 0) {
                 LONG row = bp->src.row;
                 if (row > bp->dh) row = bp->dh;
-                if ((level = printed * 100 + row * 100 / bp->dh) != shown)
-                    SetGadgetAttrs((struct Gadget *)gauge, win, NULL, FUELGAUGE_Level, shown = level, TAG_DONE);
+                progress_set(&pr, NULL, printed * 100 + row * 100 / bp->dh);
             }
-
-            /* the main window waits: its input is dropped */
-            if (got & mainsig)
-                while (DoMethod(gui.winobj, WM_HANDLEINPUT, &code) != WMHI_LASTMSG) ;
-            if (win)
-                while ((result = DoMethod(winobj, WM_HANDLEINPUT, &code)) != WMHI_LASTMSG) {
-                    switch (result & WMHI_CLASSMASK) {
-                    case WMHI_CLOSEWINDOW: break;
-                    case WMHI_GADGETUP:
-                        if ((result & WMHI_GADGETMASK) == PW_STOP) break;
-                        continue;
-                    case WMHI_RAWKEY:
-                        if ((result & WMHI_KEYMASK) == 0x45) break;     /* Esc */
-                        continue;
-                    default:
-                        continue;
-                    }
-                    if (!stopped) {
-                        stopped = TRUE;
-                        AbortIO((struct IORequest *)bp->io);
-                        SetGadgetAttrs((struct Gadget *)stop, win, NULL, GA_Disabled, TRUE, TAG_DONE);
-                    }
-                }
+            if (progress_input(&pr, TRUE)) AbortIO((struct IORequest *)bp->io);
             if (CheckIO((struct IORequest *)bp->io)) {
                 WaitIO((struct IORequest *)bp->io);
                 done = TRUE;
             }
         }
-        if (stopped || (err = bp->io->io_Error)) break;
+        if (pr.stopped || (err = bp->io->io_Error)) break;
         printed++;
         if (++page > last) {
             page = first;
@@ -642,9 +668,8 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
 
     bp->src.sigmask = 0;
     if (stripbit >= 0) FreeSignal(stripbit);
-    gui_busy(FALSE);
-    if (winobj) DisposeObject(winobj);
-    if (stopped || err == PDERR_CANCEL) return -1;
+    progress_close(&pr);
+    if (pr.stopped || err == PDERR_CANCEL) return -1;
     if (err) return -err - 1;
     return printed;
 }
@@ -759,6 +784,26 @@ out:
     FuelGaugeBase = NULL;
 }
 
+/* HTMLM_Export calls it before each page, on our task but on the
+ * gadget's stack: only the progress window is served (see
+ * progress_input()). Non-zero stops the export.                       */
+static ULONG export_progress(struct Hook *h __asm("a0"), Object *o __asm("a2"),
+                             struct HTMLExportProgress *m __asm("a1"))
+{
+    struct Progress *p = h->h_Data;
+    LONG last = p->last > 0 && p->last < m->Pages ? p->last : m->Pages;
+    char buf[100];
+
+    if (p->win && last - p->first + 1 != p->max && last >= p->first) {
+        p->max = last - p->first + 1;
+        SetGadgetAttrs((struct Gadget *)p->gauge, p->win, NULL, FUELGAUGE_Max, p->max, TAG_DONE);
+    }
+    snprintf(buf, sizeof(buf), S(MSG_PR_WRITING), (long)m->Page, (long)last);
+    progress_set(p, buf, m->Page - p->first);
+    progress_input(p, FALSE);
+    return p->stopped;
+}
+
 static void export_ps_pdf(const struct Settings *s, const char *file, const struct PrintJob *job)
 {
     const char *name;
@@ -766,6 +811,8 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
     BPTR fh;
     char buf[100];
     struct Hook hook;
+    struct Progress pr;
+    BOOL tofile = s->prmode == PRMODE_PDF || s->prdest == PRDEST_FILE;
     struct TagItem tags[] = {
         { HTMLEX_File, 0 }, { HTMLEX_Format, 0 }, { HTMLEX_PaperWidth, 0 }, { HTMLEX_PaperHeight, 0 },
         { HTMLEX_MarginLeft, 0 }, { HTMLEX_MarginTop, 0 }, { HTMLEX_MarginRight, 0 }, { HTMLEX_MarginBottom, 0 },
@@ -774,7 +821,7 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
         { HTMLEX_PSLevel, 2 }, { TAG_DONE, 0 }
     };
 
-    if (s->prmode == PRMODE_PDF || s->prdest == PRDEST_FILE) {
+    if (tofile) {
         name = file;
         if (!name[0]) return;
         if (!confirm_overwrite((CONST_STRPTR)name)) return;
@@ -793,6 +840,7 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
     }
     memset(&hook, 0, sizeof(hook));
     hook.h_Entry = (ULONG (*)())export_progress;
+    hook.h_Data = &pr;
     tags[0].ti_Data = (ULONG)fh;
     tags[1].ti_Data = s->prmode == PRMODE_PDF ? HTMLEXF_PDF : HTMLEXF_PS;
     tags[2].ti_Data = paper_sizes[s->paper][0];
@@ -810,9 +858,28 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
     tags[14].ti_Data = (ULONG)&hook;
     tags[15].ti_Data = (ULONG)&pages;
     tags[16].ti_Data = s->pslevel == 1 ? 1 : 2;
-    gui_busy(TRUE);
+    /* the progress window, without fuelgauge.gadget only the status bar */
+    snprintf(buf, sizeof(buf), S(MSG_PR_WRITING), 999L, 999L);
+    if (!FuelGaugeBase) FuelGaugeBase = OpenLibrary((STRPTR)"gadgets/fuelgauge.gadget", 44);
+    if (FuelGaugeBase) progress_open(&pr, buf, 1);
+    else {
+        memset(&pr, 0, sizeof(pr));
+        gui_busy(TRUE);
+    }
+    pr.first = job->first > 0 ? job->first : 1;
+    pr.last = job->last;
     n = (LONG)DoMethod(gui.html, HTMLM_Export, (ULONG)tags);
-    gui_busy(FALSE);
+    if (FuelGaugeBase) {
+        progress_close(&pr);
+        CloseLibrary(FuelGaugeBase);
+        FuelGaugeBase = NULL;
+    } else gui_busy(FALSE);
+    if (n == -2) {                  /* stopped: no half file */
+        Close(fh);
+        if (tofile) DeleteFile((STRPTR)name);
+        gui_status((CONST_STRPTR)S(MSG_PR_STOPPED));
+        return;
+    }
     if (n < 0) {
         LONG err = IoErr();
         Close(fh);

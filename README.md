@@ -64,7 +64,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
   dots), as **PostScript** (level 2, or level 1 for old printers) to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
   **PDF**. Paper size (A4, A5, Letter, Legal), margins, font and size for PostScript/PDF, page
   numbers, background colours, page range and copies. The printer adds its own hardware
-  margins. A window shows the progress of a print and can stop it. Needs html.gadget 1.2.
+  margins. A window shows the progress of printing and of PostScript/PDF output and can stop it. Needs html.gadget 1.2.
 * Cut/Copy/Paste/Undo/Redo, select all; text selected in the preview can be copied, too.
 * Find and replace (*Edit/Find...*, Amiga-F): a window next to the editor with case sensitive,
   whole words, backwards and wrap around; Replace all is one undo step. *Find next* (Amiga-G)

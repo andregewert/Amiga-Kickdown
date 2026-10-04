@@ -65,7 +65,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
   als **PostScript** (Level 2, oder Level 1 für alte Drucker) in eine Datei, nach `PRT:`, `PS:` (TurboPrint) oder an ein Gerät, oder als
   **PDF**. Papierformat (A4, A5, Letter, Legal), Ränder, Schrift und Größe für PostScript/PDF,
   Seitenzahlen, Hintergrundfarben, Seitenbereich und Kopien. Der Drucker fügt eigene
-  Hardware-Ränder hinzu. Ein Fenster zeigt den Fortschritt des Drucks und kann ihn abbrechen.
+  Hardware-Ränder hinzu. Ein Fenster zeigt den Fortschritt des Drucks und der PostScript-/PDF-Ausgabe und kann sie abbrechen.
   Braucht html.gadget 1.2.
 * Öffnen, Speichern, Speichern als, HTML exportieren; Rückfrage vor dem Verwerfen von Änderungen
   und vor dem Überschreiben.
