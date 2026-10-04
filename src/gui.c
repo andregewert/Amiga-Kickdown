@@ -539,6 +539,8 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
         GA_ID,                GID_HTML,
         GA_RelVerify,         TRUE,
         HTML_Text,            (ULONG)"",
+        /* big screenshots no wider than the preview (html_gadget 1.2) */
+        HTML_FitImages,       TRUE,
         /* htmlttf.gadget only, html.gadget ignores them */
         set->ttf && set->fontset[0] ? HTMLTTF_FontSet : TAG_IGNORE, (ULONG)set->fontset,
         set->ttf && set->fontsize > 0 ? HTMLTTF_Size : TAG_IGNORE, set->fontsize,

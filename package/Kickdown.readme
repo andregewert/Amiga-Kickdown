@@ -99,6 +99,8 @@ History
    preview), as PostScript to a file, PRT:, PS: (TurboPrint) or a
    device, or as PDF; paper size, margins, font and size, page numbers,
    background colours, page range, copies; needs html_gadget 1.2
+ - big pictures are scaled down to the width of the preview (and of the
+   printed page); needs html_gadget 1.2
  - menu check marks keep their state after iconifying and after changes
    in the settings window
  - "images and text" toolbar: pressed buttons show the AISS selected
@@ -145,6 +147,8 @@ Versionsgeschichte
    (TurboPrint) oder an ein Gerät, oder als PDF; Papierformat, Ränder,
    Schrift und Größe, Seitenzahlen, Hintergrundfarben, Seitenbereich,
    Kopien; braucht html_gadget 1.2
+ - große Bilder werden auf die Breite der Vorschau (und der gedruckten
+   Seite) verkleinert; braucht html_gadget 1.2
  - Menü-Häkchen behalten ihren Zustand nach dem Ikonifizieren und nach
    Änderungen im Einstellungsfenster
  - Toolbar "Bilder und Text": gedrückte Knöpfe zeigen wieder das
