@@ -786,3 +786,9 @@ PS: is not available (TurboPrint is not installed or not running).
 MSG_PR_CANNOT_OPEN (//)
 Cannot open the output
 ;
+MSG_SET_FITIMAGES (//)
+Fit _big pictures to the preview width
+;
+MSG_SET_FITIMAGES_NOTE (//)
+Scaling big pictures takes time on slower Amigas.
+;

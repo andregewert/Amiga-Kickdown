@@ -52,6 +52,9 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
 * Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
+* Auf Wunsch werden große Bilder auf die Breite der Vorschau verkleinert (Einstellungen, *Vorschau*;
+  Tooltype `FITIMAGES`, abgeschaltet, weil das Skalieren auf langsameren Amigas Zeit braucht); der
+  Druck übernimmt die Einstellung. Braucht html.gadget 1.2.
 * Links: `#anker` scrollen die Vorschau, Links auf `.md`-Dateien öffnen diese im Editor, andere
   Links erscheinen in der Statuszeile.
 * Überschriften erhalten Anker wie auf GitHub (`## Zwei Worte` → `#zwei-worte`), damit
@@ -91,7 +94,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
 
 Die Einstellungen kommen aus den Tooltypes des Kickdown-Icons, auch beim Start aus der Shell;
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
 `PRINT_MODE=PRINTER|PS|PDF`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
 `MARGINS=links,oben,rechts,unten` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_DPI=`, `NOPAGENUMBERS`,

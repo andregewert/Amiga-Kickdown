@@ -599,11 +599,14 @@ static void apply_settings(const struct Settings *n)
         gui_set_checked(CMD_LINENUMBERS, set.linenumbers);
         set_linenumbers();
     }
+    if (old.fitimages != set.fitimages)
+        SetGadgetAttrs((struct Gadget *)gui.html, gui.win, NULL, HTML_FitImages, set.fitimages, TAG_DONE);
     if (strcmp(old.dialect, set.dialect) || strcmp(old.charset, set.charset) ||
         strcmp(old.template, set.template)) {
         setup_conversion();
         update_preview();
-    }
+    } else if (old.fitimages != set.fitimages)
+        update_preview();           /* new fixed points for the scroll sync */
     if (old.ttf != set.ttf || strcmp(old.fontset, set.fontset) || old.fontsize != set.fontsize)
         gui_status((CONST_STRPTR)S(MSG_FONTS_NEXT_START));
     else if (old.tbmode != set.tbmode || old.tbframes != set.tbframes)

@@ -37,6 +37,7 @@ struct Settings {
     LONG  fontsize;                 /* 0 = from the screen font */
     BOOL  autorefresh;
     BOOL  syncscroll;
+    BOOL  fitimages;                /* pictures no wider than the preview */
     /* Markdown */
     char  dialect[20];              /* "GitHub" or "CommonMark" */
     char  charset[40];              /* "" = detected */

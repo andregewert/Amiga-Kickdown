@@ -1040,3 +1040,11 @@ MSG_PR_CANNOT_OPEN
 Die Ausgabe lässt sich nicht öffnen
 ; Cannot open the output
 ;
+MSG_SET_FITIMAGES
+Große Bilder an die _Vorschaubreite anpassen
+; Fit _big pictures to the preview width
+;
+MSG_SET_FITIMAGES_NOTE
+Das Verkleinern großer Bilder braucht auf langsameren Amigas Zeit.
+; Scaling big pictures takes time on slower Amigas.
+;

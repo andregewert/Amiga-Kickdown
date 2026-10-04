@@ -148,6 +148,7 @@ int main(void)
     s.tbframes = TRUE;
     s.fmtbuttons = FALSE;
     s.splash = FALSE;
+    s.fitimages = TRUE;
     s.prmode = PRMODE_PDF;
     s.prdest = PRDEST_DEVICE;
     strcpy(s.prdevice, "PAR:");
@@ -194,6 +195,8 @@ int main(void)
     check(i < nicon, "MARGINS kept");
     for (i = 0; i < nicon && strcmp(icon[i], "PAPER=LETTER"); i++) ;
     check(i < nicon, "PAPER kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "FITIMAGES"); i++) ;
+    check(i < nicon, "FITIMAGES kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

@@ -51,6 +51,9 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
 * Editor and preview scroll together (*Preview/Synchronize scrolling*, both directions). Headings
   are the fixed points, positions between them are interpolated.
 * Relative image paths are resolved against the document's drawer.
+* Optionally, big pictures are scaled down to the width of the preview (Settings, *Preview*;
+  tool type `FITIMAGES`, off by default because scaling takes time on slower Amigas); printing uses
+  the setting, too. Needs html.gadget 1.2.
 * Links: `#anchors` scroll the preview, links to `.md` files open them in the editor, other
   links are shown in the status line.
 * Headings get GitHub style anchors (`## Two Words` → `#two-words`), so tables of contents work.
@@ -84,7 +87,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
 
 The settings are read from the tool types of the Kickdown icon, also when Kickdown is started from
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
+`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
 `PRINT_MODE=PRINTER|PS|PDF`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
 `MARGINS=left,top,right,bottom` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_DPI=`, `NOPAGENUMBERS`,

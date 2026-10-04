@@ -59,7 +59,7 @@ struct Library *ListBrowserBase = NULL, *ChooserBase = NULL, *CheckBoxBase = NUL
 
 enum {
     PG_LIST = 100, PG_HIGHLIGHT, PG_LINENUMBERS,
-    PG_RENDERER, PG_FONTSET, PG_FONTSIZE, PG_AUTOREFRESH, PG_SYNC,
+    PG_RENDERER, PG_FONTSET, PG_FONTSIZE, PG_AUTOREFRESH, PG_SYNC, PG_FITIMAGES,
     PG_DIALECT, PG_CHARSET, PG_TEMPLATE, PG_NOTEMPLATE,
     PG_COLOUR, PG_DEFCOLOURS = PG_COLOUR + NUMCOLOURS,
     PG_WIDTH, PG_HEIGHT, PG_LEFT, PG_TOP, PG_CURSIZE, PG_AUTOSIZE,
@@ -87,7 +87,7 @@ static const LONG colour_titles[NUMCOLOURS] = {
 
 static struct {
     Object *winobj, *root, *list, *page;
-    Object *highlight, *linenumbers, *renderer, *fontset, *fontsize, *autorefresh, *sync;
+    Object *highlight, *linenumbers, *renderer, *fontset, *fontsize, *autorefresh, *sync, *fitimages;
     Object *dialect, *charset, *template, *colours[NUMCOLOURS];
     Object *width, *height, *left, *top, *splash;
     Object *tbmode, *tbframes, *fmtbuttons;
@@ -254,6 +254,7 @@ static Object *build(const struct Settings *s)
         INTEGER_MaxChars, 3, TAG_DONE);
     pw.autorefresh = checkbox(PG_AUTOREFRESH, S(MSG_SET_AUTOREFRESH), s->autorefresh, FALSE);
     pw.sync = checkbox(PG_SYNC, S(MSG_SET_SYNC), s->syncscroll, FALSE);
+    pw.fitimages = checkbox(PG_FITIMAGES, S(MSG_SET_FITIMAGES), s->fitimages, FALSE);
     preview = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(categories[1])),
         LAYOUT_AddChild, (ULONG)pw.renderer,    FIXED,
         CHILD_Label,     (ULONG)label(S(MSG_SET_RENDERER)),
@@ -265,6 +266,9 @@ static Object *build(const struct Settings *s)
         FIXED,
         LAYOUT_AddChild, (ULONG)pw.autorefresh, FIXED,
         LAYOUT_AddChild, (ULONG)pw.sync,        FIXED,
+        LAYOUT_AddChild, (ULONG)pw.fitimages,   FIXED,
+        LAYOUT_AddImage, (ULONG)label(S(MSG_SET_FITIMAGES_NOTE)),
+        FIXED,
         LAYOUT_AddChild, (ULONG)filler(),
         TAG_DONE);
 
@@ -440,6 +444,7 @@ static void read_gadgets(struct Settings *s)
     s->fontsize = (LONG)get(pw.fontsize, INTEGER_Number);
     s->autorefresh = get(pw.autorefresh, CHECKBOX_Checked) != 0;
     s->syncscroll = get(pw.sync, CHECKBOX_Checked) != 0;
+    s->fitimages = get(pw.fitimages, CHECKBOX_Checked) != 0;
     strcpy(s->dialect, (const char *)dialects[get(pw.dialect, CHOOSER_Selected) ? 1 : 0]);
     s->charset[0] = 0;
     if ((str = (STRPTR)get(pw.charset, STRINGA_TextVal)))

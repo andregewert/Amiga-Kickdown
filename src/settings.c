@@ -63,6 +63,7 @@ void settings_default(struct Settings *s)
     s->prdpi = 300;
     s->autorefresh = TRUE;
     s->syncscroll = TRUE;
+    s->fitimages = FALSE;
     s->winleft = s->wintop = -1;
     strcpy(s->dialect, "GitHub");
     memcpy(s->colours, default_colours, sizeof(s->colours));
@@ -152,6 +153,7 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if ((v = FindToolType(tt, (STRPTR)"TOP")) && StrToLong(v, &n) > 0 && n >= 0) s->wintop = n;
     if (FindToolType(tt, (STRPTR)"NOAUTOREFRESH")) s->autorefresh = FALSE;
     if (FindToolType(tt, (STRPTR)"NOSYNC")) s->syncscroll = FALSE;
+    if (FindToolType(tt, (STRPTR)"FITIMAGES")) s->fitimages = TRUE;
     if ((v = FindToolType(tt, (STRPTR)"DIALECT"))) copy_str(s->dialect, sizeof(s->dialect), v);
     if ((v = FindToolType(tt, (STRPTR)"CHARSET"))) copy_str(s->charset, sizeof(s->charset), v);
     if ((v = FindToolType(tt, (STRPTR)"TEMPLATE"))) {
@@ -186,7 +188,7 @@ BOOL settings_load_icon(struct Settings *s, CONST_STRPTR name)
 /*****************************************************************************/
 /* writing                                                                   */
 
-#define NUMKEYS (28 + NUMCOLOURS)
+#define NUMKEYS (29 + NUMCOLOURS)
 #define ENTRYLEN (PATHLEN + 24)
 
 struct Entry {
@@ -262,6 +264,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "SIZE", s->fontsize > 0, num);
     entry(&e[k++], "NOAUTOREFRESH", !s->autorefresh, NULL);
     entry(&e[k++], "NOSYNC", !s->syncscroll, NULL);
+    entry(&e[k++], "FITIMAGES", s->fitimages, NULL);
     entry(&e[k++], "DIALECT", !same_text(s->dialect, "GitHub"), s->dialect);
     entry(&e[k++], "CHARSET", s->charset[0] != 0, s->charset);
     entry(&e[k++], "TEMPLATE", s->template[0] != 0, s->template);

@@ -256,7 +256,9 @@
 #define MSG_PR_STOP                  251
 #define MSG_PR_NOPS                  252
 #define MSG_PR_CANNOT_OPEN           253
-#define MSG_COUNT                    254
+#define MSG_SET_FITIMAGES            254
+#define MSG_SET_FITIMAGES_NOTE       255
+#define MSG_COUNT                    256
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -515,6 +517,8 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "_Stop",
     "PS: is not available (TurboPrint is not installed or not running).",
     "Cannot open the output",
+    "Fit _big pictures to the preview width",
+    "Scaling big pictures takes time on slower Amigas.",
 };
 #endif
 
