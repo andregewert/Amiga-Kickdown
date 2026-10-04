@@ -55,6 +55,12 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
   links are shown in the status line.
 * Headings get GitHub style anchors (`## Two Words` → `#two-words`), so tables of contents work.
 * Open, Save, Save as, Export HTML; asks before discarding changes or replacing files.
+* Print & export (*Project/Print & export...*, Amiga-P, toolbar): to the printer through
+  printer.device (graphics with the fonts of the preview, quality 150–600 dpi with
+  htmlttf.gadget), as **PostScript** to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
+  **PDF**. Paper size (A4, A5, Letter, Legal), margins, font and size for PostScript/PDF, page
+  numbers, background colours, page range and copies. The printer adds its own hardware
+  margins. A window shows the progress of a print and can stop it. Needs html.gadget 1.2.
 * Cut/Copy/Paste/Undo/Redo, select all; text selected in the preview can be copied, too.
 * Find and replace (*Edit/Find...*, Amiga-F): a window next to the editor with case sensitive,
   whole words, backwards and wrap around; Replace all is one undo step. *Find next* (Amiga-G)
@@ -79,6 +85,9 @@ The settings are read from the tool types of the Kickdown icon, also when Kickdo
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
+`PRINT_MODE=PRINTER|PS|PDF`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
+`MARGINS=left,top,right,bottom` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_DPI=`, `NOPAGENUMBERS`,
+`NOPRINTBACKGROUNDS`,
 `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`); a relative `TEMPLATE` is relative to the icon's drawer.
 Set Kickdown as default tool of your `.md` icons to open them by double click.
 

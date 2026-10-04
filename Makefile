@@ -22,7 +22,7 @@ CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter 
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
-EDITOBJ := $(B)/kickdown.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(B)/format.o $(B)/mdformat.o $(B)/splash.o $(CONVOBJ)
+EDITOBJ := $(B)/kickdown.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(B)/format.o $(B)/mdformat.o $(B)/splash.o $(B)/printwin.o $(CONVOBJ)
 TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
 
 # translations: catalogs/<language>.ct -> bin/Catalogs/<language>/Kickdown.catalog

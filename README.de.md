@@ -56,6 +56,13 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
   Links erscheinen in der Statuszeile.
 * Überschriften erhalten Anker wie auf GitHub (`## Zwei Worte` → `#zwei-worte`), damit
   Inhaltsverzeichnisse funktionieren.
+* Drucken & Exportieren (*Project/Print & export...*, Amiga-P, Toolbar): auf den Drucker über
+  printer.device (Grafik mit den Schriften der Vorschau, Qualität 150–600 dpi mit htmlttf.gadget),
+  als **PostScript** in eine Datei, nach `PRT:`, `PS:` (TurboPrint) oder an ein Gerät, oder als
+  **PDF**. Papierformat (A4, A5, Letter, Legal), Ränder, Schrift und Größe für PostScript/PDF,
+  Seitenzahlen, Hintergrundfarben, Seitenbereich und Kopien. Der Drucker fügt eigene
+  Hardware-Ränder hinzu. Ein Fenster zeigt den Fortschritt des Drucks und kann ihn abbrechen.
+  Braucht html.gadget 1.2.
 * Öffnen, Speichern, Speichern als, HTML exportieren; Rückfrage vor dem Verwerfen von Änderungen
   und vor dem Überschreiben.
 * Ausschneiden/Kopieren/Einfügen/Rückgängig/Wiederholen, alles markieren; Markierungen in der
@@ -85,6 +92,9 @@ Die Einstellungen kommen aus den Tooltypes des Kickdown-Icons, auch beim Start a
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
+`PRINT_MODE=PRINTER|PS|PDF`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
+`MARGINS=links,oben,rechts,unten` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_DPI=`, `NOPAGENUMBERS`,
+`NOPRINTBACKGROUNDS`,
 `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`).
 
 ## mdtohtml

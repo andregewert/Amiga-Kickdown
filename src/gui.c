@@ -73,6 +73,7 @@ static const struct {
     { NM_ITEM,  MSG_MENU_SAVE,         "S", 0, CMD_SAVE },
     { NM_ITEM,  MSG_MENU_SAVEAS,       "A", 0, CMD_SAVEAS },
     { NM_ITEM,  MSG_MENU_EXPORT,       "E", 0, CMD_EXPORT },
+    { NM_ITEM,  MSG_MENU_PRINT,        "P", 0, CMD_PRINT },
     { NM_ITEM,  -1,                    0,   0, 0 },
     { NM_ITEM,  MSG_MENU_SETTINGS,     ",", 0, CMD_SETTINGS },
     { NM_ITEM,  MSG_MENU_ICONIFY,      "I", 0, CMD_ICONIFY },
@@ -187,6 +188,7 @@ static const struct {
     { CMD_TASK,     0, 1, "task",          MSG_TB_TASK,       MSG_TBH_TASK },
     { CMD_REFRESH,  8, 0, "refresh",  MSG_TB_REFRESH,  MSG_TBH_REFRESH },
     { CMD_EXPORT,   0, 0, "copyfile", MSG_TB_EXPORT,   MSG_TBH_EXPORT },
+    { CMD_PRINT,    0, 0, "print",    MSG_TB_PRINT,    MSG_TBH_PRINT },
     { CMD_SETTINGS, 8, 0, "prefs",    MSG_TB_SETTINGS, MSG_TBH_SETTINGS },
     { CMD_ABOUT,    0, 0, "info",     MSG_TB_ABOUT,    MSG_TBH_ABOUT },
 };

@@ -44,12 +44,23 @@ const char *const colour_names[NUMCOLOURS] = {
 /* values of TOOLBAR= */
 const char *const tbmode_names[NUMTBMODES] = { "IMAGES", "BOTH", "TEXT" };
 
+/* values of PRINT_MODE=, PRINT_TO=, PAPER= */
+const char *const prmode_names[NUMPRMODES] = { "PRINTER", "PS", "PDF" };
+const char *const prdest_names[NUMPRDESTS] = { "FILE", "PRT", "PS", "DEVICE" };
+const char *const paper_names[NUMPAPERS] = { "A4", "A5", "LETTER", "LEGAL" };
+const short paper_sizes[NUMPAPERS][2] = { { 595, 842 }, { 420, 595 }, { 612, 792 }, { 612, 1008 } };
+
 void settings_default(struct Settings *s)
 {
     memset(s, 0, sizeof(*s));
     s->highlight = TRUE;
     s->fmtbuttons = TRUE;
     s->splash = TRUE;
+    s->margins[0] = s->margins[1] = s->margins[2] = s->margins[3] = 20;
+    s->prsize = 10;
+    s->prpagenumbers = TRUE;
+    s->prbackgrounds = TRUE;
+    s->prdpi = 300;
     s->autorefresh = TRUE;
     s->syncscroll = TRUE;
     s->winleft = s->wintop = -1;
@@ -108,6 +119,30 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if (FindToolType(tt, (STRPTR)"TOOLBARFRAMES")) s->tbframes = TRUE;
     if (FindToolType(tt, (STRPTR)"NOFORMATBUTTONS")) s->fmtbuttons = FALSE;
     if (FindToolType(tt, (STRPTR)"NOSPLASH")) s->splash = FALSE;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_MODE")))
+        for (i = 0; i < NUMPRMODES; i++) if (same_text((const char *)v, prmode_names[i])) s->prmode = i;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_TO")))
+        for (i = 0; i < NUMPRDESTS; i++) if (same_text((const char *)v, prdest_names[i])) s->prdest = i;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_DEVICE"))) copy_str(s->prdevice, sizeof(s->prdevice), v);
+    if ((v = FindToolType(tt, (STRPTR)"PAPER")))
+        for (i = 0; i < NUMPAPERS; i++) if (same_text((const char *)v, paper_names[i])) s->paper = i;
+    if ((v = FindToolType(tt, (STRPTR)"MARGINS"))) {
+        /* "left,top,right,bottom" in mm; one value for all */
+        LONG m[4], k = 0, len;
+        while (k < 4 && (len = StrToLong(v, &n)) > 0 && n >= 0 && n <= 100) {
+            m[k++] = n;
+            v += len;
+            if (*v != ',') break;
+            v++;
+        }
+        if (k == 1) m[1] = m[2] = m[3] = m[0];
+        if (k == 1 || k == 4) for (k = 0; k < 4; k++) s->margins[k] = m[k];
+    }
+    if (FindToolType(tt, (STRPTR)"PRINT_SERIF")) s->prserif = TRUE;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_SIZE")) && StrToLong(v, &n) > 0 && n >= 4 && n <= 36) s->prsize = n;
+    if (FindToolType(tt, (STRPTR)"NOPAGENUMBERS")) s->prpagenumbers = FALSE;
+    if (FindToolType(tt, (STRPTR)"NOPRINTBACKGROUNDS")) s->prbackgrounds = FALSE;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_DPI")) && StrToLong(v, &n) > 0 && n >= 72 && n <= 1200) s->prdpi = n;
     if (FindToolType(tt, (STRPTR)"TTF")) s->ttf = TRUE;
     if ((v = FindToolType(tt, (STRPTR)"FONTSET"))) copy_str(s->fontset, sizeof(s->fontset), v);
     if ((v = FindToolType(tt, (STRPTR)"SIZE")) && StrToLong(v, &n) > 0 && n >= 0) s->fontsize = n;
@@ -151,7 +186,7 @@ BOOL settings_load_icon(struct Settings *s, CONST_STRPTR name)
 /*****************************************************************************/
 /* writing                                                                   */
 
-#define NUMKEYS (18 + NUMCOLOURS)
+#define NUMKEYS (28 + NUMCOLOURS)
 #define ENTRYLEN (PATHLEN + 24)
 
 struct Entry {
@@ -186,6 +221,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     STRPTR *old, *tt;
     ULONG nold = 0, n = 0, i, k, nicons;
     char num[12], wnum[12], hnum[12], lnum[12], tnum[12], buf[NUMCOLOURS][8], *disabled;
+    char mnum[24], snum[12], dnum[12];
     BOOL ok;
 
     if (!(dob = GetDiskObject((STRPTR)name))) {
@@ -207,6 +243,19 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "TOOLBARFRAMES", s->tbframes, NULL);
     entry(&e[k++], "NOFORMATBUTTONS", !s->fmtbuttons, NULL);
     entry(&e[k++], "NOSPLASH", !s->splash, NULL);
+    entry(&e[k++], "PRINT_MODE", s->prmode != PRMODE_PRINTER, prmode_names[s->prmode >= 0 && s->prmode < NUMPRMODES ? s->prmode : 0]);
+    entry(&e[k++], "PRINT_TO", s->prdest != PRDEST_FILE, prdest_names[s->prdest >= 0 && s->prdest < NUMPRDESTS ? s->prdest : 0]);
+    entry(&e[k++], "PRINT_DEVICE", s->prdevice[0] != 0, s->prdevice);
+    entry(&e[k++], "PAPER", s->paper != PAPER_A4, paper_names[s->paper >= 0 && s->paper < NUMPAPERS ? s->paper : 0]);
+    sprintf(mnum, "%ld,%ld,%ld,%ld", (long)s->margins[0], (long)s->margins[1], (long)s->margins[2], (long)s->margins[3]);
+    entry(&e[k++], "MARGINS", s->margins[0] != 20 || s->margins[1] != 20 || s->margins[2] != 20 || s->margins[3] != 20, mnum);
+    entry(&e[k++], "PRINT_SERIF", s->prserif, NULL);
+    sprintf(snum, "%ld", (long)s->prsize);
+    entry(&e[k++], "PRINT_SIZE", s->prsize != 10, snum);
+    entry(&e[k++], "NOPAGENUMBERS", !s->prpagenumbers, NULL);
+    entry(&e[k++], "NOPRINTBACKGROUNDS", !s->prbackgrounds, NULL);
+    sprintf(dnum, "%ld", (long)s->prdpi);
+    entry(&e[k++], "PRINT_DPI", s->prdpi != 300, dnum);
     entry(&e[k++], "TTF", s->ttf, NULL);
     entry(&e[k++], "FONTSET", s->fontset[0] != 0, s->fontset);
     sprintf(num, "%ld", (long)s->fontsize);

@@ -108,7 +108,7 @@ static LONG vrequest(CONST_STRPTR gadgets, BOOL centred, CONST_STRPTR fmt, va_li
     return EasyRequest(gui.win, &es, NULL, (ULONG)text);
 }
 
-static LONG request(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...)
+LONG request(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...)
 {
     va_list ap;
     LONG r;
@@ -139,7 +139,7 @@ static void message(CONST_STRPTR text, CONST_STRPTR arg)
     }
 }
 
-static void dos_error(CONST_STRPTR what, CONST_STRPTR name)
+void dos_error(CONST_STRPTR what, CONST_STRPTR name)
 {
     char err[100];
     Fault(IoErr(), NULL, (STRPTR)err, sizeof(err));
@@ -361,7 +361,7 @@ static BOOL file_request(BOOL save, CONST_STRPTR title, CONST_STRPTR pattern,
     return ok;
 }
 
-static BOOL confirm_overwrite(CONST_STRPTR name)
+BOOL confirm_overwrite(CONST_STRPTR name)
 {
     BPTR lock = Lock((STRPTR)name, ACCESS_READ);
     if (!lock) return TRUE;
@@ -626,6 +626,31 @@ static void edit_settings(void)
     }
 }
 
+/* Project/Print & export: the window, then the output of the preview,
+ * brought up to date first. The options become the settings of this
+ * session (saved with the other settings).                          */
+static void print_document(void)
+{
+    static struct PrintJob job = { 1, 0, 1 };
+    static char file[PATHLEN], forfile[PATHLEN] = "\1";
+    struct Settings n = set;
+    char *dot;
+
+    /* default output file: the document's name in its drawer */
+    if (strcmp(forfile, curfile)) {
+        strcpy(forfile, curfile);
+        if (curfile[0]) strcpy(file, curfile);
+        else strcpy(file, S(MSG_UNTITLED));
+        if ((dot = strrchr((char *)FilePart((STRPTR)file), '.'))) *dot = 0;
+        job.first = 1;
+        job.last = 0;
+    }
+    if (!print_dialog(&n, file, sizeof(file), &job)) return;
+    set = n;
+    update_preview();
+    print_run(&set, file, &job);
+}
+
 /* returns TRUE to quit */
 static BOOL command(ULONG cmd)
 {
@@ -635,6 +660,7 @@ static BOOL command(ULONG cmd)
     case CMD_SAVE:        save_document(FALSE); break;
     case CMD_SAVEAS:      save_document(TRUE); break;
     case CMD_EXPORT:      export_html(); break;
+    case CMD_PRINT:       print_document(); break;
     case CMD_ABOUT:       about(); break;
     case CMD_QUIT:        return check_save();
     case CMD_CUT:         editor_cmd((CONST_STRPTR)"CUT"); break;

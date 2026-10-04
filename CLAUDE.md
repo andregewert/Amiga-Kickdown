@@ -16,6 +16,10 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   Einstellungsfenster (listbrowser + page.gadget). Gruppen dort komplett per Tagliste bauen:
   `CHILD_Label` gilt nur für das Kind in derselben Tagliste, `LAYOUT_AddChild` per OM_SET erst
   ab V47. Gadgets auf verdeckten Seiten mit `SetPageGadgetAttrs()` ändern.
+- `src/printwin.c`: Fenster „Drucken & Exportieren“ und die Ausgabe über das Vorschau-Gadget
+  (html_gadget 1.2): PS/PDF mit `HTMLM_Export`, Bitmap-Druck mit `HTMLM_PrintBegin/Render` und
+  printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt in 1/1000 Zoll, asynchron
+  mit `SendIO()` hinter einem modalen Fortschrittsfenster mit fuelgauge.gadget). Seitenbereich und Kopien sind nicht Teil der Einstellungen.
 - `src/splash.c`: Startfenster, nur Intuition/graphics (öffnet vor den ReAction-Klassen);
   `splash_step()` an jeder Ladestufe, die Schrittzahl steht in `main()`.
 - Formatierung (Toolbar, Menü *Format*): `src/mdformat.c` ändert den Text (reines ANSI-C,
@@ -35,8 +39,9 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   nach `mdconv.c`. `src/entity_stub.c` ersetzt md4cs `entity.c` (Entities bleiben wörtlich
   stehen, `MD_HTML_FLAG_VERBATIM_ENTITIES`).
 - `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget); benutzt werden die Header aus
-  `html_gadget/include` und das Icon-Werkzeug `html_gadget/tools/mkicons.py`. Auf das
-  Release-Tag `v1.1` gepinnt. Braucht Kickdown neue Attribute, das Submodule auf
+  `html_gadget/include` und das Icon-Werkzeug `html_gadget/tools/mkicons.py`. Zur Zeit auf
+  einem Commit nach `v1.1` (Druck-API von 1.2); sobald html_gadget 1.2 getaggt ist, auf das
+  Tag setzen. Braucht Kickdown neue Attribute, das Submodule auf
   ein neueres Tag/Commit setzen (`git -C html_gadget checkout <tag>`, dann `git add html_gadget`).
   Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
 

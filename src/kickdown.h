@@ -30,7 +30,7 @@ enum {
     /* formatting, in the order of FMT_... (mdformat.h) */
     CMD_BOLD, CMD_ITALIC, CMD_UNDERLINE, CMD_CODE, CMD_LINK, CMD_IMAGE,
     CMD_HEADING, CMD_BULLET, CMD_NUMBERED, CMD_TASK, CMD_QUOTE,
-    CMD_FORMATBAR
+    CMD_FORMATBAR, CMD_PRINT
 };
 
 enum {
@@ -112,6 +112,20 @@ void find_cleanup(BOOL dispose);
 
 /* dialog.c */
 LONG dialog(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR buttons, BOOL centred);
+
+/* kickdown.c */
+LONG request(CONST_STRPTR gadgets, CONST_STRPTR fmt, ...);
+void dos_error(CONST_STRPTR what, CONST_STRPTR name);
+BOOL confirm_overwrite(CONST_STRPTR name);
+
+/* printwin.c: printing and export; the page range and copies are not
+ * part of the settings                                              */
+struct PrintJob {
+    LONG first, last;               /* from 1; last 0 = to the end */
+    LONG copies;
+};
+int  print_dialog(struct Settings *s, char *file, ULONG filesize, struct PrintJob *job);
+void print_run(const struct Settings *s, const char *file, const struct PrintJob *job);
 
 /* prefswin.c */
 enum { PREFS_CANCEL, PREFS_USE, PREFS_SAVE };

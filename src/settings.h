@@ -15,6 +15,11 @@
 /* toolbar: what the buttons show */
 enum { TBMODE_IMAGES, TBMODE_BOTH, TBMODE_TEXT, NUMTBMODES };
 
+/* printing and export */
+enum { PRMODE_PRINTER, PRMODE_PS, PRMODE_PDF, NUMPRMODES };
+enum { PRDEST_FILE, PRDEST_PRT, PRDEST_PS, PRDEST_DEVICE, NUMPRDESTS };
+enum { PAPER_A4, PAPER_A5, PAPER_LETTER, PAPER_LEGAL, NUMPAPERS };
+
 /* colours of the syntax highlighting */
 enum { C_HEADING, C_CODE, C_QUOTE, C_MARKER, C_LINK, C_URL, C_HTML, NUMCOLOURS };
 
@@ -43,6 +48,17 @@ struct Settings {
     LONG  winleft;
     LONG  wintop;
     BOOL  splash;                   /* splash window while starting */
+    /* printing and export */
+    LONG  prmode;                   /* PRMODE_... */
+    LONG  prdest;                   /* PostScript to: PRDEST_... */
+    char  prdevice[40];             /* PRDEST_DEVICE: "PAR:" etc. */
+    LONG  paper;                    /* PAPER_... */
+    LONG  margins[4];               /* left, top, right, bottom in mm */
+    BOOL  prserif;                  /* PostScript/PDF text in Times */
+    LONG  prsize;                   /* normal text in points */
+    BOOL  prpagenumbers;
+    BOOL  prbackgrounds;
+    LONG  prdpi;                    /* bitmap printing with htmlttf.gadget */
     /* colours as 0xRRGGBB */
     ULONG colours[NUMCOLOURS];
 };
@@ -50,6 +66,9 @@ struct Settings {
 extern const ULONG default_colours[NUMCOLOURS];
 extern const char *const colour_names[NUMCOLOURS];
 extern const char *const tbmode_names[NUMTBMODES];
+extern const char *const prmode_names[NUMPRMODES], *const prdest_names[NUMPRDESTS];
+extern const char *const paper_names[NUMPAPERS];
+extern const short paper_sizes[NUMPAPERS][2];   /* width, height in points */
 
 void settings_default(struct Settings *s);
 

@@ -148,6 +148,15 @@ int main(void)
     s.tbframes = TRUE;
     s.fmtbuttons = FALSE;
     s.splash = FALSE;
+    s.prmode = PRMODE_PDF;
+    s.prdest = PRDEST_DEVICE;
+    strcpy(s.prdevice, "PAR:");
+    s.paper = PAPER_LETTER;
+    s.margins[0] = 15; s.margins[1] = 17; s.margins[2] = 15; s.margins[3] = 25;
+    s.prserif = TRUE;
+    s.prsize = 11;
+    s.prpagenumbers = FALSE;
+    s.prdpi = 600;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:Kickdown"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 
@@ -181,6 +190,10 @@ int main(void)
     check(i < nicon, "NOFORMATBUTTONS kept");
     for (i = 0; i < nicon && strcmp(icon[i], "NOSPLASH"); i++) ;
     check(i < nicon, "NOSPLASH kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "MARGINS=15,17,15,25"); i++) ;
+    check(i < nicon, "MARGINS kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "PAPER=LETTER"); i++) ;
+    check(i < nicon, "PAPER kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

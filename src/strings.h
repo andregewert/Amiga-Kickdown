@@ -205,7 +205,58 @@
 #define MSG_SPLASH_WINDOW            200
 #define MSG_SET_SPLASH               201
 #define MSG_ABOUT_DETAILS            202
-#define MSG_COUNT                    203
+#define MSG_MENU_PRINT               203
+#define MSG_TB_PRINT                 204
+#define MSG_TBH_PRINT                205
+#define MSG_PR_TITLE                 206
+#define MSG_PR_OUTPUT                207
+#define MSG_PR_PAGE                  208
+#define MSG_PR_MODE                  209
+#define MSG_PR_MODE_PRINTER          210
+#define MSG_PR_DEST                  211
+#define MSG_PR_DEST_FILE             212
+#define MSG_PR_DEST_PRT              213
+#define MSG_PR_DEST_PS               214
+#define MSG_PR_DEST_DEVICE           215
+#define MSG_PR_FILE                  216
+#define MSG_PR_FILE_TITLE            217
+#define MSG_PR_DEVICE                218
+#define MSG_PR_DPI                   219
+#define MSG_PR_FROM                  220
+#define MSG_PR_TO                    221
+#define MSG_PR_COPIES                222
+#define MSG_PR_RANGE_NOTE            223
+#define MSG_PR_PAPER                 224
+#define MSG_PR_MARGINS               225
+#define MSG_PR_LEFT                  226
+#define MSG_PR_TOP                   227
+#define MSG_PR_RIGHT                 228
+#define MSG_PR_BOTTOM                229
+#define MSG_PR_FONT                  230
+#define MSG_PR_SANS                  231
+#define MSG_PR_SERIF                 232
+#define MSG_PR_SIZE                  233
+#define MSG_PR_PAGENUMBERS           234
+#define MSG_PR_BACKGROUNDS           235
+#define MSG_PR_MARGIN_NOTE           236
+#define MSG_PR_PRINT                 237
+#define MSG_PR_EXPORT                238
+#define MSG_PR_CANCEL                239
+#define MSG_PR_FOOTER                240
+#define MSG_PR_WRITING               241
+#define MSG_PR_PRINTING              242
+#define MSG_PR_PRINTED               243
+#define MSG_PR_WRITTEN               244
+#define MSG_PR_STOPPED               245
+#define MSG_PR_ERROR                 246
+#define MSG_PR_NODEVICE              247
+#define MSG_PR_NOPAGES               248
+#define MSG_PR_NEEDGADGET            249
+#define MSG_PR_PROGRESS_TITLE        250
+#define MSG_PR_STOP                  251
+#define MSG_PR_NOPS                  252
+#define MSG_PR_CANNOT_OPEN           253
+#define MSG_COUNT                    254
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -413,6 +464,57 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Opening the window...",
     "Show s_plash window at the start",
     "www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld",
+    "Print & export...",
+    "Print",
+    "Print, or export as PostScript or PDF",
+    "Print & export",
+    "Output",
+    "Page",
+    "_Type ",
+    "Printer (graphics)",
+    "_Destination ",
+    "File",
+    "PRT:",
+    "PS: (TurboPrint)",
+    "Device",
+    "_File ",
+    "Save as PostScript or PDF",
+    "De_vice ",
+    "_Quality ",
+    "Pages fro_m ",
+    "t_o ",
+    "Cop_ies ",
+    "\"to\" 0 = up to the last page.\nQuality and copies: printer only.",
+    "Pape_r ",
+    "Margins (mm) ",
+    "left ",
+    "top ",
+    "right ",
+    "bottom ",
+    "Fo_nt ",
+    "Sans serif (Helvetica)",
+    "Serif (Times)",
+    "_Size (pt) ",
+    "Page n_umbers",
+    "_Background colours",
+    "The printer adds its own margins (often 3-5 mm).\nThe font is used for PostScript and PDF; the printer\noutput uses the fonts of the preview.",
+    "_Print",
+    "_Export",
+    "_Cancel",
+    "Page %p of %n",
+    "Writing page %ld of %ld",
+    "Printing page %ld of %ld",
+    "%ld pages printed",
+    "%ld pages written to %s",
+    "Printing stopped",
+    "Printer error %ld",
+    "printer.device cannot be opened.",
+    "The document cannot be prepared for printing.",
+    "Printing and export need html.gadget or htmlttf.gadget 1.2 or newer.",
+    "Printing",
+    "_Stop",
+    "PS: is not available (TurboPrint is not installed or not running).",
+    "Cannot open the output",
 };
 #endif
 

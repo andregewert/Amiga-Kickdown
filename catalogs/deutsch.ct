@@ -835,3 +835,208 @@ MSG_ABOUT_DETAILS
 www.ubergeek.de - agewert@ubergeek.de\nVeröffentlicht unter der MIT-Lizenz\n\nMarkdown-Parser: %s\nVorschau: %s %ld.%ld
 ; www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
 ;
+; printing and export
+MSG_MENU_PRINT
+Drucken & Exportieren...
+; Print & export...
+;
+MSG_TB_PRINT
+Drucken
+; Print
+;
+MSG_TBH_PRINT
+Drucken oder als PostScript oder PDF exportieren
+; Print, or export as PostScript or PDF
+;
+MSG_PR_TITLE
+Drucken & Exportieren
+; Print & export
+;
+MSG_PR_OUTPUT
+Ausgabe
+; Output
+;
+MSG_PR_PAGE
+Seite
+; Page
+;
+MSG_PR_MODE
+Ar_t 
+; _Type 
+;
+MSG_PR_MODE_PRINTER
+Drucker (Grafik)
+; Printer (graphics)
+;
+MSG_PR_DEST
+_Ziel 
+; _Destination 
+;
+MSG_PR_DEST_FILE
+Datei
+; File
+;
+MSG_PR_DEST_PRT
+PRT:
+; PRT:
+;
+MSG_PR_DEST_PS
+PS: (TurboPrint)
+; PS: (TurboPrint)
+;
+MSG_PR_DEST_DEVICE
+Gerät
+; Device
+;
+MSG_PR_FILE
+Dat_ei 
+; _File 
+;
+MSG_PR_FILE_TITLE
+Als PostScript oder PDF speichern
+; Save as PostScript or PDF
+;
+MSG_PR_DEVICE
+_Gerät 
+; De_vice 
+;
+MSG_PR_DPI
+_Qualität 
+; _Quality 
+;
+MSG_PR_FROM
+Seiten _von 
+; Pages fro_m 
+;
+MSG_PR_TO
+b_is 
+; t_o 
+;
+MSG_PR_COPIES
+_Kopien 
+; Cop_ies 
+;
+MSG_PR_RANGE_NOTE
+"bis" 0 = bis zur letzten Seite.\nQualität und Kopien: nur Drucker.
+; "to" 0 = up to the last page.\nQuality and copies: printer only.
+;
+MSG_PR_PAPER
+_Papier 
+; Pape_r 
+;
+MSG_PR_MARGINS
+Ränder (mm) 
+; Margins (mm) 
+;
+MSG_PR_LEFT
+links 
+; left 
+;
+MSG_PR_TOP
+oben 
+; top 
+;
+MSG_PR_RIGHT
+rechts 
+; right 
+;
+MSG_PR_BOTTOM
+unten 
+; bottom 
+;
+MSG_PR_FONT
+_Schrift 
+; Fo_nt 
+;
+MSG_PR_SANS
+Serifenlos (Helvetica)
+; Sans serif (Helvetica)
+;
+MSG_PR_SERIF
+Mit Serifen (Times)
+; Serif (Times)
+;
+MSG_PR_SIZE
+G_röße (pt) 
+; _Size (pt) 
+;
+MSG_PR_PAGENUMBERS
+Seite_nzahlen
+; Page n_umbers
+;
+MSG_PR_BACKGROUNDS
+_Hintergrundfarben
+; _Background colours
+;
+MSG_PR_MARGIN_NOTE
+Der Drucker fügt eigene Ränder hinzu (oft 3-5 mm).\nDie Schrift gilt für PostScript und PDF; der Druck\nnutzt die Schriften der Vorschau.
+; The printer adds its own margins (often 3-5 mm).\nThe font is used for PostScript and PDF; the printer\noutput uses the fonts of the preview.
+;
+MSG_PR_PRINT
+_Drucken
+; _Print
+;
+MSG_PR_EXPORT
+E_xportieren
+; _Export
+;
+MSG_PR_CANCEL
+_Abbrechen
+; _Cancel
+;
+MSG_PR_FOOTER
+Seite %p von %n
+; Page %p of %n
+;
+MSG_PR_WRITING
+Schreibe Seite %ld von %ld
+; Writing page %ld of %ld
+;
+MSG_PR_PRINTING
+Drucke Seite %ld von %ld
+; Printing page %ld of %ld
+;
+MSG_PR_PRINTED
+%ld Seiten gedruckt
+; %ld pages printed
+;
+MSG_PR_WRITTEN
+%ld Seiten nach %s geschrieben
+; %ld pages written to %s
+;
+MSG_PR_STOPPED
+Druck abgebrochen
+; Printing stopped
+;
+MSG_PR_ERROR
+Druckerfehler %ld
+; Printer error %ld
+;
+MSG_PR_NODEVICE
+printer.device lässt sich nicht öffnen.
+; printer.device cannot be opened.
+;
+MSG_PR_NOPAGES
+Das Dokument lässt sich nicht für den Druck vorbereiten.
+; The document cannot be prepared for printing.
+;
+MSG_PR_NEEDGADGET
+Drucken und Exportieren brauchen html.gadget oder htmlttf.gadget 1.2 oder neuer.
+; Printing and export need html.gadget or htmlttf.gadget 1.2 or newer.
+;
+MSG_PR_PROGRESS_TITLE
+Drucken
+; Printing
+;
+MSG_PR_STOP
+_Abbrechen
+; _Stop
+;
+MSG_PR_NOPS
+PS: ist nicht verfügbar (TurboPrint ist nicht installiert oder läuft nicht).
+; PS: is not available (TurboPrint is not installed or not running).
+;
+MSG_PR_CANNOT_OPEN
+Die Ausgabe lässt sich nicht öffnen
+; Cannot open the output
+;

@@ -4,7 +4,7 @@ Uploader:     André Gewert <agewert@ubergeek.de>
 Type:         text/edit
 Version:      1.1
 Architecture: m68k-amigaos >= 3.2.0
-Requires:     AmigaOS 3.2, dev/gui/html_gadget.lha (1.1), AISS (toolbar)
+Requires:     AmigaOS 3.2, dev/gui/html_gadget.lha (1.2), AISS (toolbar)
 Distribution: Aminet
 
 Kickdown is a Markdown editor for AmigaOS 3.2 with a live HTML preview,
@@ -94,6 +94,11 @@ Contents
 History
 -------
 1.1 (03.10.2026)
+ - printing and export (Project/Print & export, Amiga-P, toolbar): to
+   the printer through printer.device (graphics, the fonts of the
+   preview), as PostScript to a file, PRT:, PS: (TurboPrint) or a
+   device, or as PDF; paper size, margins, font and size, page numbers,
+   background colours, page range, copies; needs html_gadget 1.2
  - menu check marks keep their state after iconifying and after changes
    in the settings window
  - "images and text" toolbar: pressed buttons show the AISS selected
@@ -134,6 +139,12 @@ auch nach den gewünschten Sprachen fragt.
 Versionsgeschichte
 ------------------
 1.1 (03.10.2026)
+ - Drucken und Exportieren (Projekt/Drucken & Exportieren, Amiga-P,
+   Toolbar): auf den Drucker über printer.device (Grafik, mit den
+   Schriften der Vorschau), als PostScript in eine Datei, nach PRT:, PS:
+   (TurboPrint) oder an ein Gerät, oder als PDF; Papierformat, Ränder,
+   Schrift und Größe, Seitenzahlen, Hintergrundfarben, Seitenbereich,
+   Kopien; braucht html_gadget 1.2
  - Menü-Häkchen behalten ihren Zustand nach dem Ikonifizieren und nach
    Änderungen im Einstellungsfenster
  - Toolbar "Bilder und Text": gedrückte Knöpfe zeigen wieder das

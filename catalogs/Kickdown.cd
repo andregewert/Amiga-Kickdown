@@ -632,3 +632,157 @@ Show s_plash window at the start
 MSG_ABOUT_DETAILS (//)
 www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
 ;
+; printing and export
+MSG_MENU_PRINT (//)
+Print & export...
+;
+MSG_TB_PRINT (//)
+Print
+;
+MSG_TBH_PRINT (//)
+Print, or export as PostScript or PDF
+;
+MSG_PR_TITLE (//)
+Print & export
+;
+MSG_PR_OUTPUT (//)
+Output
+;
+MSG_PR_PAGE (//)
+Page
+;
+MSG_PR_MODE (//)
+_Type 
+;
+MSG_PR_MODE_PRINTER (//)
+Printer (graphics)
+;
+MSG_PR_DEST (//)
+_Destination 
+;
+MSG_PR_DEST_FILE (//)
+File
+;
+MSG_PR_DEST_PRT (//)
+PRT:
+;
+MSG_PR_DEST_PS (//)
+PS: (TurboPrint)
+;
+MSG_PR_DEST_DEVICE (//)
+Device
+;
+MSG_PR_FILE (//)
+_File 
+;
+MSG_PR_FILE_TITLE (//)
+Save as PostScript or PDF
+;
+MSG_PR_DEVICE (//)
+De_vice 
+;
+MSG_PR_DPI (//)
+_Quality 
+;
+MSG_PR_FROM (//)
+Pages fro_m 
+;
+MSG_PR_TO (//)
+t_o 
+;
+MSG_PR_COPIES (//)
+Cop_ies 
+;
+MSG_PR_RANGE_NOTE (//)
+"to" 0 = up to the last page.\nQuality and copies: printer only.
+;
+MSG_PR_PAPER (//)
+Pape_r 
+;
+MSG_PR_MARGINS (//)
+Margins (mm) 
+;
+MSG_PR_LEFT (//)
+left 
+;
+MSG_PR_TOP (//)
+top 
+;
+MSG_PR_RIGHT (//)
+right 
+;
+MSG_PR_BOTTOM (//)
+bottom 
+;
+MSG_PR_FONT (//)
+Fo_nt 
+;
+MSG_PR_SANS (//)
+Sans serif (Helvetica)
+;
+MSG_PR_SERIF (//)
+Serif (Times)
+;
+MSG_PR_SIZE (//)
+_Size (pt) 
+;
+MSG_PR_PAGENUMBERS (//)
+Page n_umbers
+;
+MSG_PR_BACKGROUNDS (//)
+_Background colours
+;
+MSG_PR_MARGIN_NOTE (//)
+The printer adds its own margins (often 3-5 mm).\nThe font is used for PostScript and PDF; the printer\noutput uses the fonts of the preview.
+;
+MSG_PR_PRINT (//)
+_Print
+;
+MSG_PR_EXPORT (//)
+_Export
+;
+MSG_PR_CANCEL (//)
+_Cancel
+;
+MSG_PR_FOOTER (//)
+Page %p of %n
+;
+MSG_PR_WRITING (//)
+Writing page %ld of %ld
+;
+MSG_PR_PRINTING (//)
+Printing page %ld of %ld
+;
+MSG_PR_PRINTED (//)
+%ld pages printed
+;
+MSG_PR_WRITTEN (//)
+%ld pages written to %s
+;
+MSG_PR_STOPPED (//)
+Printing stopped
+;
+MSG_PR_ERROR (//)
+Printer error %ld
+;
+MSG_PR_NODEVICE (//)
+printer.device cannot be opened.
+;
+MSG_PR_NOPAGES (//)
+The document cannot be prepared for printing.
+;
+MSG_PR_NEEDGADGET (//)
+Printing and export need html.gadget or htmlttf.gadget 1.2 or newer.
+;
+MSG_PR_PROGRESS_TITLE (//)
+Printing
+;
+MSG_PR_STOP (//)
+_Stop
+;
+MSG_PR_NOPS (//)
+PS: is not available (TurboPrint is not installed or not running).
+;
+MSG_PR_CANNOT_OPEN (//)
+Cannot open the output
+;
