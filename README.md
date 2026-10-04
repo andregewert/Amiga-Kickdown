@@ -61,7 +61,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
 * Print (*Project/Print...*, Amiga-P, toolbar): to the printer through
   printer.device (graphics with the fonts of the preview, quality 150–600 dpi with
   htmlttf.gadget, at most the printer's resolution; the page is sent in exactly the printer's
-  dots), as **PostScript** to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
+  dots), as **PostScript** (level 2, or level 1 for old printers) to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
   **PDF**. Paper size (A4, A5, Letter, Legal), margins, font and size for PostScript/PDF, page
   numbers, background colours, page range and copies. The printer adds its own hardware
   margins. A window shows the progress of a print and can stop it. Needs html.gadget 1.2.
@@ -89,7 +89,7 @@ The settings are read from the tool types of the Kickdown icon, also when Kickdo
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
-`PRINT_MODE=PRINTER|PS|PDF`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
+`PRINT_MODE=PRINTER|PS|PDF`, `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
 `MARGINS=left,top,right,bottom` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_DPI=`, `NOPAGENUMBERS`,
 `NOPRINTBACKGROUNDS`,
 `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`); a relative `TEMPLATE` is relative to the icon's drawer.

@@ -77,7 +77,9 @@ static const LONG dpis[] = { 150, 300, 600 };
 #define NUMDPIS 3
 static STRPTR dpi_labels[] = { (STRPTR)"150 dpi", (STRPTR)"300 dpi", (STRPTR)"600 dpi", NULL };
 static STRPTR paper_labels[] = { (STRPTR)"A4", (STRPTR)"A5", (STRPTR)"Letter", (STRPTR)"Legal", NULL };
-static STRPTR mode_labels[NUMPRMODES + 1], font_labels[3];
+/* the entries of the mode chooser: PostScript in two levels */
+enum { MI_PRINTER, MI_PS2, MI_PS1, MI_PDF, NUMMI };
+static STRPTR mode_labels[NUMMI + 1], font_labels[3];
 
 static struct {
     Object *winobj, *root;
@@ -153,6 +155,16 @@ static void set_extension(char *file, ULONG size, LONG mode)
 }
 
 /* points from mm */
+static LONG mode_of(LONG item)
+{
+    return item == MI_PDF ? PRMODE_PDF : item == MI_PRINTER ? PRMODE_PRINTER : PRMODE_PS;
+}
+
+static LONG item_of(const struct Settings *s)
+{
+    return s->prmode == PRMODE_PDF ? MI_PDF : s->prmode == PRMODE_PS ? (s->pslevel == 1 ? MI_PS1 : MI_PS2) : MI_PRINTER;
+}
+
 static LONG mm_pt(LONG mm)
 {
     return (mm * 720 + 127) / 254;
@@ -172,7 +184,7 @@ static LONG mm_pt(LONG mm)
 /* only the gadgets that matter for the kind of output are usable */
 static void update_gadgets(void)
 {
-    LONG mode = get(pw.mode, CHOOSER_Selected), dest = get(pw.dest, CHOOSER_Selected);
+    LONG mode = mode_of(get(pw.mode, CHOOSER_Selected)), dest = get(pw.dest, CHOOSER_Selected);
     BOOL ps = mode == PRMODE_PS, printer = mode == PRMODE_PRINTER;
     struct Window *w = pw.win;
 
@@ -192,9 +204,10 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
     LONG i, d;
     Object *output, *page;
 
-    mode_labels[PRMODE_PRINTER] = (STRPTR)S(MSG_PR_MODE_PRINTER);
-    mode_labels[PRMODE_PS] = (STRPTR)"PostScript";
-    mode_labels[PRMODE_PDF] = (STRPTR)"PDF";
+    mode_labels[MI_PRINTER] = (STRPTR)S(MSG_PR_MODE_PRINTER);
+    mode_labels[MI_PS2] = (STRPTR)"PostScript Level 2";
+    mode_labels[MI_PS1] = (STRPTR)"PostScript Level 1";
+    mode_labels[MI_PDF] = (STRPTR)"PDF";
     font_labels[0] = (STRPTR)S(MSG_PR_SANS);
     font_labels[1] = (STRPTR)S(MSG_PR_SERIF);
 
@@ -208,7 +221,7 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
     }
 
     for (d = 0; d < NUMDPIS - 1 && dpis[d] < s->prdpi; d++) ;
-    pw.mode = chooser(PW_MODE, mode_labels, s->prmode >= 0 && s->prmode < NUMPRMODES ? s->prmode : 0);
+    pw.mode = chooser(PW_MODE, mode_labels, item_of(s));
     pw.dest = NewObject(CHOOSER_GetClass(), NULL,
         GA_ID, PW_DEST, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
         CHOOSER_Labels, (ULONG)&pw.destlist,
@@ -305,7 +318,8 @@ static void read_gadgets(struct Settings *s, char *file, ULONG filesize, struct 
     STRPTR str;
     LONG i, d = get(pw.dpi, CHOOSER_Selected);
 
-    s->prmode = get(pw.mode, CHOOSER_Selected);
+    s->prmode = mode_of(get(pw.mode, CHOOSER_Selected));
+    if (s->prmode == PRMODE_PS) s->pslevel = get(pw.mode, CHOOSER_Selected) == MI_PS1 ? 1 : 2;
     s->prdest = get(pw.dest, CHOOSER_Selected);
     s->prdevice[0] = 0;
     if ((str = (STRPTR)get(pw.device, STRINGA_TextVal))) strncat(s->prdevice, (const char *)str, sizeof(s->prdevice) - 1);
@@ -376,7 +390,7 @@ int print_dialog(struct Settings *s, char *file, ULONG filesize, struct PrintJob
                 f[0] = 0;
                 if (str) strncat(f, (const char *)str, sizeof(f) - 1);
                 if (f[0]) {
-                    set_extension(f, sizeof(f), get(pw.mode, CHOOSER_Selected));
+                    set_extension(f, sizeof(f), mode_of(get(pw.mode, CHOOSER_Selected)));
                     SetGadgetAttrs((struct Gadget *)pw.file, pw.win, NULL, GETFILE_FullFile, (ULONG)f, TAG_DONE);
                 }
                 update_gadgets();
@@ -757,7 +771,7 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
         { HTMLEX_MarginLeft, 0 }, { HTMLEX_MarginTop, 0 }, { HTMLEX_MarginRight, 0 }, { HTMLEX_MarginBottom, 0 },
         { HTMLEX_FontSize, 0 }, { HTMLEX_Serif, 0 }, { HTMLEX_Backgrounds, 0 }, { HTMLEX_Footer, 0 },
         { HTMLEX_FirstPage, 0 }, { HTMLEX_LastPage, 0 }, { HTMLEX_ProgressHook, 0 }, { HTMLEX_Pages, 0 },
-        { TAG_DONE, 0 }
+        { HTMLEX_PSLevel, 2 }, { TAG_DONE, 0 }
     };
 
     if (s->prmode == PRMODE_PDF || s->prdest == PRDEST_FILE) {
@@ -795,6 +809,7 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
     tags[13].ti_Data = job->last;
     tags[14].ti_Data = (ULONG)&hook;
     tags[15].ti_Data = (ULONG)&pages;
+    tags[16].ti_Data = s->pslevel == 1 ? 1 : 2;
     gui_busy(TRUE);
     n = (LONG)DoMethod(gui.html, HTMLM_Export, (ULONG)tags);
     gui_busy(FALSE);

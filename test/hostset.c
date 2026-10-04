@@ -150,6 +150,7 @@ int main(void)
     s.splash = FALSE;
     s.fitimages = TRUE;
     s.prmode = PRMODE_PDF;
+    s.pslevel = 1;
     s.prdest = PRDEST_DEVICE;
     strcpy(s.prdevice, "PAR:");
     s.paper = PAPER_LETTER;
@@ -197,6 +198,8 @@ int main(void)
     check(i < nicon, "PAPER kept");
     for (i = 0; i < nicon && strcmp(icon[i], "FITIMAGES"); i++) ;
     check(i < nicon, "FITIMAGES kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "PS_LEVEL=1"); i++) ;
+    check(i < nicon, "PS_LEVEL=1 kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

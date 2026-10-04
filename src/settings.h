@@ -51,6 +51,7 @@ struct Settings {
     BOOL  splash;                   /* splash window while starting */
     /* printing and export */
     LONG  prmode;                   /* PRMODE_... */
+    LONG  pslevel;                  /* PostScript level 1 or 2 */
     LONG  prdest;                   /* PostScript to: PRDEST_... */
     char  prdevice[40];             /* PRDEST_DEVICE: "PAR:" etc. */
     LONG  paper;                    /* PAPER_... */

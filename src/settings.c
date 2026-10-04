@@ -61,6 +61,7 @@ void settings_default(struct Settings *s)
     s->prpagenumbers = TRUE;
     s->prbackgrounds = TRUE;
     s->prdpi = 300;
+    s->pslevel = 2;
     s->autorefresh = TRUE;
     s->syncscroll = TRUE;
     s->fitimages = FALSE;
@@ -122,6 +123,7 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if (FindToolType(tt, (STRPTR)"NOSPLASH")) s->splash = FALSE;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_MODE")))
         for (i = 0; i < NUMPRMODES; i++) if (same_text((const char *)v, prmode_names[i])) s->prmode = i;
+    if ((v = FindToolType(tt, (STRPTR)"PS_LEVEL")) && StrToLong(v, &n) > 0 && (n == 1 || n == 2)) s->pslevel = n;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_TO")))
         for (i = 0; i < NUMPRDESTS; i++) if (same_text((const char *)v, prdest_names[i])) s->prdest = i;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_DEVICE"))) copy_str(s->prdevice, sizeof(s->prdevice), v);
@@ -188,7 +190,7 @@ BOOL settings_load_icon(struct Settings *s, CONST_STRPTR name)
 /*****************************************************************************/
 /* writing                                                                   */
 
-#define NUMKEYS (29 + NUMCOLOURS)
+#define NUMKEYS (30 + NUMCOLOURS)
 #define ENTRYLEN (PATHLEN + 24)
 
 struct Entry {
@@ -246,6 +248,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "NOFORMATBUTTONS", !s->fmtbuttons, NULL);
     entry(&e[k++], "NOSPLASH", !s->splash, NULL);
     entry(&e[k++], "PRINT_MODE", s->prmode != PRMODE_PRINTER, prmode_names[s->prmode >= 0 && s->prmode < NUMPRMODES ? s->prmode : 0]);
+    entry(&e[k++], "PS_LEVEL", s->pslevel != 2, s->pslevel == 1 ? "1" : "2");
     entry(&e[k++], "PRINT_TO", s->prdest != PRDEST_FILE, prdest_names[s->prdest >= 0 && s->prdest < NUMPRDESTS ? s->prdest : 0]);
     entry(&e[k++], "PRINT_DEVICE", s->prdevice[0] != 0, s->prdevice);
     entry(&e[k++], "PAPER", s->paper != PAPER_A4, paper_names[s->paper >= 0 && s->paper < NUMPAPERS ? s->paper : 0]);
