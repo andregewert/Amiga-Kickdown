@@ -24,6 +24,7 @@
 #include <dos/dos.h>
 #include <dos/dosextens.h>
 #include <devices/printer.h>
+#include <devices/prtbase.h>
 #include <graphics/rastport.h>
 #include <intuition/intuition.h>
 #include <intuition/gadgetclass.h>
@@ -436,14 +437,41 @@ struct PrintSrc {
     struct Task   *task;            /* told about each strip, for the progress */
     ULONG          sigmask;
     volatile LONG  row;             /* rows of the page delivered so far */
+    LONG           sw, sh;          /* the page as the gadget renders it */
+    LONG           dw, dh;          /* the page in printer dots */
+    ULONG         *rowbuf;          /* one row of the gadget's page, sw pixels */
+    LONG           cached;          /* the row in rowbuf, -1: none */
 };
 
-/* called by printer.device on its task: the pixels of a strip */
+/* Called by printer.device on its task: the pixels of a strip, in
+ * printer dots. printer.device gets the page in exactly its dots and
+ * scales nothing (its scaling squeezed the page vertically); if the
+ * gadget's page has another size, it is scaled here, nearest pixel.  */
 static ULONG print_source(struct Hook *h __asm("a0"), APTR o __asm("a2"), struct DRPSourceMsg *m __asm("a1"))
 {
     struct PrintSrc *ps = h->h_Data;
-    ULONG rc = DoMethod(ps->gadget, HTMLM_PrintRender, ps->page, m->x, m->y, m->width, m->height, (ULONG)m->buf);
+    ULONG rc = TRUE;
 
+    if (ps->sw == ps->dw && ps->sh == ps->dh)
+        rc = DoMethod(ps->gadget, HTMLM_PrintRender, ps->page, m->x, m->y, m->width, m->height, (ULONG)m->buf);
+    else {
+        ULONG step = ((ULONG)ps->sw << 16) / ps->dw, pos, *out = m->buf;
+        LONG r, i, sy;
+        for (r = 0; r < m->height; r++) {
+            sy = ((2 * (m->y + r) + 1) * ps->sh) / (2 * ps->dh);
+            if (sy >= ps->sh) sy = ps->sh - 1;
+            if (sy != ps->cached) {
+                if (!DoMethod(ps->gadget, HTMLM_PrintRender, ps->page, 0, sy, ps->sw, 1, (ULONG)ps->rowbuf))
+                    rc = FALSE;
+                ps->cached = sy;
+            }
+            pos = m->x * step + step / 2;
+            for (i = 0; i < m->width; i++, pos += step) {
+                ULONG sx = pos >> 16;
+                *out++ = ps->rowbuf[sx < (ULONG)ps->sw ? sx : (ULONG)ps->sw - 1];
+            }
+        }
+    }
     if ((LONG)(m->y + m->height) > ps->row) {
         ps->row = m->y + m->height;
         if (ps->sigmask) Signal(ps->task, ps->sigmask);
@@ -461,6 +489,8 @@ struct BitmapPrint {
     struct ColorMap     *cmap;
     struct TagItem       drtags[4];
     LONG                 paper_w, paper_h, sw, sh;
+    LONG                 dw, dh;    /* the page in printer dots */
+    BOOL                 opened;
 };
 
 static void print_send(struct BitmapPrint *bp, LONG page)
@@ -469,18 +499,19 @@ static void print_send(struct BitmapPrint *bp, LONG page)
 
     bp->src.page = page;
     bp->src.row = 0;
+    bp->src.cached = -1;
     io->io_Command = PRD_DUMPRPORTTAGS;
     io->io_RastPort = &bp->rp;
     io->io_ColorMap = bp->cmap;
     io->io_Modes = 0;
     io->io_SrcX = 0;
     io->io_SrcY = 0;
-    io->io_SrcWidth = bp->sw;
-    io->io_SrcHeight = bp->sh;
-    /* the whole sheet in its size, 1/1000 inch */
-    io->io_DestCols = bp->paper_w * 1000 / 72;
-    io->io_DestRows = bp->paper_h * 1000 / 72;
-    io->io_Special = SPECIAL_MILCOLS | SPECIAL_MILROWS;
+    /* the whole sheet, one source pixel per printer dot */
+    io->io_SrcWidth = bp->dw;
+    io->io_SrcHeight = bp->dh;
+    io->io_DestCols = bp->dw;
+    io->io_DestRows = bp->dh;
+    io->io_Special = 0;
     io->io_TagList = bp->drtags;
     SendIO((struct IORequest *)io);
 }
@@ -557,10 +588,10 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
         while (!done) {
             ULONG got = Wait(sig | mainsig | portsig | bp->src.sigmask);
 
-            if ((got & bp->src.sigmask) && win && bp->sh > 0) {
+            if ((got & bp->src.sigmask) && win && bp->dh > 0) {
                 LONG row = bp->src.row;
-                if (row > bp->sh) row = bp->sh;
-                if ((level = printed * 100 + row * 100 / bp->sh) != shown)
+                if (row > bp->dh) row = bp->dh;
+                if ((level = printed * 100 + row * 100 / bp->dh) != shown)
                     SetGadgetAttrs((struct Gadget *)gauge, win, NULL, FUELGAUGE_Level, shown = level, TAG_DONE);
             }
 
@@ -610,8 +641,12 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
 
 static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
 {
+    /* the paper in 1/10 mm: the sizes in points are rounded, A4 would
+     * miss a column at 300 dpi                                        */
+    static const LONG tenthmm[NUMPAPERS][2] = { { 2100, 2970 }, { 1480, 2100 }, { 2159, 2794 }, { 2159, 3556 } };
     struct BitmapPrint bp;
-    LONG pages = 0, first, last, n;
+    struct PrinterExtendedData *ped;
+    LONG pages = 0, first, last, n, xdpi, ydpi, dpi;
     char buf[100];
     struct TagItem tags[] = {
         { HTMLEX_DPI, 0 }, { HTMLEX_PaperWidth, 0 }, { HTMLEX_PaperHeight, 0 },
@@ -627,7 +662,30 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
     }
     bp.paper_w = paper_sizes[s->paper][0];
     bp.paper_h = paper_sizes[s->paper][1];
-    tags[0].ti_Data = s->prdpi;
+    if (!(bp.port = CreateMsgPort()) || !(bp.io = (struct IODRPTagsReq *)CreateIORequest(bp.port, sizeof(*bp.io)))) {
+        request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_NOMEM_CONVERT));
+        goto out;
+    }
+    if (OpenDevice((STRPTR)"printer.device", 0, (struct IORequest *)bp.io, 0)) {
+        DeleteIORequest((struct IORequest *)bp.io);
+        bp.io = NULL;
+        request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_PR_NODEVICE));
+        goto out;
+    }
+    bp.opened = TRUE;
+
+    /* the sheet in the driver's dots; the gadget renders at the chosen
+     * quality, but not finer than the printer                          */
+    ped = &((struct PrinterData *)bp.io->io_Device)->pd_SegmentData->ps_PED;
+    xdpi = ped->ped_XDotsInch ? ped->ped_XDotsInch : s->prdpi;
+    ydpi = ped->ped_YDotsInch ? ped->ped_YDotsInch : xdpi;
+    bp.dw = (tenthmm[s->paper][0] * xdpi + 127) / 254;
+    bp.dh = (tenthmm[s->paper][1] * ydpi + 127) / 254;
+    if (ped->ped_MaxXDots && bp.dw > (LONG)ped->ped_MaxXDots) bp.dw = ped->ped_MaxXDots;
+    if (ped->ped_MaxYDots && bp.dh > (LONG)ped->ped_MaxYDots) bp.dh = ped->ped_MaxYDots;
+    dpi = s->prdpi < xdpi ? s->prdpi : xdpi;
+
+    tags[0].ti_Data = dpi;
     tags[1].ti_Data = bp.paper_w;
     tags[2].ti_Data = bp.paper_h;
     tags[3].ti_Data = mm_pt(s->margins[0]);
@@ -643,23 +701,21 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
     gui_busy(TRUE);
     n = (LONG)DoMethod(gui.html, HTMLM_PrintBegin, (ULONG)tags);
     gui_busy(FALSE);
-    if (n <= 0) {
+    if (n <= 0 || bp.sw <= 0 || bp.sh <= 0) {
         request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_PR_NOPAGES));
         goto out;
     }
     first = job->first > 0 ? job->first : 1;
     last = job->last > 0 && job->last < pages ? job->last : pages;
     if (first > last) goto out;
-    if (!(bp.port = CreateMsgPort()) || !(bp.io = (struct IODRPTagsReq *)CreateIORequest(bp.port, sizeof(*bp.io)))) {
+    if (!(bp.src.rowbuf = AllocVec(bp.sw * 4, MEMF_ANY))) {
         request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_NOMEM_CONVERT));
         goto out;
     }
-    if (OpenDevice((STRPTR)"printer.device", 0, (struct IORequest *)bp.io, 0)) {
-        DeleteIORequest((struct IORequest *)bp.io);
-        bp.io = NULL;
-        request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_PR_NODEVICE));
-        goto out;
-    }
+    bp.src.sw = bp.sw;
+    bp.src.sh = bp.sh;
+    bp.src.dw = bp.dw;
+    bp.src.dh = bp.dh;
     InitRastPort(&bp.rp);
     bp.cmap = gui.screen->ViewPort.ColorMap;
     bp.hook.h_Entry = (ULONG (*)())print_source;
@@ -674,7 +730,6 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
     bp.drtags[3].ti_Tag = TAG_DONE;
 
     n = print_pages(&bp, first, last, job->copies > 0 ? job->copies : 1);
-    CloseDevice((struct IORequest *)bp.io);
     if (n == -1) gui_status((CONST_STRPTR)S(MSG_PR_STOPPED));
     else if (n < 0) {
         gui_status((CONST_STRPTR)"");
@@ -685,7 +740,9 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
         gui_status((CONST_STRPTR)buf);
     }
 out:
+    if (bp.opened) CloseDevice((struct IORequest *)bp.io);
     if (bp.io) DeleteIORequest((struct IORequest *)bp.io);
+    if (bp.src.rowbuf) FreeVec(bp.src.rowbuf);
     if (bp.port) DeleteMsgPort(bp.port);
     DoMethod(gui.html, HTMLM_PrintEnd);
     CloseLibrary(FuelGaugeBase);

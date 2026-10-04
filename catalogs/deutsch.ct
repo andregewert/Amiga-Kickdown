@@ -917,8 +917,8 @@ _Kopien
 ; Cop_ies 
 ;
 MSG_PR_RANGE_NOTE
-"bis" 0 = bis zur letzten Seite.\nQualität und Kopien: nur Drucker.
-; "to" 0 = up to the last page.\nQuality and copies: printer only.
+"bis" 0 = bis zur letzten Seite.\nQualität und Kopien: nur Drucker; die Qualität\nist höchstens die Auflösung des Druckers.
+; "to" 0 = up to the last page.\nQuality and copies: printer only; the quality\nis at most the printer's resolution.
 ;
 MSG_PR_PAPER
 _Papier 

@@ -57,7 +57,8 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
 * Überschriften erhalten Anker wie auf GitHub (`## Zwei Worte` → `#zwei-worte`), damit
   Inhaltsverzeichnisse funktionieren.
 * Drucken & Exportieren (*Project/Print & export...*, Amiga-P, Toolbar): auf den Drucker über
-  printer.device (Grafik mit den Schriften der Vorschau, Qualität 150–600 dpi mit htmlttf.gadget),
+  printer.device (Grafik mit den Schriften der Vorschau, Qualität 150–600 dpi mit htmlttf.gadget,
+  höchstens die Auflösung des Druckers; die Seite geht genau in den Punkten des Druckers hinaus),
   als **PostScript** in eine Datei, nach `PRT:`, `PS:` (TurboPrint) oder an ein Gerät, oder als
   **PDF**. Papierformat (A4, A5, Letter, Legal), Ränder, Schrift und Größe für PostScript/PDF,
   Seitenzahlen, Hintergrundfarben, Seitenbereich und Kopien. Der Drucker fügt eigene

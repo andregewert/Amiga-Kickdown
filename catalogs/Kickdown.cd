@@ -694,7 +694,7 @@ MSG_PR_COPIES (//)
 Cop_ies 
 ;
 MSG_PR_RANGE_NOTE (//)
-"to" 0 = up to the last page.\nQuality and copies: printer only.
+"to" 0 = up to the last page.\nQuality and copies: printer only; the quality\nis at most the printer's resolution.
 ;
 MSG_PR_PAPER (//)
 Pape_r 

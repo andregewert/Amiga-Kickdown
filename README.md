@@ -57,7 +57,8 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
 * Open, Save, Save as, Export HTML; asks before discarding changes or replacing files.
 * Print & export (*Project/Print & export...*, Amiga-P, toolbar): to the printer through
   printer.device (graphics with the fonts of the preview, quality 150–600 dpi with
-  htmlttf.gadget), as **PostScript** to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
+  htmlttf.gadget, at most the printer's resolution; the page is sent in exactly the printer's
+  dots), as **PostScript** to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
   **PDF**. Paper size (A4, A5, Letter, Legal), margins, font and size for PostScript/PDF, page
   numbers, background colours, page range and copies. The printer adds its own hardware
   margins. A window shows the progress of a print and can stop it. Needs html.gadget 1.2.
