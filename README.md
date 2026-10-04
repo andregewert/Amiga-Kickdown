@@ -58,7 +58,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
   links are shown in the status line.
 * Headings get GitHub style anchors (`## Two Words` → `#two-words`), so tables of contents work.
 * Open, Save, Save as, Export HTML; asks before discarding changes or replacing files.
-* Print & export (*Project/Print & export...*, Amiga-P, toolbar): to the printer through
+* Print (*Project/Print...*, Amiga-P, toolbar): to the printer through
   printer.device (graphics with the fonts of the preview, quality 150–600 dpi with
   htmlttf.gadget, at most the printer's resolution; the page is sent in exactly the printer's
   dots), as **PostScript** to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as

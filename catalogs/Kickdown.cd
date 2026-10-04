@@ -632,18 +632,18 @@ Show s_plash window at the start
 MSG_ABOUT_DETAILS (//)
 www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
 ;
-; printing and export
+; printing, also as PostScript or PDF
 MSG_MENU_PRINT (//)
-Print & export...
+Print...
 ;
 MSG_TB_PRINT (//)
 Print
 ;
 MSG_TBH_PRINT (//)
-Print, or export as PostScript or PDF
+Print, also as PostScript or PDF
 ;
 MSG_PR_TITLE (//)
-Print & export
+Print
 ;
 MSG_PR_OUTPUT (//)
 Output
@@ -738,9 +738,6 @@ The printer adds its own margins (often 3-5 mm).\nThe font is used for PostScrip
 MSG_PR_PRINT (//)
 _Print
 ;
-MSG_PR_EXPORT (//)
-_Export
-;
 MSG_PR_CANCEL (//)
 _Cancel
 ;
@@ -772,7 +769,7 @@ MSG_PR_NOPAGES (//)
 The document cannot be prepared for printing.
 ;
 MSG_PR_NEEDGADGET (//)
-Printing and export need html.gadget or htmlttf.gadget 1.2 or newer.
+Printing needs html.gadget or htmlttf.gadget 1.2 or newer.
 ;
 MSG_PR_PROGRESS_TITLE (//)
 Printing

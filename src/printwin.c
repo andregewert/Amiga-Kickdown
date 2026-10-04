@@ -1,5 +1,5 @@
 /*
- * Kickdown - printing and export (window "Print & export")
+ * Kickdown - printing (window "Print"), also as PostScript or PDF
  *
  * Three kinds of output, all through the preview gadget (html.gadget or
  * htmlttf.gadget, V1.2):
@@ -8,7 +8,7 @@
  *    asks for strips on its own task). Each page is sent with SendIO()
  *    while a modal progress window shows the pages and can stop the
  *    print; the main window waits.
- *    The whole sheet is sent with its size in 1/1000 inch, the driver
+ *    The whole sheet is sent in exactly the driver's dots, the driver
  *    puts it at the start of its printable area (its hardware margins
  *    add to ours, so the margins can be set).
  *  - PostScript: HTMLM_Export to a file, PRT:, PS: (the PostScript
@@ -184,10 +184,6 @@ static void update_gadgets(void)
     SetGadgetAttrs((struct Gadget *)pw.copies, w, NULL, GA_Disabled, !printer, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.serif, w, NULL, GA_Disabled, printer, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.size, w, NULL, GA_Disabled, printer, TAG_DONE);
-    SetGadgetAttrs((struct Gadget *)pw.print, w, NULL, GA_Text,
-                   (ULONG)S(printer ? MSG_PR_PRINT : MSG_PR_EXPORT), TAG_DONE);
-    /* the button's width follows its new text */
-    if (w) RethinkLayout((struct Gadget *)pw.root, w, NULL, TRUE);
 }
 
 static Object *build(const struct Settings *s, const char *file, LONG from, LONG to)

@@ -59,7 +59,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
   Links erscheinen in der Statuszeile.
 * Überschriften erhalten Anker wie auf GitHub (`## Zwei Worte` → `#zwei-worte`), damit
   Inhaltsverzeichnisse funktionieren.
-* Drucken & Exportieren (*Project/Print & export...*, Amiga-P, Toolbar): auf den Drucker über
+* Drucken (*Project/Print...*, Amiga-P, Toolbar): auf den Drucker über
   printer.device (Grafik mit den Schriften der Vorschau, Qualität 150–600 dpi mit htmlttf.gadget,
   höchstens die Auflösung des Druckers; die Seite geht genau in den Punkten des Druckers hinaus),
   als **PostScript** in eine Datei, nach `PRT:`, `PS:` (TurboPrint) oder an ein Gerät, oder als

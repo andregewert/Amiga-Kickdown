@@ -835,22 +835,22 @@ MSG_ABOUT_DETAILS
 www.ubergeek.de - agewert@ubergeek.de\nVeröffentlicht unter der MIT-Lizenz\n\nMarkdown-Parser: %s\nVorschau: %s %ld.%ld
 ; www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld
 ;
-; printing and export
+; printing, also as PostScript or PDF
 MSG_MENU_PRINT
-Drucken & Exportieren...
-; Print & export...
+Drucken...
+; Print...
 ;
 MSG_TB_PRINT
 Drucken
 ; Print
 ;
 MSG_TBH_PRINT
-Drucken oder als PostScript oder PDF exportieren
-; Print, or export as PostScript or PDF
+Drucken, auch als PostScript oder PDF
+; Print, also as PostScript or PDF
 ;
 MSG_PR_TITLE
-Drucken & Exportieren
-; Print & export
+Drucken
+; Print
 ;
 MSG_PR_OUTPUT
 Ausgabe
@@ -976,10 +976,6 @@ MSG_PR_PRINT
 _Drucken
 ; _Print
 ;
-MSG_PR_EXPORT
-E_xportieren
-; _Export
-;
 MSG_PR_CANCEL
 _Abbrechen
 ; _Cancel
@@ -1021,8 +1017,8 @@ Das Dokument lässt sich nicht für den Druck vorbereiten.
 ; The document cannot be prepared for printing.
 ;
 MSG_PR_NEEDGADGET
-Drucken und Exportieren brauchen html.gadget oder htmlttf.gadget 1.2 oder neuer.
-; Printing and export need html.gadget or htmlttf.gadget 1.2 or newer.
+Drucken braucht html.gadget oder htmlttf.gadget 1.2 oder neuer.
+; Printing needs html.gadget or htmlttf.gadget 1.2 or newer.
 ;
 MSG_PR_PROGRESS_TITLE
 Drucken

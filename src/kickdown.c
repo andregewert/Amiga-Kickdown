@@ -629,7 +629,7 @@ static void edit_settings(void)
     }
 }
 
-/* Project/Print & export: the window, then the output of the preview,
+/* Project/Print: the window, then the output of the preview,
  * brought up to date first. The options become the settings of this
  * session (saved with the other settings).                          */
 static void print_document(void)

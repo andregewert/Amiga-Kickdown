@@ -94,11 +94,11 @@ Contents
 History
 -------
 1.1 (03.10.2026)
- - printing and export (Project/Print & export, Amiga-P, toolbar): to
-   the printer through printer.device (graphics, the fonts of the
-   preview), as PostScript to a file, PRT:, PS: (TurboPrint) or a
-   device, or as PDF; paper size, margins, font and size, page numbers,
-   background colours, page range, copies; needs html_gadget 1.2
+ - printing (Project/Print, Amiga-P, toolbar): to the printer through
+   printer.device (graphics, the fonts of the preview), as PostScript to
+   a file, PRT:, PS: (TurboPrint) or a device, or as PDF; paper size,
+   margins, font and size, page numbers, background colours, page range,
+   copies; needs html_gadget 1.2
  - new setting (Preview page, tool type FITIMAGES, off by default): big
    pictures are scaled down to the width of the preview and of the
    printed page; needs html_gadget 1.2
@@ -142,12 +142,12 @@ auch nach den gewünschten Sprachen fragt.
 Versionsgeschichte
 ------------------
 1.1 (03.10.2026)
- - Drucken und Exportieren (Projekt/Drucken & Exportieren, Amiga-P,
-   Toolbar): auf den Drucker über printer.device (Grafik, mit den
-   Schriften der Vorschau), als PostScript in eine Datei, nach PRT:, PS:
-   (TurboPrint) oder an ein Gerät, oder als PDF; Papierformat, Ränder,
-   Schrift und Größe, Seitenzahlen, Hintergrundfarben, Seitenbereich,
-   Kopien; braucht html_gadget 1.2
+ - Drucken (Projekt/Drucken, Amiga-P, Toolbar): auf den Drucker über
+   printer.device (Grafik, mit den Schriften der Vorschau), als
+   PostScript in eine Datei, nach PRT:, PS: (TurboPrint) oder an ein
+   Gerät, oder als PDF; Papierformat, Ränder, Schrift und Größe,
+   Seitenzahlen, Hintergrundfarben, Seitenbereich, Kopien; braucht
+   html_gadget 1.2
  - neue Einstellung (Seite Vorschau, Tooltype FITIMAGES, abgeschaltet):
    große Bilder werden auf die Breite der Vorschau und der gedruckten
    Seite verkleinert; braucht html_gadget 1.2

@@ -240,25 +240,24 @@
 #define MSG_PR_BACKGROUNDS           235
 #define MSG_PR_MARGIN_NOTE           236
 #define MSG_PR_PRINT                 237
-#define MSG_PR_EXPORT                238
-#define MSG_PR_CANCEL                239
-#define MSG_PR_FOOTER                240
-#define MSG_PR_WRITING               241
-#define MSG_PR_PRINTING              242
-#define MSG_PR_PRINTED               243
-#define MSG_PR_WRITTEN               244
-#define MSG_PR_STOPPED               245
-#define MSG_PR_ERROR                 246
-#define MSG_PR_NODEVICE              247
-#define MSG_PR_NOPAGES               248
-#define MSG_PR_NEEDGADGET            249
-#define MSG_PR_PROGRESS_TITLE        250
-#define MSG_PR_STOP                  251
-#define MSG_PR_NOPS                  252
-#define MSG_PR_CANNOT_OPEN           253
-#define MSG_SET_FITIMAGES            254
-#define MSG_SET_FITIMAGES_NOTE       255
-#define MSG_COUNT                    256
+#define MSG_PR_CANCEL                238
+#define MSG_PR_FOOTER                239
+#define MSG_PR_WRITING               240
+#define MSG_PR_PRINTING              241
+#define MSG_PR_PRINTED               242
+#define MSG_PR_WRITTEN               243
+#define MSG_PR_STOPPED               244
+#define MSG_PR_ERROR                 245
+#define MSG_PR_NODEVICE              246
+#define MSG_PR_NOPAGES               247
+#define MSG_PR_NEEDGADGET            248
+#define MSG_PR_PROGRESS_TITLE        249
+#define MSG_PR_STOP                  250
+#define MSG_PR_NOPS                  251
+#define MSG_PR_CANNOT_OPEN           252
+#define MSG_SET_FITIMAGES            253
+#define MSG_SET_FITIMAGES_NOTE       254
+#define MSG_COUNT                    255
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -466,10 +465,10 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Opening the window...",
     "Show s_plash window at the start",
     "www.ubergeek.de - agewert@ubergeek.de\nReleased under the MIT License\n\nMarkdown parser: %s\nPreview: %s %ld.%ld",
-    "Print & export...",
+    "Print...",
     "Print",
-    "Print, or export as PostScript or PDF",
-    "Print & export",
+    "Print, also as PostScript or PDF",
+    "Print",
     "Output",
     "Page",
     "_Type ",
@@ -501,7 +500,6 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "_Background colours",
     "The printer adds its own margins (often 3-5 mm).\nThe font is used for PostScript and PDF; the printer\noutput uses the fonts of the preview.",
     "_Print",
-    "_Export",
     "_Cancel",
     "Page %p of %n",
     "Writing page %ld of %ld",
@@ -512,7 +510,7 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Printer error %ld",
     "printer.device cannot be opened.",
     "The document cannot be prepared for printing.",
-    "Printing and export need html.gadget or htmlttf.gadget 1.2 or newer.",
+    "Printing needs html.gadget or htmlttf.gadget 1.2 or newer.",
     "Printing",
     "_Stop",
     "PS: is not available (TurboPrint is not installed or not running).",
