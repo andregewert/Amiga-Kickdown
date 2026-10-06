@@ -21,9 +21,12 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers. Die Auflösung hängt von der Dichte
   1–7 ab (`SPECIAL_DENSITYn`, Standard aus den PrinterGfx-Prefs) und wird je Dichte mit `SPECIAL_NOPRINT` und
   1000 × 1000 mils abgefragt; die Drucker sind die Units 0–9 (`ENV:Sys/Printer[N].prefs`, Chunks PTXT/PDEV). TurboPrint
-  (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht: dort RGB24 mit `PRD_TPEXTDUMPRPORT`, notfalls
-  in Streifen mit `SPECIAL_NOFORMFEED` (`PRINT_MAXMEM`). Bekannt, vorerst ignoriert: mit TurboPrint sind nach dem
-  Druckdialog die Checkbox-Bilder von ReAction oft beschädigt (vermutlich ein Fehler in TurboPrint unter OS 3.2),
+  (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht: dort RGB24 mit `PRD_TPEXTDUMPRPORT`, Blatt in
+  1/1000 Zoll (TurboPrint skaliert auf die Dichte), notfalls in Streifen mit `SPECIAL_NOFORMFEED` (`PRINT_MAXMEM`).
+  `struct TPExtIODRP` in voller Größe anlegen: TurboPrint schreibt die in `turboprint.h` nur auskommentierten
+  internen Felder (`Planes[8]`, `BytesPerRow`, `XOffset`); mit der 6-Byte-Struktur beschädigte es Speicher (kaputte
+  Checkbox-Bilder, Fast-RAM „weg“, alles im Chip-RAM, Absturz beim nächsten Start). Unter TurboPrint außerdem keine
+  Aufträge mit `SPECIAL_NOPRINT` und nichts in `PrinterData` schreiben,
   ohne Skalierung durch printer.device (die staucht vertikal), der Hook skaliert selbst; asynchron
   mit `SendIO()` hinter einem modalen Fortschrittsfenster mit fuelgauge.gadget, `progress_...()`). Beim
   PS/PDF-Export läuft der Fortschritts-Hook auf dem Stack des Gadgets: dort nur das Fortschrittsfenster

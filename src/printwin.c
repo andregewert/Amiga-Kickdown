@@ -86,6 +86,12 @@ enum {
 struct TPExtIODRP {
     UWORD PixAspX, PixAspY;         /* aspect ratio of a pixel */
     UWORD Mode;                     /* TPFMT_... */
+    /* turboprint.h has these "for internal use only" as a comment:
+     * TurboPrint writes them, so they must be there (plus a reserve) */
+    APTR  Planes[8];
+    UWORD BytesPerRow;
+    UWORD XOffset;
+    ULONG Reserved[8];
 };
 
 /* a printer.device unit: what printer.device makes of densities 1-7 */
@@ -669,6 +675,7 @@ struct BitmapPrint {
     UBYTE               *tpbuf;     /* band rows * dw * 3 bytes */
     ULONG               *tprow;     /* one row 0x00RRGGBB, dw pixels */
     LONG                 band;      /* rows per band (dh: the whole page) */
+    LONG                 milw, rdpi;/* sheet width in 1/1000 inch, dots per inch of our page */
     struct TPExtIODRP    ext;
     struct RastPort      tprp;
     struct BitMap        tpbm;
@@ -856,7 +863,7 @@ static BOOL tp_fill(struct BitmapPrint *bp, struct Progress *pr, LONG printed, L
 
 /* TurboPrint: the band as a 24 bit RastPort; all bands of a page but
  * the last without form feed                                         */
-static void tp_send(struct BitmapPrint *bp, LONG h, BOOL more)
+static void tp_send(struct BitmapPrint *bp, LONG y0, LONG h, BOOL more)
 {
     struct IODRPTagsReq *io = bp->io;
 
@@ -866,6 +873,7 @@ static void tp_send(struct BitmapPrint *bp, LONG h, BOOL more)
     bp->tpbm.Planes[0] = bp->tpbuf;
     InitRastPort(&bp->tprp);
     bp->tprp.BitMap = &bp->tpbm;
+    memset(&bp->ext, 0, sizeof(bp->ext));
     bp->ext.PixAspX = 1;
     bp->ext.PixAspY = 1;
     bp->ext.Mode = TPFMT_RGB24;
@@ -877,9 +885,11 @@ static void tp_send(struct BitmapPrint *bp, LONG h, BOOL more)
     io->io_SrcY = 0;
     io->io_SrcWidth = bp->dw;
     io->io_SrcHeight = h;
-    io->io_DestCols = bp->dw;
-    io->io_DestRows = h;
-    io->io_Special = (bp->density << 8) | (more ? SPECIAL_NOFORMFEED : 0);
+    /* in 1/1000 inch: TurboPrint scales to its resolution; the rows of
+     * the bands add up to the whole sheet                               */
+    io->io_DestCols = bp->milw;
+    io->io_DestRows = ((y0 + h) * 1000 + bp->rdpi / 2) / bp->rdpi - (y0 * 1000 + bp->rdpi / 2) / bp->rdpi;
+    io->io_Special = SPECIAL_MILCOLS | SPECIAL_MILROWS | (bp->density << 8) | (more ? SPECIAL_NOFORMFEED : 0);
     io->io_TagList = NULL;
     SendIO((struct IORequest *)io);
 }
@@ -913,7 +923,7 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
             for (y = 0; y < bp->dh && !pr.stopped && !err; y += bp->band) {
                 LONG h = bp->dh - y < bp->band ? bp->dh - y : bp->band;
                 if (!tp_fill(bp, &pr, printed, y, h)) break;
-                tp_send(bp, h, y + h < bp->dh);
+                tp_send(bp, y, h, y + h < bp->dh);
                 wait_io(bp, &pr, printed);
                 err = bp->io->io_Error;
             }
@@ -979,6 +989,7 @@ static BOOL density_dpi(struct IODRPTagsReq *io, LONG density, LONG *x, LONG *y)
     if (tp) {
         /* TurboPrint: its own command with RGB24 and no ColorMap */
         bm.BytesPerRow = 16 * 3;
+        memset(&ext, 0, sizeof(ext));
         ext.PixAspX = ext.PixAspY = 1;
         ext.Mode = TPFMT_RGB24;
         io->io_Command = PRD_TPEXTDUMPRPORT;
@@ -1019,7 +1030,18 @@ static void query_unit(LONG unit, struct UnitInfo *ui)
         ui->ok = TRUE;
         ui->tp = is_turboprint(io);
         ui->prefdensity = ((struct PrinterData *)io->io_Device)->pd_Preferences.PrintDensity;
-        for (d = 1; d <= 7; d++) density_dpi(io, d, &ui->dpi[d][0], &ui->dpi[d][1]);
+        if (!ui->tp)
+            for (d = 1; d <= 7; d++) density_dpi(io, d, &ui->dpi[d][0], &ui->dpi[d][1]);
+        else {
+            /* TurboPrint: no dumps (they damaged memory), only what it
+             * says for the density of its settings                      */
+            struct PrinterExtendedData *ped = &((struct PrinterData *)io->io_Device)->pd_SegmentData->ps_PED;
+            d = ui->prefdensity;
+            if (d >= 1 && d <= 7) {
+                ui->dpi[d][0] = ped->ped_XDotsInch;
+                ui->dpi[d][1] = ped->ped_YDotsInch;
+            }
+        }
         CloseDevice((struct IORequest *)io);
     }
     if (io) DeleteIORequest((struct IORequest *)io);
@@ -1069,17 +1091,31 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
                  ((struct PrinterData *)bp.io->io_Device)->pd_Preferences.PrintDensity;
     if (bp.density < 1 || bp.density > 7) bp.density = 1;
     ped = &((struct PrinterData *)bp.io->io_Device)->pd_SegmentData->ps_PED;
-    if (!density_dpi(bp.io, bp.density, &xdpi, &ydpi)) {
+    if ((bp.tp = is_turboprint(bp.io))) {
+        /* TurboPrint: no queries (a dump with SPECIAL_NOPRINT through it
+         * damaged memory) and its settings stay untouched; our page has
+         * the resolution TurboPrint gives now, the sheet goes in 1/1000
+         * inch and TurboPrint scales it to the density                   */
         xdpi = ped->ped_XDotsInch ? ped->ped_XDotsInch : 300;
-        ydpi = ped->ped_YDotsInch ? ped->ped_YDotsInch : xdpi;
+        if (xdpi > MAXRENDERDPI) xdpi = MAXRENDERDPI;
+        if (xdpi < 72) xdpi = 72;
+        bp.rdpi = dpi = xdpi;
+        bp.milw = tenthmm[s->paper][0] * 1000 / 254;
+        bp.dw = (tenthmm[s->paper][0] * xdpi + 127) / 254;
+        bp.dh = (tenthmm[s->paper][1] * xdpi + 127) / 254;
+    } else {
+        if (!density_dpi(bp.io, bp.density, &xdpi, &ydpi)) {
+            xdpi = ped->ped_XDotsInch ? ped->ped_XDotsInch : 300;
+            ydpi = ped->ped_YDotsInch ? ped->ped_YDotsInch : xdpi;
+        }
+        /* for the drivers that read the density from the settings */
+        bp.olddensity = set_density(bp.io, bp.density);
+        bp.dw = (tenthmm[s->paper][0] * xdpi + 127) / 254;
+        bp.dh = (tenthmm[s->paper][1] * ydpi + 127) / 254;
+        if (ped->ped_MaxXDots && bp.dw > (LONG)ped->ped_MaxXDots) bp.dw = ped->ped_MaxXDots;
+        if (ped->ped_MaxYDots && bp.dh > (LONG)ped->ped_MaxYDots) bp.dh = ped->ped_MaxYDots;
+        dpi = xdpi < MAXRENDERDPI ? xdpi : MAXRENDERDPI;
     }
-    /* for the drivers that read the density from the settings */
-    bp.olddensity = set_density(bp.io, bp.density);
-    bp.dw = (tenthmm[s->paper][0] * xdpi + 127) / 254;
-    bp.dh = (tenthmm[s->paper][1] * ydpi + 127) / 254;
-    if (ped->ped_MaxXDots && bp.dw > (LONG)ped->ped_MaxXDots) bp.dw = ped->ped_MaxXDots;
-    if (ped->ped_MaxYDots && bp.dh > (LONG)ped->ped_MaxYDots) bp.dh = ped->ped_MaxYDots;
-    dpi = xdpi < MAXRENDERDPI ? xdpi : MAXRENDERDPI;
 
     tags[0].ti_Data = dpi;
     tags[1].ti_Data = bp.paper_w;
@@ -1115,7 +1151,7 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
     /* TurboPrint: the page as RGB24, at once if the memory allows (1 MB
      * stays free), else in bands of about 1 MB; PRINT_MAXMEM (KB) sets
      * the limit instead                                                 */
-    if ((bp.tp = is_turboprint(bp.io))) {
+    if (bp.tp) {
         ULONG rowbytes = bp.dw * 3, full = rowbytes * bp.dh, avail = AvailMem(MEMF_ANY | MEMF_LARGEST);
         ULONG limit = s->prmaxmem > 0 ? (ULONG)s->prmaxmem * 1024 : avail > 1024 * 1024 ? avail - 1024 * 1024 : 0;
         if (s->prmaxmem > 0 && limit > avail) limit = avail;
@@ -1152,7 +1188,7 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
     }
 out:
     if (bp.opened) {
-        set_density(bp.io, bp.olddensity);
+        if (!bp.tp) set_density(bp.io, bp.olddensity);
         CloseDevice((struct IORequest *)bp.io);
     }
     if (bp.io) DeleteIORequest((struct IORequest *)bp.io);
