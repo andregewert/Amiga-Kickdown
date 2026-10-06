@@ -145,6 +145,7 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if (FindToolType(tt, (STRPTR)"NOPAGENUMBERS")) s->prpagenumbers = FALSE;
     if (FindToolType(tt, (STRPTR)"NOPRINTBACKGROUNDS")) s->prbackgrounds = FALSE;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_UNIT")) && StrToLong(v, &n) > 0 && n >= 0 && n <= 9) s->prunit = n;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_MAXMEM")) && StrToLong(v, &n) > 0 && n >= 0) s->prmaxmem = n;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_DENSITY")) && StrToLong(v, &n) > 0 && n >= 0 && n <= 7) s->prdensity = n;
     if (FindToolType(tt, (STRPTR)"TTF")) s->ttf = TRUE;
     if ((v = FindToolType(tt, (STRPTR)"FONTSET"))) copy_str(s->fontset, sizeof(s->fontset), v);
@@ -190,7 +191,7 @@ BOOL settings_load_icon(struct Settings *s, CONST_STRPTR name)
 /*****************************************************************************/
 /* writing                                                                   */
 
-#define NUMKEYS (31 + NUMCOLOURS)
+#define NUMKEYS (32 + NUMCOLOURS)
 #define ENTRYLEN (PATHLEN + 24)
 
 struct Entry {
@@ -225,7 +226,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     STRPTR *old, *tt;
     ULONG nold = 0, n = 0, i, k, nicons;
     char num[12], wnum[12], hnum[12], lnum[12], tnum[12], buf[NUMCOLOURS][8], *disabled;
-    char mnum[24], snum[12], unum[12], dnum[12];
+    char mnum[24], snum[12], unum[12], dnum[12], xnum[12];
     BOOL ok;
 
     if (!(dob = GetDiskObject((STRPTR)name))) {
@@ -263,6 +264,8 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "PRINT_UNIT", s->prunit != 0, unum);
     sprintf(dnum, "%ld", (long)s->prdensity);
     entry(&e[k++], "PRINT_DENSITY", s->prdensity != 0, dnum);
+    sprintf(xnum, "%ld", (long)s->prmaxmem);
+    entry(&e[k++], "PRINT_MAXMEM", s->prmaxmem != 0, xnum);
     entry(&e[k++], "TTF", s->ttf, NULL);
     entry(&e[k++], "FONTSET", s->fontset[0] != 0, s->fontset);
     sprintf(num, "%ld", (long)s->fontsize);

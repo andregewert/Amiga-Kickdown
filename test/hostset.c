@@ -160,6 +160,7 @@ int main(void)
     s.prpagenumbers = FALSE;
     s.prunit = 2;
     s.prdensity = 7;
+    s.prmaxmem = 2048;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:Kickdown"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 
@@ -205,6 +206,8 @@ int main(void)
     check(i < nicon, "PRINT_UNIT=2 kept");
     for (i = 0; i < nicon && strcmp(icon[i], "PRINT_DENSITY=7"); i++) ;
     check(i < nicon, "PRINT_DENSITY=7 kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "PRINT_MAXMEM=2048"); i++) ;
+    check(i < nicon, "PRINT_MAXMEM=2048 kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

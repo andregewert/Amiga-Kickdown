@@ -927,6 +927,8 @@ static LONG set_density(struct IODRPTagsReq *io, LONG density)
     return old;
 }
 
+#define QUERYPLANE 4096
+
 static BOOL is_turboprint(struct IODRPTagsReq *io)
 {
     struct PrinterData *pd = (struct PrinterData *)io->io_Device;
@@ -943,20 +945,33 @@ static BOOL density_dpi(struct IODRPTagsReq *io, LONG density, LONG *x, LONG *y)
     struct PrinterExtendedData *ped = &((struct PrinterData *)io->io_Device)->pd_SegmentData->ps_PED;
     struct RastPort rp;
     struct BitMap bm;
+    struct TPExtIODRP ext;
     PLANEPTR plane;
     LONG old, err;
+    BOOL tp = is_turboprint(io);
 
     *x = *y = 0;
-    if (!(plane = AllocRaster(16, 16))) return FALSE;
-    memset(plane, 0, RASSIZE(16, 16));
+    /* 32 (RGB24: 768) bytes would do; the reserve is for printer.devices
+     * that take more than the bitmap says: it must not hit other memory */
+    if (!(plane = AllocVec(QUERYPLANE, (tp ? MEMF_ANY : MEMF_CHIP) | MEMF_CLEAR))) return FALSE;
     InitBitMap(&bm, 1, 16, 16);
     bm.Planes[0] = plane;
     InitRastPort(&rp);
     rp.BitMap = &bm;
-    io->io_Command = PRD_DUMPRPORT;
+    if (tp) {
+        /* TurboPrint: its own command with RGB24 and no ColorMap */
+        bm.BytesPerRow = 16 * 3;
+        ext.PixAspX = ext.PixAspY = 1;
+        ext.Mode = TPFMT_RGB24;
+        io->io_Command = PRD_TPEXTDUMPRPORT;
+        io->io_ColorMap = NULL;
+        io->io_Modes = (ULONG)&ext;
+    } else {
+        io->io_Command = PRD_DUMPRPORT;
+        io->io_ColorMap = gui.screen->ViewPort.ColorMap;
+        io->io_Modes = 0;
+    }
     io->io_RastPort = &rp;
-    io->io_ColorMap = gui.screen->ViewPort.ColorMap;
-    io->io_Modes = 0;
     io->io_SrcX = io->io_SrcY = 0;
     io->io_SrcWidth = io->io_SrcHeight = 16;
     io->io_DestCols = io->io_DestRows = 1000;
@@ -965,7 +980,7 @@ static BOOL density_dpi(struct IODRPTagsReq *io, LONG density, LONG *x, LONG *y)
     old = set_density(io, density);
     err = DoIO((struct IORequest *)io);
     set_density(io, old);
-    FreeRaster(plane, 16, 16);
+    FreeVec(plane);
     if (err || !ped->ped_XDotsInch || !ped->ped_YDotsInch) return FALSE;
     *x = ped->ped_XDotsInch;
     *y = ped->ped_YDotsInch;
@@ -1079,10 +1094,13 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
     bp.src.dw = bp.dw;
     bp.src.dh = bp.dh;
     /* TurboPrint: the page as RGB24, at once if the memory allows (1 MB
-     * stays free), else in bands of about 1 MB                          */
+     * stays free), else in bands of about 1 MB; PRINT_MAXMEM (KB) sets
+     * the limit instead                                                 */
     if ((bp.tp = is_turboprint(bp.io))) {
-        ULONG rowbytes = bp.dw * 3, full = rowbytes * bp.dh;
-        bp.band = AvailMem(MEMF_ANY | MEMF_LARGEST) > full + 1024 * 1024 ? bp.dh : (LONG)((1024 * 1024) / rowbytes);
+        ULONG rowbytes = bp.dw * 3, full = rowbytes * bp.dh, avail = AvailMem(MEMF_ANY | MEMF_LARGEST);
+        ULONG limit = s->prmaxmem > 0 ? (ULONG)s->prmaxmem * 1024 : avail > 1024 * 1024 ? avail - 1024 * 1024 : 0;
+        if (s->prmaxmem > 0 && limit > avail) limit = avail;
+        bp.band = full <= limit ? bp.dh : (LONG)((s->prmaxmem > 0 ? limit : 1024 * 1024) / rowbytes);
         if (bp.band < 16) bp.band = 16;
         if (bp.band > bp.dh) bp.band = bp.dh;
         if (!(bp.tprow = AllocVec(bp.dw * 4, MEMF_ANY)) || !(bp.tpbuf = AllocVec(rowbytes * bp.band, MEMF_ANY))) {

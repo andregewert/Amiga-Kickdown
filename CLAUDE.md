@@ -20,7 +20,10 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   (html_gadget 1.2): PS/PDF mit `HTMLM_Export`, Bitmap-Druck mit `HTMLM_PrintBegin/Render` und
   printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers. Die Auflösung hängt von der Dichte
   1–7 ab (`SPECIAL_DENSITYn`, Standard aus den PrinterGfx-Prefs) und wird je Dichte mit `SPECIAL_NOPRINT` und
-  1000 × 1000 mils abgefragt; die Drucker sind die Units 0–9 (`ENV:Sys/Printer[N].prefs`, Chunks PTXT/PDEV),
+  1000 × 1000 mils abgefragt; die Drucker sind die Units 0–9 (`ENV:Sys/Printer[N].prefs`, Chunks PTXT/PDEV). TurboPrint
+  (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht: dort RGB24 mit `PRD_TPEXTDUMPRPORT`, notfalls
+  in Streifen mit `SPECIAL_NOFORMFEED` (`PRINT_MAXMEM`). Bekannt, vorerst ignoriert: mit TurboPrint sind nach dem
+  Druckdialog die Checkbox-Bilder von ReAction oft beschädigt (vermutlich ein Fehler in TurboPrint unter OS 3.2),
   ohne Skalierung durch printer.device (die staucht vertikal), der Hook skaliert selbst; asynchron
   mit `SendIO()` hinter einem modalen Fortschrittsfenster mit fuelgauge.gadget, `progress_...()`). Beim
   PS/PDF-Export läuft der Fortschritts-Hook auf dem Stack des Gadgets: dort nur das Fortschrittsfenster

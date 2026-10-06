@@ -61,7 +61,8 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
 * Print (*Project/Print...*, Amiga-P, toolbar): to the printer through
   printer.device (graphics with the fonts of the preview; choice of the configured printers,
   units 0–9, and of the density 1–7 with the resolution the driver gives it; the page is sent
-  in exactly the printer's dots, htmlttf.gadget renders it at up to 600 dpi), as **PostScript** (level 2, or level 1 for old printers) to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
+  in exactly the printer's dots, htmlttf.gadget renders it at up to 600 dpi; with TurboPrint
+  through its 24 bit interface), as **PostScript** (level 2, or level 1 for old printers) to a file, `PRT:`, `PS:` (TurboPrint) or any device, or as
   **PDF**. Paper size (A4, A5, Letter, Legal), margins, font and size for PostScript/PDF, page
   numbers, background colours, page range and copies. The printer adds its own hardware
   margins. A window shows the progress of printing and of PostScript/PDF output and can stop it. Needs html.gadget 1.2.
@@ -90,7 +91,8 @@ the Shell; Shell arguments and the tool types of a project icon take precedence.
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
 `PRINT_MODE=PRINTER|PS|PDF`, `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
-`MARGINS=left,top,right,bottom` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_UNIT=`, `PRINT_DENSITY=` (0 = as in the printer settings), `NOPAGENUMBERS`,
+`MARGINS=left,top,right,bottom` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_UNIT=`, `PRINT_DENSITY=` (0 = as in the printer settings), `PRINT_MAXMEM=` (KB for a
+printed page under TurboPrint, larger pages go in bands; 0 = automatic), `NOPAGENUMBERS`,
 `NOPRINTBACKGROUNDS`,
 `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`); a relative `TEMPLATE` is relative to the icon's drawer.
 Set Kickdown as default tool of your `.md` icons to open them by double click.
