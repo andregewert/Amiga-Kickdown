@@ -61,6 +61,7 @@ void settings_default(struct Settings *s)
     s->prpagenumbers = TRUE;
     s->prbackgrounds = TRUE;
     s->pslevel = 2;
+    s->prmode = -1;
     s->autorefresh = TRUE;
     s->syncscroll = TRUE;
     s->fitimages = FALSE;
@@ -248,7 +249,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "TOOLBARFRAMES", s->tbframes, NULL);
     entry(&e[k++], "NOFORMATBUTTONS", !s->fmtbuttons, NULL);
     entry(&e[k++], "NOSPLASH", !s->splash, NULL);
-    entry(&e[k++], "PRINT_MODE", s->prmode != PRMODE_PRINTER, prmode_names[s->prmode >= 0 && s->prmode < NUMPRMODES ? s->prmode : 0]);
+    entry(&e[k++], "PRINT_MODE", s->prmode >= 0, prmode_names[s->prmode >= 0 && s->prmode < NUMPRMODES ? s->prmode : 0]);
     entry(&e[k++], "PS_LEVEL", s->pslevel != 2, s->pslevel == 1 ? "1" : "2");
     entry(&e[k++], "PRINT_TO", s->prdest != PRDEST_FILE, prdest_names[s->prdest >= 0 && s->prdest < NUMPRDESTS ? s->prdest : 0]);
     entry(&e[k++], "PRINT_DEVICE", s->prdevice[0] != 0, s->prdevice);

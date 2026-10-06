@@ -101,7 +101,8 @@ History
    size, margins, font and size, page numbers, background colours, page range,
    copies; PostScript level 2 or 1; pictures are compressed (LZW, JPEG files
    as they are, not in level 1); a window shows the progress and can stop it;
-   needs html_gadget 1.2
+   needs html_gadget 1.2; with TurboPrint, PostScript level 2 to PS: is the
+   default
  - new setting (Preview page, tool type FITIMAGES, off by default): big
    pictures are scaled down to the width of the preview and of the
    printed page; needs html_gadget 1.2
@@ -152,7 +153,8 @@ Versionsgeschichte
    oder als PDF; Papierformat, Ränder, Schrift und Größe, Seitenzahlen,
    Hintergrundfarben, Seitenbereich, Kopien; PostScript Level 2 oder 1; Bilder
    werden komprimiert (LZW, JPEG-Dateien unverändert, nicht bei Level 1); ein
-   Fenster zeigt den Fortschritt und kann abbrechen; braucht html_gadget 1.2
+   Fenster zeigt den Fortschritt und kann abbrechen; braucht html_gadget 1.2;
+   mit TurboPrint ist PostScript Level 2 nach PS: voreingestellt
  - neue Einstellung (Seite Vorschau, Tooltype FITIMAGES, abgeschaltet):
    große Bilder werden auf die Breite der Vorschau und der gedruckten
    Seite verkleinert; braucht html_gadget 1.2

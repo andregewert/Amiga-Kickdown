@@ -90,7 +90,8 @@ The settings are read from the tool types of the Kickdown icon, also when Kickdo
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
-`PRINT_MODE=PRINTER|PS|PDF`, `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
+`PRINT_MODE=PRINTER|PS|PDF` (without it: with TurboPrint PostScript level 2 to `PS:`, else the
+printer), `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
 `MARGINS=left,top,right,bottom` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_UNIT=`, `PRINT_DENSITY=` (0 = as in the printer settings), `PRINT_MAXMEM=` (KB for a
 printed page under TurboPrint, larger pages go in bands; 0 = automatic), `NOPAGENUMBERS`,
 `NOPRINTBACKGROUNDS`,

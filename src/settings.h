@@ -50,7 +50,8 @@ struct Settings {
     LONG  wintop;
     BOOL  splash;                   /* splash window while starting */
     /* printing and export */
-    LONG  prmode;                   /* PRMODE_... */
+    LONG  prmode;                   /* PRMODE_..., -1 = automatic: with TurboPrint
+                                     * PostScript level 2 to PS:, else the printer */
     LONG  pslevel;                  /* PostScript level 1 or 2 */
     LONG  prdest;                   /* PostScript to: PRDEST_... */
     char  prdevice[40];             /* PRDEST_DEVICE: "PAR:" etc. */

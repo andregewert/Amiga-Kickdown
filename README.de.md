@@ -98,7 +98,8 @@ Die Einstellungen kommen aus den Tooltypes des Kickdown-Icons, auch beim Start a
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
-`PRINT_MODE=PRINTER|PS|PDF`, `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
+`PRINT_MODE=PRINTER|PS|PDF` (ohne: mit TurboPrint PostScript Level 2 nach `PS:`, sonst der
+Drucker), `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
 `MARGINS=links,oben,rechts,unten` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_UNIT=`, `PRINT_DENSITY=` (0 = wie in den Druckereinstellungen), `PRINT_MAXMEM=` (KB für
 eine gedruckte Seite unter TurboPrint, größere Seiten gehen in Streifen; 0 = automatisch), `NOPAGENUMBERS`,
 `NOPRINTBACKGROUNDS`,

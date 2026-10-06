@@ -91,6 +91,7 @@ struct TPExtIODRP {
 /* a printer.device unit: what printer.device makes of densities 1-7 */
 struct UnitInfo {
     BOOL ok;                        /* the unit could be opened */
+    BOOL tp;                        /* it is TurboPrint's printer.device */
     LONG prefdensity;               /* density of the printer settings */
     LONG dpi[8][2];                 /* x, y dpi of density 1-7, 0 = unknown */
 };
@@ -293,9 +294,9 @@ static LONG mode_of(LONG item)
     return item == MI_PDF ? PRMODE_PDF : item == MI_PRINTER ? PRMODE_PRINTER : PRMODE_PS;
 }
 
-static LONG item_of(const struct Settings *s)
+static LONG item_of(LONG mode, LONG level)
 {
-    return s->prmode == PRMODE_PDF ? MI_PDF : s->prmode == PRMODE_PS ? (s->pslevel == 1 ? MI_PS1 : MI_PS2) : MI_PRINTER;
+    return mode == PRMODE_PDF ? MI_PDF : mode == PRMODE_PS ? (level == 1 ? MI_PS1 : MI_PS2) : MI_PRINTER;
 }
 
 static LONG mm_pt(LONG mm)
@@ -336,7 +337,7 @@ static void update_gadgets(void)
 static Object *build(const struct Settings *s, const char *file, LONG from, LONG to)
 {
     struct Node *n;
-    LONG i, u;
+    LONG i, u, mode, dest;
     Object *output, *page;
 
     mode_labels[MI_PRINTER] = (STRPTR)S(MSG_PR_MODE_PRINTER);
@@ -361,11 +362,21 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
     if (u == pw.nunits) u = 0;
     NewList(&pw.denslist);
     make_densities(pw.units[u]);
-    pw.mode = chooser(PW_MODE, mode_labels, item_of(s));
+
+    /* no mode chosen yet: with TurboPrint PostScript level 2 to PS:
+     * (its Ghostscript renders better than a graphics dump), else the
+     * printer                                                          */
+    mode = s->prmode;
+    dest = s->prdest;
+    if (mode < 0) {
+        mode = pw.ui.tp ? PRMODE_PS : PRMODE_PRINTER;
+        if (pw.ui.tp && have_ps()) dest = PRDEST_PS;
+    }
+    pw.mode = chooser(PW_MODE, mode_labels, item_of(mode, s->prmode < 0 ? 2 : s->pslevel));
     pw.dest = NewObject(CHOOSER_GetClass(), NULL,
         GA_ID, PW_DEST, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
         CHOOSER_Labels, (ULONG)&pw.destlist,
-        CHOOSER_Selected, s->prdest >= 0 && s->prdest < NUMPRDESTS ? s->prdest : 0, TAG_DONE);
+        CHOOSER_Selected, dest >= 0 && dest < NUMPRDESTS ? dest : 0, TAG_DONE);
     pw.file = NewObject(GETFILE_GetClass(), NULL,
         GA_ID, PW_FILE, GA_RelVerify, TRUE,
         GETFILE_TitleText, (ULONG)S(MSG_PR_FILE_TITLE), GETFILE_FullFile, (ULONG)file,
@@ -1006,6 +1017,7 @@ static void query_unit(LONG unit, struct UnitInfo *ui)
     if ((io = (struct IODRPTagsReq *)CreateIORequest(port, sizeof(*io))) &&
         !OpenDevice((STRPTR)"printer.device", unit, (struct IORequest *)io, 0)) {
         ui->ok = TRUE;
+        ui->tp = is_turboprint(io);
         ui->prefdensity = ((struct PrinterData *)io->io_Device)->pd_Preferences.PrintDensity;
         for (d = 1; d <= 7; d++) density_dpi(io, d, &ui->dpi[d][0], &ui->dpi[d][1]);
         CloseDevice((struct IORequest *)io);
