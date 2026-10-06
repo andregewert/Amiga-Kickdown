@@ -18,7 +18,9 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   ab V47. Gadgets auf verdeckten Seiten mit `SetPageGadgetAttrs()` ändern.
 - `src/printwin.c`: Fenster „Drucken“ (auch PostScript/PDF) und die Ausgabe über das Vorschau-Gadget
   (html_gadget 1.2): PS/PDF mit `HTMLM_Export`, Bitmap-Druck mit `HTMLM_PrintBegin/Render` und
-  printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers aus `ped_XDotsInch`/`ped_YDotsInch`,
+  printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers. Die Auflösung hängt von der Dichte
+  1–7 ab (`SPECIAL_DENSITYn`, Standard aus den PrinterGfx-Prefs) und wird je Dichte mit `SPECIAL_NOPRINT` und
+  1000 × 1000 mils abgefragt; die Drucker sind die Units 0–9 (`ENV:Sys/Printer[N].prefs`, Chunks PTXT/PDEV),
   ohne Skalierung durch printer.device (die staucht vertikal), der Hook skaliert selbst; asynchron
   mit `SendIO()` hinter einem modalen Fortschrittsfenster mit fuelgauge.gadget, `progress_...()`). Beim
   PS/PDF-Export läuft der Fortschritts-Hook auf dem Stack des Gadgets: dort nur das Fortschrittsfenster

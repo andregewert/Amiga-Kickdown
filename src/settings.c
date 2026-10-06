@@ -60,7 +60,6 @@ void settings_default(struct Settings *s)
     s->prsize = 10;
     s->prpagenumbers = TRUE;
     s->prbackgrounds = TRUE;
-    s->prdpi = 300;
     s->pslevel = 2;
     s->autorefresh = TRUE;
     s->syncscroll = TRUE;
@@ -145,7 +144,8 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if ((v = FindToolType(tt, (STRPTR)"PRINT_SIZE")) && StrToLong(v, &n) > 0 && n >= 4 && n <= 36) s->prsize = n;
     if (FindToolType(tt, (STRPTR)"NOPAGENUMBERS")) s->prpagenumbers = FALSE;
     if (FindToolType(tt, (STRPTR)"NOPRINTBACKGROUNDS")) s->prbackgrounds = FALSE;
-    if ((v = FindToolType(tt, (STRPTR)"PRINT_DPI")) && StrToLong(v, &n) > 0 && n >= 72 && n <= 1200) s->prdpi = n;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_UNIT")) && StrToLong(v, &n) > 0 && n >= 0 && n <= 9) s->prunit = n;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_DENSITY")) && StrToLong(v, &n) > 0 && n >= 0 && n <= 7) s->prdensity = n;
     if (FindToolType(tt, (STRPTR)"TTF")) s->ttf = TRUE;
     if ((v = FindToolType(tt, (STRPTR)"FONTSET"))) copy_str(s->fontset, sizeof(s->fontset), v);
     if ((v = FindToolType(tt, (STRPTR)"SIZE")) && StrToLong(v, &n) > 0 && n >= 0) s->fontsize = n;
@@ -190,7 +190,7 @@ BOOL settings_load_icon(struct Settings *s, CONST_STRPTR name)
 /*****************************************************************************/
 /* writing                                                                   */
 
-#define NUMKEYS (30 + NUMCOLOURS)
+#define NUMKEYS (31 + NUMCOLOURS)
 #define ENTRYLEN (PATHLEN + 24)
 
 struct Entry {
@@ -225,7 +225,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     STRPTR *old, *tt;
     ULONG nold = 0, n = 0, i, k, nicons;
     char num[12], wnum[12], hnum[12], lnum[12], tnum[12], buf[NUMCOLOURS][8], *disabled;
-    char mnum[24], snum[12], dnum[12];
+    char mnum[24], snum[12], unum[12], dnum[12];
     BOOL ok;
 
     if (!(dob = GetDiskObject((STRPTR)name))) {
@@ -259,8 +259,10 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "PRINT_SIZE", s->prsize != 10, snum);
     entry(&e[k++], "NOPAGENUMBERS", !s->prpagenumbers, NULL);
     entry(&e[k++], "NOPRINTBACKGROUNDS", !s->prbackgrounds, NULL);
-    sprintf(dnum, "%ld", (long)s->prdpi);
-    entry(&e[k++], "PRINT_DPI", s->prdpi != 300, dnum);
+    sprintf(unum, "%ld", (long)s->prunit);
+    entry(&e[k++], "PRINT_UNIT", s->prunit != 0, unum);
+    sprintf(dnum, "%ld", (long)s->prdensity);
+    entry(&e[k++], "PRINT_DENSITY", s->prdensity != 0, dnum);
     entry(&e[k++], "TTF", s->ttf, NULL);
     entry(&e[k++], "FONTSET", s->fontset[0] != 0, s->fontset);
     sprintf(num, "%ld", (long)s->fontsize);

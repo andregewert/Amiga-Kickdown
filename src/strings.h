@@ -221,7 +221,7 @@
 #define MSG_PR_FILE                  216
 #define MSG_PR_FILE_TITLE            217
 #define MSG_PR_DEVICE                218
-#define MSG_PR_DPI                   219
+#define MSG_PR_DENSITY               219
 #define MSG_PR_FROM                  220
 #define MSG_PR_TO                    221
 #define MSG_PR_COPIES                222
@@ -257,7 +257,12 @@
 #define MSG_PR_CANNOT_OPEN           252
 #define MSG_SET_FITIMAGES            253
 #define MSG_SET_FITIMAGES_NOTE       254
-#define MSG_COUNT                    255
+#define MSG_PR_PRINTER               255
+#define MSG_PR_UNIT                  256
+#define MSG_PR_DENSITY_DPI           257
+#define MSG_PR_DENSITY_PREFS         258
+#define MSG_PR_DENSITY_ASPREFS       259
+#define MSG_COUNT                    260
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -481,11 +486,11 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "_File ",
     "Save as PostScript or PDF",
     "De_vice ",
-    "_Quality ",
+    "Densit_y ",
     "Pages fro_m ",
     "t_o ",
     "Cop_ies ",
-    "\"to\" 0 = up to the last page.\nThe quality is at most the printer's resolution.",
+    "\"to\" 0 = up to the last page.",
     "Pape_r ",
     "Margins (mm) ",
     "left ",
@@ -517,6 +522,11 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Cannot open the output",
     "Fit _big pictures to the preview width",
     "Scaling big pictures takes time on slower Amigas.",
+    "Print_er ",
+    "Unit %ld",
+    "%ld (%ld \327 %ld dpi)",
+    "As in the printer settings: %ld (%ld \327 %ld dpi)",
+    "As in the printer settings",
 };
 #endif
 

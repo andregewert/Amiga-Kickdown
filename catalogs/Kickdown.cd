@@ -681,8 +681,8 @@ Save as PostScript or PDF
 MSG_PR_DEVICE (//)
 De_vice 
 ;
-MSG_PR_DPI (//)
-_Quality 
+MSG_PR_DENSITY (//)
+Densit_y 
 ;
 MSG_PR_FROM (//)
 Pages fro_m 
@@ -694,7 +694,7 @@ MSG_PR_COPIES (//)
 Cop_ies 
 ;
 MSG_PR_RANGE_NOTE (//)
-"to" 0 = up to the last page.\nThe quality is at most the printer's resolution.
+"to" 0 = up to the last page.
 ;
 MSG_PR_PAPER (//)
 Pape_r 
@@ -788,4 +788,19 @@ Fit _big pictures to the preview width
 ;
 MSG_SET_FITIMAGES_NOTE (//)
 Scaling big pictures takes time on slower Amigas.
+;
+MSG_PR_PRINTER (//)
+Print_er 
+;
+MSG_PR_UNIT (//)
+Unit %ld
+;
+MSG_PR_DENSITY_DPI (//)
+%ld (%ld × %ld dpi)
+;
+MSG_PR_DENSITY_PREFS (//)
+As in the printer settings: %ld (%ld × %ld dpi)
+;
+MSG_PR_DENSITY_ASPREFS (//)
+As in the printer settings
 ;

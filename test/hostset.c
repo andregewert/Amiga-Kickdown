@@ -158,7 +158,8 @@ int main(void)
     s.prserif = TRUE;
     s.prsize = 11;
     s.prpagenumbers = FALSE;
-    s.prdpi = 600;
+    s.prunit = 2;
+    s.prdensity = 7;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:Kickdown"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 
@@ -200,6 +201,10 @@ int main(void)
     check(i < nicon, "FITIMAGES kept");
     for (i = 0; i < nicon && strcmp(icon[i], "PS_LEVEL=1"); i++) ;
     check(i < nicon, "PS_LEVEL=1 kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "PRINT_UNIT=2"); i++) ;
+    check(i < nicon, "PRINT_UNIT=2 kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "PRINT_DENSITY=7"); i++) ;
+    check(i < nicon, "PRINT_DENSITY=7 kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

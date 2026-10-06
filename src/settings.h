@@ -60,7 +60,8 @@ struct Settings {
     LONG  prsize;                   /* normal text in points */
     BOOL  prpagenumbers;
     BOOL  prbackgrounds;
-    LONG  prdpi;                    /* bitmap printing with htmlttf.gadget */
+    LONG  prunit;                   /* printer.device unit 0-9 */
+    LONG  prdensity;                /* 1-7, 0 = as in the printer settings */
     /* colours as 0xRRGGBB */
     ULONG colours[NUMCOLOURS];
 };
