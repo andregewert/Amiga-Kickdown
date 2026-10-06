@@ -110,6 +110,7 @@ static struct {
     /* the configured printers (units) and the densities of the chosen one */
     LONG nunits, units[10];
     char unitlabels[10][72], denslabels[8][72];
+    BOOL denschosen;                /* the user chose a density (else: as in the printer settings) */
     struct UnitInfo ui;
 } pw;
 
@@ -263,26 +264,28 @@ static void scan_units(void)
     }
 }
 
-/* the density entries of a unit: "as in the printer settings", 1-7 */
+/* the density entries 1-7 of a unit ("2: 180 x 180 dpi") */
 static void make_densities(LONG unit)
 {
     struct Node *n;
-    LONG d, pd;
+    LONG d;
 
     free_nodes(&pw.denslist);
     query_unit(unit, &pw.ui);
-    pd = pw.ui.prefdensity;
-    if (pd >= 1 && pd <= 7 && pw.ui.dpi[pd][0])
-        snprintf(pw.denslabels[0], sizeof(pw.denslabels[0]), S(MSG_PR_DENSITY_PREFS),
-                 (long)pd, (long)pw.ui.dpi[pd][0], (long)pw.ui.dpi[pd][1]);
-    else strncpy(pw.denslabels[0], S(MSG_PR_DENSITY_ASPREFS), sizeof(pw.denslabels[0]) - 1);
     for (d = 1; d <= 7; d++)
         if (pw.ui.dpi[d][0])
             snprintf(pw.denslabels[d], sizeof(pw.denslabels[0]), S(MSG_PR_DENSITY_DPI),
                      (long)d, (long)pw.ui.dpi[d][0], (long)pw.ui.dpi[d][1]);
         else sprintf(pw.denslabels[d], "%ld", (long)d);
-    for (d = 0; d <= 7; d++)
+    for (d = 1; d <= 7; d++)
         if ((n = AllocChooserNode(CNA_Text, (ULONG)pw.denslabels[d], TAG_DONE))) AddTail(&pw.denslist, n);
+}
+
+/* the entry to show: the density chosen, else that of the printer settings */
+static LONG density_item(LONG density)
+{
+    if (density < 1 || density > 7) density = pw.ui.prefdensity;
+    return density >= 1 && density <= 7 ? density - 1 : 0;
 }
 
 static LONG mode_of(LONG item)
@@ -377,7 +380,7 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
     pw.density = NewObject(CHOOSER_GetClass(), NULL,
         GA_ID, PW_DENSITY, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
         CHOOSER_Labels, (ULONG)&pw.denslist,
-        CHOOSER_Selected, s->prdensity >= 0 && s->prdensity <= 7 ? s->prdensity : 0, TAG_DONE);
+        CHOOSER_Selected, density_item(s->prdensity), TAG_DONE);
     pw.from = integer(PW_FROM, from, 1, 9999, 4);
     pw.to = integer(PW_TO, to, 0, 9999, 4);
     pw.copies = integer(PW_COPIES, 1, 1, 99, 2);
@@ -468,7 +471,8 @@ static void read_gadgets(struct Settings *s, char *file, ULONG filesize, struct 
     s->prdevice[0] = 0;
     if ((str = (STRPTR)get(pw.device, STRINGA_TextVal))) strncat(s->prdevice, (const char *)str, sizeof(s->prdevice) - 1);
     s->prunit = u >= 0 && u < pw.nunits ? pw.units[u] : 0;
-    s->prdensity = get(pw.density, CHOOSER_Selected);
+    /* untouched: stays as it was (0 follows the printer settings) */
+    if (pw.denschosen) s->prdensity = get(pw.density, CHOOSER_Selected) + 1;
     s->paper = get(pw.paper, CHOOSER_Selected);
     for (i = 0; i < 4; i++) s->margins[i] = get(pw.margin[i], INTEGER_Number);
     s->prserif = get(pw.serif, CHOOSER_Selected) == 1;
@@ -545,13 +549,16 @@ int print_dialog(struct Settings *s, char *file, ULONG filesize, struct PrintJob
                 update_gadgets();
                 break;
             case PW_UNIT: {             /* the densities of the other printer */
-                LONG u = get(pw.unit, CHOOSER_Selected), d = get(pw.density, CHOOSER_Selected);
+                LONG u = get(pw.unit, CHOOSER_Selected), d = get(pw.density, CHOOSER_Selected) + 1;
                 SetGadgetAttrs((struct Gadget *)pw.density, pw.win, NULL, CHOOSER_Labels, ~0, TAG_DONE);
                 make_densities(u >= 0 && u < pw.nunits ? pw.units[u] : 0);
-                SetGadgetAttrs((struct Gadget *)pw.density, pw.win, NULL,
-                               CHOOSER_Labels, (ULONG)&pw.denslist, CHOOSER_Selected, d, TAG_DONE);
+                SetGadgetAttrs((struct Gadget *)pw.density, pw.win, NULL, CHOOSER_Labels, (ULONG)&pw.denslist,
+                               CHOOSER_Selected, density_item(pw.denschosen ? d : s->prdensity), TAG_DONE);
                 break;
             }
+            case PW_DENSITY:
+                pw.denschosen = TRUE;
+                break;
             case PW_FILE:
                 gfRequestFile(pw.file, pw.win);
                 break;

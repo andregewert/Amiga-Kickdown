@@ -1053,14 +1053,6 @@ Unit %ld
 ; Unit %ld
 ;
 MSG_PR_DENSITY_DPI
-%ld (%ld × %ld dpi)
-; %ld (%ld × %ld dpi)
-;
-MSG_PR_DENSITY_PREFS
-Wie in den Druckereinstellungen: %ld (%ld × %ld dpi)
-; As in the printer settings: %ld (%ld × %ld dpi)
-;
-MSG_PR_DENSITY_ASPREFS
-Wie in den Druckereinstellungen
-; As in the printer settings
+%ld: %ld × %ld dpi
+; %ld: %ld × %ld dpi
 ;

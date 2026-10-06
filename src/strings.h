@@ -260,9 +260,7 @@
 #define MSG_PR_PRINTER               255
 #define MSG_PR_UNIT                  256
 #define MSG_PR_DENSITY_DPI           257
-#define MSG_PR_DENSITY_PREFS         258
-#define MSG_PR_DENSITY_ASPREFS       259
-#define MSG_COUNT                    260
+#define MSG_COUNT                    258
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -524,9 +522,7 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Scaling big pictures takes time on slower Amigas.",
     "Print_er ",
     "Unit %ld",
-    "%ld (%ld \327 %ld dpi)",
-    "As in the printer settings: %ld (%ld \327 %ld dpi)",
-    "As in the printer settings",
+    "%ld: %ld \327 %ld dpi",
 };
 #endif
 
