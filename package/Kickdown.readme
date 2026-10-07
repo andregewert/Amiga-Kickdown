@@ -95,14 +95,14 @@ History
 -------
 1.1 (03.10.2026)
  - printing (Project/Print, Amiga-P, toolbar): to the printer through
-   printer.device (graphics, the fonts of the preview; printer unit chosen in
-   the window, the resolution of the printer settings), as PostScript to a
-   file, PRT:, PS: (TurboPrint) or a device, or as PDF; paper size, margins,
-   font and size, page numbers, background colours, page range, copies;
-   PostScript level 2 or 1; pictures are compressed (LZW, JPEG files as they
-   are, not in level 1); a window shows the progress and can stop it; needs
-   html_gadget 1.2; with TurboPrint, Kickdown prints through PostScript level
-   2 to PS:
+   printer.device (graphics, the fonts of the preview; on the default printer,
+   with the resolution of its settings), as PostScript to a file, PRT:, PS:
+   (TurboPrint) or a device, or as PDF; paper size, margins, font and size,
+   page numbers, background colours, page range, copies; PostScript level 2 or
+   1; pictures are compressed (LZW, JPEG files as they are, not in level 1)
+   and can be scaled down to 600-75 dpi; a window shows the progress and can
+   stop it; needs html_gadget 1.2; with TurboPrint, Kickdown prints through
+   PostScript level 2 to PS:
  - new setting (Preview page, tool type FITIMAGES, off by default): big
    pictures are scaled down to the width of the preview and of the
    printed page; needs html_gadget 1.2
@@ -147,14 +147,15 @@ Versionsgeschichte
 ------------------
 1.1 (03.10.2026)
  - Drucken (Projekt/Drucken, Amiga-P, Toolbar): auf den Drucker über
-   printer.device (Grafik, mit den Schriften der Vorschau; Drucker-Unit im
-   Fenster wählbar, Auflösung aus den Druckereinstellungen), als PostScript in
-   eine Datei, nach PRT:, PS: (TurboPrint) oder an ein Gerät, oder als PDF;
-   Papierformat, Ränder, Schrift und Größe, Seitenzahlen, Hintergrundfarben,
-   Seitenbereich, Kopien; PostScript Level 2 oder 1; Bilder werden komprimiert
-   (LZW, JPEG-Dateien unverändert, nicht bei Level 1); ein Fenster zeigt den
-   Fortschritt und kann abbrechen; braucht html_gadget 1.2; mit TurboPrint
-   druckt Kickdown über PostScript Level 2 nach PS:
+   printer.device (Grafik, mit den Schriften der Vorschau; auf dem
+   Standarddrucker, mit der Auflösung aus seinen Einstellungen), als
+   PostScript in eine Datei, nach PRT:, PS: (TurboPrint) oder an ein Gerät,
+   oder als PDF; Papierformat, Ränder, Schrift und Größe, Seitenzahlen,
+   Hintergrundfarben, Seitenbereich, Kopien; PostScript Level 2 oder 1; Bilder
+   werden komprimiert (LZW, JPEG-Dateien unverändert, nicht bei Level 1) und
+   lassen sich auf 600-75 dpi verkleinern; ein Fenster zeigt den Fortschritt
+   und kann abbrechen; braucht html_gadget 1.2; mit TurboPrint druckt Kickdown
+   über PostScript Level 2 nach PS:
  - neue Einstellung (Seite Vorschau, Tooltype FITIMAGES, abgeschaltet):
    große Bilder werden auf die Breite der Vorschau und der gedruckten
    Seite verkleinert; braucht html_gadget 1.2

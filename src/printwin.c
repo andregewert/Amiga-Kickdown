@@ -69,7 +69,7 @@ extern struct Library *HTMLBase;        /* kickdown.c */
 struct Library *FuelGaugeBase = NULL;   /* only while printing */
 
 enum {
-    PW_MODE = 400, PW_DEST, PW_FILE, PW_DEVICE, PW_UNIT, PW_FROM, PW_TO, PW_COPIES,
+    PW_MODE = 400, PW_DEST, PW_FILE, PW_DEVICE, PW_IMAGEDPI, PW_FROM, PW_TO, PW_COPIES,
     PW_PAPER, PW_ML, PW_MT, PW_MR, PW_MB, PW_SERIF, PW_SIZE, PW_PAGENUMBERS, PW_BACKGROUNDS,
     PW_PRINT, PW_CANCEL, PW_STOP
 };
@@ -84,6 +84,12 @@ enum {
  * through PostScript only (PS: is TurboPrint's PostScript handler).   */
 #define TPMATCHWORD         0xf10a57efUL
 
+/* PostScript/PDF: the most dpi of a picture, 0 = as it is */
+static const LONG imagedpis[] = { 0, 600, 300, 150, 75 };
+#define NUMIMAGEDPIS 5
+static STRPTR imagedpi_labels[NUMIMAGEDPIS + 1] = {
+    NULL, (STRPTR)"600 dpi", (STRPTR)"300 dpi", (STRPTR)"150 dpi", (STRPTR)"75 dpi", NULL
+};
 static STRPTR paper_labels[] = { (STRPTR)"A4", (STRPTR)"A5", (STRPTR)"Letter", (STRPTR)"Legal", NULL };
 /* the entries of the mode chooser: PostScript in two levels */
 enum { MI_PRINTER, MI_PS2, MI_PS1, MI_PDF, NUMMI };
@@ -91,13 +97,11 @@ static STRPTR mode_labels[NUMMI + 1], font_labels[3];
 
 static struct {
     Object *winobj, *root;
-    Object *mode, *dest, *file, *device, *unit, *from, *to, *copies;
+    Object *mode, *dest, *file, *device, *imagedpi, *printer, *from, *to, *copies;
     Object *paper, *margin[4], *serif, *size, *pagenumbers, *backgrounds, *print;
     struct Window *win;
-    struct List destlist, unitlist, modelist;
-    /* the configured printers (units) and the densities of the chosen one */
-    LONG nunits, units[10];
-    char unitlabels[10][72];
+    struct List destlist, modelist;
+    char printername[32];           /* driver of the default printer */
     BOOL tp;                        /* printer.device is TurboPrint's */
 } pw;
 
@@ -175,21 +179,19 @@ static void free_nodes(struct List *l)
     NewList(l);
 }
 
-/* driver and unit name from ENV:Sys/Printer[N].prefs (chunks PTXT, PDEV) */
-static BOOL read_unit_prefs(LONG unit, char *driver, char *name)
+/* the driver of the default printer from ENV:Sys/Printer.prefs (chunk
+ * PTXT), so that printer.device needs not be opened for its name      */
+static void prefs_driver(char *driver)
 {
     UBYTE buf[512];
-    char path[32];
     LONG len, i;
     BPTR fh;
 
-    driver[0] = name[0] = 0;
-    if (unit) sprintf(path, "ENV:Sys/Printer%ld.prefs", (long)unit);
-    else strcpy(path, "ENV:Sys/Printer.prefs");
-    if (!(fh = Open((STRPTR)path, MODE_OLDFILE))) return FALSE;
+    driver[0] = 0;
+    if (!(fh = Open((STRPTR)"ENV:Sys/Printer.prefs", MODE_OLDFILE))) return;
     len = Read(fh, buf, sizeof(buf));
     Close(fh);
-    if (len < 12 || memcmp(buf, "FORM", 4) || memcmp(buf + 8, "PREF", 4)) return TRUE;
+    if (len < 12 || memcmp(buf, "FORM", 4) || memcmp(buf + 8, "PREF", 4)) return;
     for (i = 12; i + 8 <= len; ) {
         LONG size = (LONG)buf[i + 4] << 24 | (LONG)buf[i + 5] << 16 | (LONG)buf[i + 6] << 8 | buf[i + 7];
         UBYTE *d = buf + i + 8;
@@ -197,18 +199,14 @@ static BOOL read_unit_prefs(LONG unit, char *driver, char *name)
         if (!memcmp(buf + i, "PTXT", 4) && size >= 16 + 30) {
             memcpy(driver, d + 16, 30);
             driver[30] = 0;
-        } else if (!memcmp(buf + i, "PDEV", 4) && size >= 20 + 32) {
-            memcpy(name, d + 20, 32);
-            name[32] = 0;
         }
         i += 8 + size + (size & 1);
     }
-    return TRUE;
 }
 
 /* TurboPrint's printer.device, found without opening it: opening and
- * closing it from Kickdown (probably units above 0, which it does not
- * know) damaged memory. printer.device is device and unit at once
+ * closing it from Kickdown (units above 0, which it does not know, were
+ * opened then) damaged memory. printer.device is device and unit at once
  * (struct PrinterData), so the match word can be read in the device
  * list. The name of its driver goes to 'driver' if it is loaded.      */
 static BOOL turboprint_running(char *driver)
@@ -231,52 +229,6 @@ static BOOL turboprint_running(char *driver)
     return tp;
 }
 
-/* the name of the driver the unit uses (not with TurboPrint)          */
-static void unit_driver(LONG unit, char *driver)
-{
-    struct MsgPort *port;
-    struct IOStdReq *io;
-
-    if (!(port = CreateMsgPort())) return;
-    if ((io = (struct IOStdReq *)CreateIORequest(port, sizeof(struct IODRPTagsReq)))) {
-        if (!OpenDevice((STRPTR)"printer.device", unit, (struct IORequest *)io, 0)) {
-            struct PrinterExtendedData *ped = &((struct PrinterData *)io->io_Device)->pd_SegmentData->ps_PED;
-            if (ped->ped_PrinterName && ped->ped_PrinterName[0]) {
-                strncpy(driver, (const char *)ped->ped_PrinterName, 30);
-                driver[30] = 0;
-            }
-            CloseDevice((struct IORequest *)io);
-        }
-        DeleteIORequest((struct IORequest *)io);
-    }
-    DeleteMsgPort(port);
-}
-
-/* the printers to choose from: unit 0 and every unit with settings */
-static void scan_units(void)
-{
-    char driver[32], name[34];
-    LONG u;
-    struct Node *n;
-
-    NewList(&pw.unitlist);
-    pw.nunits = 0;
-    pw.tp = turboprint_running(NULL);
-    /* TurboPrint: only unit 0, and printer.device is not opened */
-    for (u = 0; u < (pw.tp ? 1 : 10); u++) {
-        char *l = pw.unitlabels[pw.nunits];
-        if (!read_unit_prefs(u, driver, name) && u) continue;
-        if (pw.tp) turboprint_running(driver);
-        else unit_driver(u, driver);
-        if (name[0] && driver[0]) snprintf(l, sizeof(pw.unitlabels[0]), "%ld: %s (%s)", (long)u, name, driver);
-        else if (name[0] || driver[0]) snprintf(l, sizeof(pw.unitlabels[0]), "%ld: %s", (long)u, name[0] ? name : driver);
-        else snprintf(l, sizeof(pw.unitlabels[0]), S(MSG_PR_UNIT), (long)u);
-        if ((n = AllocChooserNode(CNA_Text, (ULONG)l, TAG_DONE))) {
-            AddTail(&pw.unitlist, n);
-            pw.units[pw.nunits++] = u;
-        }
-    }
-}
 
 static LONG mode_of(LONG item)
 {
@@ -315,8 +267,8 @@ static void update_gadgets(void)
     SetGadgetAttrs((struct Gadget *)pw.file, w, NULL, GA_Disabled,
                    !(mode == PRMODE_PDF || (ps && dest == PRDEST_FILE)), TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.device, w, NULL, GA_Disabled, !(ps && dest == PRDEST_DEVICE), TAG_DONE);
+    SetGadgetAttrs((struct Gadget *)pw.imagedpi, w, NULL, GA_Disabled, printer, TAG_DONE);
     /* one configured printer: nothing to choose */
-    SetGadgetAttrs((struct Gadget *)pw.unit, w, NULL, GA_Disabled, !printer || pw.nunits <= 1, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.copies, w, NULL, GA_Disabled, !printer, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.serif, w, NULL, GA_Disabled, printer, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.size, w, NULL, GA_Disabled, printer, TAG_DONE);
@@ -325,7 +277,7 @@ static void update_gadgets(void)
 static Object *build(const struct Settings *s, const char *file, LONG from, LONG to)
 {
     struct Node *n;
-    LONG i, u, mode, dest;
+    LONG i, mode, dest;
     Object *output, *page;
 
     mode_labels[MI_PRINTER] = (STRPTR)S(MSG_PR_MODE_PRINTER);
@@ -344,11 +296,11 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
             AddTail(&pw.destlist, n);
     }
 
-    /* the printers; the resolution is that of the printer settings
-     * (PrinterGfx or TurboPrint's), there is no choice of it here       */
-    scan_units();
-    for (u = 0; u < pw.nunits && pw.units[u] != s->prunit; u++) ;
-    if (u == pw.nunits) u = 0;
+    /* the default printer (unit 0), shown with its driver; resolution
+     * and everything else come from its settings                        */
+    pw.tp = turboprint_running(pw.printername);
+    if (!pw.tp) prefs_driver(pw.printername);
+    if (!pw.printername[0]) strcpy(pw.printername, "generic");
 
     /* no mode chosen yet: with TurboPrint PostScript level 2 to PS:
      * (its Ghostscript renders better than a graphics dump), else the
@@ -381,18 +333,24 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
         GA_ID, PW_DEVICE, GA_RelVerify, TRUE, GA_TabCycle, TRUE,
         STRINGA_TextVal, (ULONG)(s->prdevice[0] ? s->prdevice : "PAR:"),
         STRINGA_MaxChars, sizeof(s->prdevice) - 1, TAG_DONE);
-    pw.unit = NewObject(CHOOSER_GetClass(), NULL,
-        GA_ID, PW_UNIT, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
-        CHOOSER_Labels, (ULONG)&pw.unitlist, CHOOSER_Selected, u, TAG_DONE);
+    /* only shown, like a label (style guide: read-only button.gadget) */
+    pw.printer = NewObject(BUTTON_GetClass(), NULL,
+        GA_ReadOnly, TRUE, GA_Text, (ULONG)pw.printername, BUTTON_Justification, BCJ_LEFT,
+        BUTTON_BevelStyle, BVS_NONE, BUTTON_Transparent, TRUE, TAG_DONE);
     pw.from = integer(PW_FROM, from, 1, 9999, 4);
     pw.to = integer(PW_TO, to, 0, 9999, 4);
     pw.copies = integer(PW_COPIES, 1, 1, 99, 2);
+    imagedpi_labels[0] = (STRPTR)S(MSG_PR_IMAGEDPI_ORIGINAL);
+    for (i = 0; i < NUMIMAGEDPIS - 1 && imagedpis[i] != s->primagedpi; i++) ;
+    if (imagedpis[i] != s->primagedpi) i = 0;
+    pw.imagedpi = chooser(PW_IMAGEDPI, imagedpi_labels, i);
     output = NewObject(LAYOUT_GetClass(), NULL, PAGE_GROUP(S(MSG_PR_OUTPUT)),
         LAYOUT_AddChild, (ULONG)pw.mode,   FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_MODE)),
         LAYOUT_AddChild, (ULONG)pw.dest,   FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_DEST)),
         LAYOUT_AddChild, (ULONG)pw.file,   FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_FILE)),
         LAYOUT_AddChild, (ULONG)pw.device, FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_DEVICE)),
-        LAYOUT_AddChild, (ULONG)pw.unit,   FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_PRINTER)),
+        LAYOUT_AddChild, (ULONG)pw.imagedpi, FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_IMAGEDPI)),
+        LAYOUT_AddChild, (ULONG)pw.printer, FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_PRINTER)),
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
             LAYOUT_AddChild, (ULONG)pw.from,
@@ -465,14 +423,15 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
 static void read_gadgets(struct Settings *s, char *file, ULONG filesize, struct PrintJob *job)
 {
     STRPTR str;
-    LONG i, u = get(pw.unit, CHOOSER_Selected);
+    LONG i;
 
     s->prmode = mode_of(get(pw.mode, CHOOSER_Selected));
     if (s->prmode == PRMODE_PS) s->pslevel = get(pw.mode, CHOOSER_Selected) == MI_PS1 ? 1 : 2;
+    i = get(pw.imagedpi, CHOOSER_Selected);
+    s->primagedpi = i >= 0 && i < NUMIMAGEDPIS ? imagedpis[i] : 0;
     s->prdest = get(pw.dest, CHOOSER_Selected);
     s->prdevice[0] = 0;
     if ((str = (STRPTR)get(pw.device, STRINGA_TextVal))) strncat(s->prdevice, (const char *)str, sizeof(s->prdevice) - 1);
-    s->prunit = u >= 0 && u < pw.nunits ? pw.units[u] : 0;
     s->paper = get(pw.paper, CHOOSER_Selected);
     for (i = 0; i < 4; i++) s->margins[i] = get(pw.margin[i], INTEGER_Number);
     s->prserif = get(pw.serif, CHOOSER_Selected) == 1;
@@ -566,7 +525,6 @@ int print_dialog(struct Settings *s, char *file, ULONG filesize, struct PrintJob
 out:
     if (pw.winobj) DisposeObject(pw.winobj);
     free_nodes(&pw.destlist);
-    free_nodes(&pw.unitlist);
     free_nodes(&pw.modelist);
     memset(&pw, 0, sizeof(pw));
     return rc;
@@ -678,12 +636,16 @@ struct Progress {
     char           buf[100];
 };
 
+static void progress_set(struct Progress *p, const char *text, LONG level);
+
 /* 'widest': a text as wide as the longest one to come */
 static void progress_open(struct Progress *p, const char *widest, LONG max)
 {
     memset(p, 0, sizeof(*p));
     p->shown = -1;
     p->max = max > 0 ? max : 1;
+    /* sized for the longer of the page text and "Preparing" */
+    if (strlen(S(MSG_PR_PREPARING)) > strlen(widest)) widest = S(MSG_PR_PREPARING);
     strncpy(p->buf, widest, sizeof(p->buf) - 1);
     p->text = NewObject(BUTTON_GetClass(), NULL,
         GA_ReadOnly, TRUE, GA_Text, (ULONG)p->buf, BUTTON_BevelStyle, BVS_NONE,
@@ -723,6 +685,8 @@ static void progress_open(struct Progress *p, const char *widest, LONG max)
     if (p->win) GetAttr(WINDOW_SigMask, p->winobj, &p->sig);
     GetAttr(WINDOW_SigMask, gui.winobj, &p->mainsig);
     gui_busy(TRUE);
+    /* until the first page: the export writes PDF pictures before it */
+    progress_set(p, S(MSG_PR_PREPARING), 0);
 }
 
 /* a new text (also in the status bar) or NULL, and the gauge */
@@ -905,7 +869,7 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
         request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_PR_TURBOPRINT));
         goto out;
     }
-    if (OpenDevice((STRPTR)"printer.device", s->prunit, (struct IORequest *)bp.io, 0)) {
+    if (OpenDevice((STRPTR)"printer.device", 0, (struct IORequest *)bp.io, 0)) {
         DeleteIORequest((struct IORequest *)bp.io);
         bp.io = NULL;
         request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_PR_NODEVICE));
@@ -1027,7 +991,7 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
         { HTMLEX_MarginLeft, 0 }, { HTMLEX_MarginTop, 0 }, { HTMLEX_MarginRight, 0 }, { HTMLEX_MarginBottom, 0 },
         { HTMLEX_FontSize, 0 }, { HTMLEX_Serif, 0 }, { HTMLEX_Backgrounds, 0 }, { HTMLEX_Footer, 0 },
         { HTMLEX_FirstPage, 0 }, { HTMLEX_LastPage, 0 }, { HTMLEX_ProgressHook, 0 }, { HTMLEX_Pages, 0 },
-        { HTMLEX_PSLevel, 2 }, { TAG_DONE, 0 }
+        { HTMLEX_PSLevel, 2 }, { HTMLEX_ImageDPI, 0 }, { TAG_DONE, 0 }
     };
 
     if (tofile) {
@@ -1067,6 +1031,7 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
     tags[14].ti_Data = (ULONG)&hook;
     tags[15].ti_Data = (ULONG)&pages;
     tags[16].ti_Data = s->pslevel == 1 ? 1 : 2;
+    tags[17].ti_Data = s->primagedpi;
     /* the progress window, without fuelgauge.gadget only the status bar */
     snprintf(buf, sizeof(buf), S(MSG_PR_WRITING), 999L, 999L);
     if (!FuelGaugeBase) FuelGaugeBase = OpenLibrary((STRPTR)"gadgets/fuelgauge.gadget", 44);

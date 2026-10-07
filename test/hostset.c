@@ -151,6 +151,7 @@ int main(void)
     s.fitimages = TRUE;
     s.prmode = PRMODE_PDF;
     s.pslevel = 1;
+    s.primagedpi = 150;
     s.prdest = PRDEST_DEVICE;
     strcpy(s.prdevice, "PAR:");
     s.paper = PAPER_LETTER;
@@ -158,7 +159,6 @@ int main(void)
     s.prserif = TRUE;
     s.prsize = 11;
     s.prpagenumbers = FALSE;
-    s.prunit = 2;
     check(settings_save_icon(&s, (CONST_STRPTR)"PROGDIR:Kickdown"), "save");
     show("after saving (ttf, line numbers, size 14, template, heading colour):");
 
@@ -200,8 +200,8 @@ int main(void)
     check(i < nicon, "FITIMAGES kept");
     for (i = 0; i < nicon && strcmp(icon[i], "PS_LEVEL=1"); i++) ;
     check(i < nicon, "PS_LEVEL=1 kept");
-    for (i = 0; i < nicon && strcmp(icon[i], "PRINT_UNIT=2"); i++) ;
-    check(i < nicon, "PRINT_UNIT=2 kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "PRINT_IMAGEDPI=150"); i++) ;
+    check(i < nicon, "PRINT_IMAGEDPI=150 kept");
     settings_default(&r);
     settings_load_icon(&r, (CONST_STRPTR)"PROGDIR:Kickdown");
     check(!memcmp(&r, &s, sizeof(r)), "read back gives the same settings");

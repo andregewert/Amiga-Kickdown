@@ -123,6 +123,7 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if (FindToolType(tt, (STRPTR)"NOSPLASH")) s->splash = FALSE;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_MODE")))
         for (i = 0; i < NUMPRMODES; i++) if (same_text((const char *)v, prmode_names[i])) s->prmode = i;
+    if ((v = FindToolType(tt, (STRPTR)"PRINT_IMAGEDPI")) && StrToLong(v, &n) > 0 && n >= 0 && n <= 2400) s->primagedpi = n;
     if ((v = FindToolType(tt, (STRPTR)"PS_LEVEL")) && StrToLong(v, &n) > 0 && (n == 1 || n == 2)) s->pslevel = n;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_TO")))
         for (i = 0; i < NUMPRDESTS; i++) if (same_text((const char *)v, prdest_names[i])) s->prdest = i;
@@ -145,7 +146,6 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
     if ((v = FindToolType(tt, (STRPTR)"PRINT_SIZE")) && StrToLong(v, &n) > 0 && n >= 4 && n <= 36) s->prsize = n;
     if (FindToolType(tt, (STRPTR)"NOPAGENUMBERS")) s->prpagenumbers = FALSE;
     if (FindToolType(tt, (STRPTR)"NOPRINTBACKGROUNDS")) s->prbackgrounds = FALSE;
-    if ((v = FindToolType(tt, (STRPTR)"PRINT_UNIT")) && StrToLong(v, &n) > 0 && n >= 0 && n <= 9) s->prunit = n;
     if (FindToolType(tt, (STRPTR)"TTF")) s->ttf = TRUE;
     if ((v = FindToolType(tt, (STRPTR)"FONTSET"))) copy_str(s->fontset, sizeof(s->fontset), v);
     if ((v = FindToolType(tt, (STRPTR)"SIZE")) && StrToLong(v, &n) > 0 && n >= 0) s->fontsize = n;
@@ -225,7 +225,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     STRPTR *old, *tt;
     ULONG nold = 0, n = 0, i, k, nicons;
     char num[12], wnum[12], hnum[12], lnum[12], tnum[12], buf[NUMCOLOURS][8], *disabled;
-    char mnum[24], snum[12], unum[12];
+    char mnum[24], snum[12], inum[12];
     BOOL ok;
 
     if (!(dob = GetDiskObject((STRPTR)name))) {
@@ -249,6 +249,8 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "NOSPLASH", !s->splash, NULL);
     entry(&e[k++], "PRINT_MODE", s->prmode >= 0, prmode_names[s->prmode >= 0 && s->prmode < NUMPRMODES ? s->prmode : 0]);
     entry(&e[k++], "PS_LEVEL", s->pslevel != 2, s->pslevel == 1 ? "1" : "2");
+    sprintf(inum, "%ld", (long)s->primagedpi);
+    entry(&e[k++], "PRINT_IMAGEDPI", s->primagedpi != 0, inum);
     entry(&e[k++], "PRINT_TO", s->prdest != PRDEST_FILE, prdest_names[s->prdest >= 0 && s->prdest < NUMPRDESTS ? s->prdest : 0]);
     entry(&e[k++], "PRINT_DEVICE", s->prdevice[0] != 0, s->prdevice);
     entry(&e[k++], "PAPER", s->paper != PAPER_A4, paper_names[s->paper >= 0 && s->paper < NUMPAPERS ? s->paper : 0]);
@@ -259,8 +261,6 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "PRINT_SIZE", s->prsize != 10, snum);
     entry(&e[k++], "NOPAGENUMBERS", !s->prpagenumbers, NULL);
     entry(&e[k++], "NOPRINTBACKGROUNDS", !s->prbackgrounds, NULL);
-    sprintf(unum, "%ld", (long)s->prunit);
-    entry(&e[k++], "PRINT_UNIT", s->prunit != 0, unum);
     entry(&e[k++], "TTF", s->ttf, NULL);
     entry(&e[k++], "FONTSET", s->fontset[0] != 0, s->fontset);
     sprintf(num, "%ld", (long)s->fontsize);

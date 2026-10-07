@@ -1041,14 +1041,22 @@ Das Verkleinern großer Bilder braucht auf langsameren Amigas Zeit.
 ; Scaling big pictures takes time on slower Amigas.
 ;
 MSG_PR_PRINTER
-Dr_ucker 
-; Print_er 
-;
-MSG_PR_UNIT
-Unit %ld
-; Unit %ld
+Drucker 
+; Printer 
 ;
 MSG_PR_TURBOPRINT
 Mit TurboPrint druckt Kickdown über PostScript:\nPostScript wählen und PS: als Ziel.
 ; With TurboPrint, Kickdown prints through PostScript:\nchoose PostScript and PS: as destination.
+;
+MSG_PR_IMAGEDPI
+Bildauf_lösung 
+; Ima_ge resolution 
+;
+MSG_PR_IMAGEDPI_ORIGINAL
+Wie im Bild
+; As in the picture
+;
+MSG_PR_PREPARING
+Wird vorbereitet ...
+; Preparing ...
 ;

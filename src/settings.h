@@ -53,6 +53,7 @@ struct Settings {
     LONG  prmode;                   /* PRMODE_..., -1 = automatic: with TurboPrint
                                      * PostScript level 2 to PS:, else the printer */
     LONG  pslevel;                  /* PostScript level 1 or 2 */
+    LONG  primagedpi;               /* PS/PDF: pictures at most this many dpi, 0 = as they are */
     LONG  prdest;                   /* PostScript to: PRDEST_... */
     char  prdevice[40];             /* PRDEST_DEVICE: "PAR:" etc. */
     LONG  paper;                    /* PAPER_... */
@@ -61,7 +62,6 @@ struct Settings {
     LONG  prsize;                   /* normal text in points */
     BOOL  prpagenumbers;
     BOOL  prbackgrounds;
-    LONG  prunit;                   /* printer.device unit 0-9 */
     /* colours as 0xRRGGBB */
     ULONG colours[NUMCOLOURS];
 };

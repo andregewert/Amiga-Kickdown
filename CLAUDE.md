@@ -21,12 +21,12 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers. Die Auflösung ist die
   der Dichte aus den Druckereinstellungen; keine Auswahl der Dichte in Kickdown. Ohne TurboPrint fragt Kickdown
   sie beim Druck einmal mit klassischem `PRD_DUMPRPORT`, `SPECIAL_NOPRINT` und 1000 × 1000 mils ab (vorher stehen in
-  `ped_X/YDotsInch` evtl. die Werte des letzten Drucks); die Drucker sind die Units 0–9 (`ENV:Sys/Printer[N].prefs`,
-  Chunks PTXT/PDEV). TurboPrint (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht, und sein
+  `ped_X/YDotsInch` evtl. die Werte des letzten Drucks). Nur der Standarddrucker (Unit 0); sein Treibername kommt
+  aus `ENV:Sys/Printer.prefs` (Chunk PTXT), der Dialog öffnet printer.device nicht. TurboPrint (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht, und sein
   `PRD_TPEXTDUMPRPORT` mit RGB24 beschädigte hier Speicher (kaputte Checkbox-Bilder, nur noch Chip-RAM; auch
   Abfragen mit `SPECIAL_NOPRINT` und Schreiben in `PrinterData`). Darum mit TurboPrint kein Grafikdruck, nur
   PostScript (`PS:` ist TurboPrints Handler); der Druckdialog sperrt die Art „Drucker“. Schon `OpenDevice()`/
-  `CloseDevice()` von TurboPrints printer.device aus Kickdown beschädigte Speicher (vermutlich Units über 0): TurboPrint
+  `CloseDevice()` von TurboPrints printer.device aus Kickdown beschädigte Speicher (geöffnet wurden damals auch Units über 0, die es als Gerät aus OS-3.1-Zeiten nicht kennt): TurboPrint
   daher ohne Öffnen erkennen (`turboprint_running()`: printer.device in der Geräteliste, `PrinterData` lesen,
   unter `Forbid()`) und dann printer.device nie öffnen. TurboPrints printer.device
   ist resident: nach einem Schaden nur nach Kaltstart testen. Seitenbereich und Kopien sind nicht Teil der Einstellungen.

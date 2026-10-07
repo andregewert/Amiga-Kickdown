@@ -257,9 +257,11 @@
 #define MSG_SET_FITIMAGES            252
 #define MSG_SET_FITIMAGES_NOTE       253
 #define MSG_PR_PRINTER               254
-#define MSG_PR_UNIT                  255
-#define MSG_PR_TURBOPRINT            256
-#define MSG_COUNT                    257
+#define MSG_PR_TURBOPRINT            255
+#define MSG_PR_IMAGEDPI              256
+#define MSG_PR_IMAGEDPI_ORIGINAL     257
+#define MSG_PR_PREPARING             258
+#define MSG_COUNT                    259
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -518,9 +520,11 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Cannot open the output",
     "Fit _big pictures to the preview width",
     "Scaling big pictures takes time on slower Amigas.",
-    "Print_er ",
-    "Unit %ld",
+    "Printer ",
     "With TurboPrint, Kickdown prints through PostScript:\nchoose PostScript and PS: as destination.",
+    "Ima_ge resolution ",
+    "As in the picture",
+    "Preparing ...",
 };
 #endif
 
