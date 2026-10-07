@@ -52,6 +52,9 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
 * Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
+* Die Vorschau zeigt Markdown ähnlich wie GitHub: dünne graue Linien in Tabellen, graue
+  Hintergründe für Codeblöcke und Inline-Code, ein grauer Balken bei Zitaten (auch beim Drucken).
+  Braucht html.gadget 1.2.
 * Auf Wunsch werden große Bilder auf die Breite der Vorschau verkleinert (Einstellungen, *Vorschau*;
   Tooltype `FITIMAGES`, abgeschaltet, weil das Skalieren auf langsameren Amigas Zeit braucht); der
   Druck übernimmt die Einstellung. Braucht html.gadget 1.2.

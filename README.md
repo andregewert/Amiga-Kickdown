@@ -51,6 +51,8 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
 * Editor and preview scroll together (*Preview/Synchronize scrolling*, both directions). Headings
   are the fixed points, positions between them are interpolated.
 * Relative image paths are resolved against the document's drawer.
+* The preview shows Markdown much as GitHub does: thin grey lines in tables, grey backgrounds for
+  code blocks and inline code, a grey bar for quotes (also when printing). Needs html.gadget 1.2.
 * Optionally, big pictures are scaled down to the width of the preview (Settings, *Preview*;
   tool type `FITIMAGES`, off by default because scaling takes time on slower Amigas); printing uses
   the setting, too. Needs html.gadget 1.2.

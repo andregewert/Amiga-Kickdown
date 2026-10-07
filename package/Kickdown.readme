@@ -103,6 +103,9 @@ History
    and can be scaled down to 600-75 dpi; a window shows the progress and can
    stop it; needs html_gadget 1.2; with TurboPrint, Kickdown prints through
    PostScript level 2 to PS:
+ - the preview shows Markdown as GitHub does: thin lines in tables,
+   grey backgrounds for code, a bar for quotes (also when printing);
+   needs html_gadget 1.2
  - new setting (Preview page, tool type FITIMAGES, off by default): big
    pictures are scaled down to the width of the preview and of the
    printed page; needs html_gadget 1.2
@@ -156,6 +159,9 @@ Versionsgeschichte
    lassen sich auf 600-75 dpi verkleinern; ein Fenster zeigt den Fortschritt
    und kann abbrechen; braucht html_gadget 1.2; mit TurboPrint druckt Kickdown
    über PostScript Level 2 nach PS:
+ - die Vorschau zeigt Markdown wie GitHub: dünne Linien in Tabellen,
+   graue Hintergründe für Code, ein Balken bei Zitaten (auch beim
+   Drucken); braucht html_gadget 1.2
  - neue Einstellung (Seite Vorschau, Tooltype FITIMAGES, abgeschaltet):
    große Bilder werden auf die Breite der Vorschau und der gedruckten
    Seite verkleinert; braucht html_gadget 1.2
