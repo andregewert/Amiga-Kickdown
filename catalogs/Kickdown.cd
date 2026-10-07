@@ -681,9 +681,6 @@ Save as PostScript or PDF
 MSG_PR_DEVICE (//)
 De_vice 
 ;
-MSG_PR_DENSITY (//)
-Densit_y 
-;
 MSG_PR_FROM (//)
 Pages fro_m 
 ;
@@ -795,6 +792,6 @@ Print_er
 MSG_PR_UNIT (//)
 Unit %ld
 ;
-MSG_PR_DENSITY_DPI (//)
-%ld: %ld × %ld dpi
+MSG_PR_TURBOPRINT (//)
+With TurboPrint, Kickdown prints through PostScript:\nchoose PostScript and PS: as destination.
 ;

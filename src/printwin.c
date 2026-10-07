@@ -21,6 +21,7 @@
  */
 #include <exec/types.h>
 #include <exec/memory.h>
+#include <exec/execbase.h>
 #include <dos/dos.h>
 #include <dos/dosextens.h>
 #include <devices/printer.h>
@@ -68,7 +69,7 @@ extern struct Library *HTMLBase;        /* kickdown.c */
 struct Library *FuelGaugeBase = NULL;   /* only while printing */
 
 enum {
-    PW_MODE = 400, PW_DEST, PW_FILE, PW_DEVICE, PW_UNIT, PW_DENSITY, PW_FROM, PW_TO, PW_COPIES,
+    PW_MODE = 400, PW_DEST, PW_FILE, PW_DEVICE, PW_UNIT, PW_FROM, PW_TO, PW_COPIES,
     PW_PAPER, PW_ML, PW_MT, PW_MR, PW_MB, PW_SERIF, PW_SIZE, PW_PAGENUMBERS, PW_BACKGROUNDS,
     PW_PRINT, PW_CANCEL, PW_STOP
 };
@@ -77,32 +78,12 @@ enum {
  * hook enlarges them to the printer's dots                            */
 #define MAXRENDERDPI 600
 
-/* TurboPrint replaces printer.device; it does not know PRD_DUMPRPORTTAGS
- * but prints 24 bit RastPorts with its own command (tp_devel.lha of
- * IrseeSoft, TurboPrint Pro 3 or newer)                              */
+/* TurboPrint replaces printer.device (tp_devel.lha of IrseeSoft). It
+ * does not know PRD_DUMPRPORTTAGS, and its own 24 bit dump damaged
+ * memory here (TurboPrint 7, OS 3.2): with TurboPrint, Kickdown prints
+ * through PostScript only (PS: is TurboPrint's PostScript handler).   */
 #define TPMATCHWORD         0xf10a57efUL
-#define PRD_TPEXTDUMPRPORT  (PRD_DUMPRPORT | 0x80)
-#define TPFMT_RGB24         0x14
-struct TPExtIODRP {
-    UWORD PixAspX, PixAspY;         /* aspect ratio of a pixel */
-    UWORD Mode;                     /* TPFMT_... */
-    /* turboprint.h has these "for internal use only" as a comment:
-     * TurboPrint writes them, so they must be there (plus a reserve) */
-    APTR  Planes[8];
-    UWORD BytesPerRow;
-    UWORD XOffset;
-    ULONG Reserved[8];
-};
 
-/* a printer.device unit: what printer.device makes of densities 1-7 */
-struct UnitInfo {
-    BOOL ok;                        /* the unit could be opened */
-    BOOL tp;                        /* it is TurboPrint's printer.device */
-    LONG prefdensity;               /* density of the printer settings */
-    LONG dpi[8][2];                 /* x, y dpi of density 1-7, 0 = unknown */
-};
-
-static void query_unit(LONG unit, struct UnitInfo *ui);
 static STRPTR paper_labels[] = { (STRPTR)"A4", (STRPTR)"A5", (STRPTR)"Letter", (STRPTR)"Legal", NULL };
 /* the entries of the mode chooser: PostScript in two levels */
 enum { MI_PRINTER, MI_PS2, MI_PS1, MI_PDF, NUMMI };
@@ -110,15 +91,14 @@ static STRPTR mode_labels[NUMMI + 1], font_labels[3];
 
 static struct {
     Object *winobj, *root;
-    Object *mode, *dest, *file, *device, *unit, *density, *from, *to, *copies;
+    Object *mode, *dest, *file, *device, *unit, *from, *to, *copies;
     Object *paper, *margin[4], *serif, *size, *pagenumbers, *backgrounds, *print;
     struct Window *win;
-    struct List destlist, unitlist, denslist;
+    struct List destlist, unitlist, modelist;
     /* the configured printers (units) and the densities of the chosen one */
     LONG nunits, units[10];
-    char unitlabels[10][72], denslabels[8][72];
-    BOOL denschosen;                /* the user chose a density (else: as in the printer settings) */
-    struct UnitInfo ui;
+    char unitlabels[10][72];
+    BOOL tp;                        /* printer.device is TurboPrint's */
 } pw;
 
 /*****************************************************************************/
@@ -226,8 +206,32 @@ static BOOL read_unit_prefs(LONG unit, char *driver, char *name)
     return TRUE;
 }
 
-/* the name of the driver the unit uses (under TurboPrint not the one of
- * the printer settings)                                               */
+/* TurboPrint's printer.device, found without opening it: opening and
+ * closing it from Kickdown (probably units above 0, which it does not
+ * know) damaged memory. printer.device is device and unit at once
+ * (struct PrinterData), so the match word can be read in the device
+ * list. The name of its driver goes to 'driver' if it is loaded.      */
+static BOOL turboprint_running(char *driver)
+{
+    struct PrinterData *pd;
+    BOOL tp = FALSE;
+
+    Forbid();
+    if ((pd = (struct PrinterData *)FindName(&SysBase->DeviceList, (STRPTR)"printer.device"))) {
+        tp = ((struct Library *)pd)->lib_Version >= 39 && ((ULONG *)pd->pd_OldStk)[2] == TPMATCHWORD;
+        if (tp && driver && pd->pd_SegmentData) {
+            STRPTR name = pd->pd_SegmentData->ps_PED.ped_PrinterName;
+            if (name && name[0]) {
+                strncpy(driver, (const char *)name, 30);
+                driver[30] = 0;
+            }
+        }
+    }
+    Permit();
+    return tp;
+}
+
+/* the name of the driver the unit uses (not with TurboPrint)          */
 static void unit_driver(LONG unit, char *driver)
 {
     struct MsgPort *port;
@@ -257,10 +261,13 @@ static void scan_units(void)
 
     NewList(&pw.unitlist);
     pw.nunits = 0;
-    for (u = 0; u < 10; u++) {
+    pw.tp = turboprint_running(NULL);
+    /* TurboPrint: only unit 0, and printer.device is not opened */
+    for (u = 0; u < (pw.tp ? 1 : 10); u++) {
         char *l = pw.unitlabels[pw.nunits];
         if (!read_unit_prefs(u, driver, name) && u) continue;
-        unit_driver(u, driver);
+        if (pw.tp) turboprint_running(driver);
+        else unit_driver(u, driver);
         if (name[0] && driver[0]) snprintf(l, sizeof(pw.unitlabels[0]), "%ld: %s (%s)", (long)u, name, driver);
         else if (name[0] || driver[0]) snprintf(l, sizeof(pw.unitlabels[0]), "%ld: %s", (long)u, name[0] ? name : driver);
         else snprintf(l, sizeof(pw.unitlabels[0]), S(MSG_PR_UNIT), (long)u);
@@ -269,30 +276,6 @@ static void scan_units(void)
             pw.units[pw.nunits++] = u;
         }
     }
-}
-
-/* the density entries 1-7 of a unit ("2: 180 x 180 dpi") */
-static void make_densities(LONG unit)
-{
-    struct Node *n;
-    LONG d;
-
-    free_nodes(&pw.denslist);
-    query_unit(unit, &pw.ui);
-    for (d = 1; d <= 7; d++)
-        if (pw.ui.dpi[d][0])
-            snprintf(pw.denslabels[d], sizeof(pw.denslabels[0]), S(MSG_PR_DENSITY_DPI),
-                     (long)d, (long)pw.ui.dpi[d][0], (long)pw.ui.dpi[d][1]);
-        else sprintf(pw.denslabels[d], "%ld", (long)d);
-    for (d = 1; d <= 7; d++)
-        if ((n = AllocChooserNode(CNA_Text, (ULONG)pw.denslabels[d], TAG_DONE))) AddTail(&pw.denslist, n);
-}
-
-/* the entry to show: the density chosen, else that of the printer settings */
-static LONG density_item(LONG density)
-{
-    if (density < 1 || density > 7) density = pw.ui.prefdensity;
-    return density >= 1 && density <= 7 ? density - 1 : 0;
 }
 
 static LONG mode_of(LONG item)
@@ -334,7 +317,6 @@ static void update_gadgets(void)
     SetGadgetAttrs((struct Gadget *)pw.device, w, NULL, GA_Disabled, !(ps && dest == PRDEST_DEVICE), TAG_DONE);
     /* one configured printer: nothing to choose */
     SetGadgetAttrs((struct Gadget *)pw.unit, w, NULL, GA_Disabled, !printer || pw.nunits <= 1, TAG_DONE);
-    SetGadgetAttrs((struct Gadget *)pw.density, w, NULL, GA_Disabled, !printer, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.copies, w, NULL, GA_Disabled, !printer, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.serif, w, NULL, GA_Disabled, printer, TAG_DONE);
     SetGadgetAttrs((struct Gadget *)pw.size, w, NULL, GA_Disabled, printer, TAG_DONE);
@@ -362,23 +344,31 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
             AddTail(&pw.destlist, n);
     }
 
-    /* printers and the densities of the chosen one */
+    /* the printers; the resolution is that of the printer settings
+     * (PrinterGfx or TurboPrint's), there is no choice of it here       */
     scan_units();
     for (u = 0; u < pw.nunits && pw.units[u] != s->prunit; u++) ;
     if (u == pw.nunits) u = 0;
-    NewList(&pw.denslist);
-    make_densities(pw.units[u]);
 
     /* no mode chosen yet: with TurboPrint PostScript level 2 to PS:
      * (its Ghostscript renders better than a graphics dump), else the
      * printer                                                          */
     mode = s->prmode;
     dest = s->prdest;
-    if (mode < 0) {
-        mode = pw.ui.tp ? PRMODE_PS : PRMODE_PRINTER;
-        if (pw.ui.tp && have_ps()) dest = PRDEST_PS;
+    if (mode < 0 || (pw.tp && mode == PRMODE_PRINTER)) {
+        mode = pw.tp ? PRMODE_PS : PRMODE_PRINTER;
+        if (pw.tp && have_ps()) dest = PRDEST_PS;
     }
-    pw.mode = chooser(PW_MODE, mode_labels, item_of(mode, s->prmode < 0 ? 2 : s->pslevel));
+    /* with TurboPrint no graphics printing (see TPMATCHWORD) */
+    NewList(&pw.modelist);
+    for (i = 0; i < NUMMI; i++)
+        if ((n = AllocChooserNode(CNA_Text, (ULONG)mode_labels[i],
+                                  CNA_Disabled, i == MI_PRINTER && pw.tp, TAG_DONE)))
+            AddTail(&pw.modelist, n);
+    pw.mode = NewObject(CHOOSER_GetClass(), NULL,
+        GA_ID, PW_MODE, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
+        CHOOSER_Labels, (ULONG)&pw.modelist,
+        CHOOSER_Selected, item_of(mode, s->prmode < 0 || s->prmode == PRMODE_PRINTER ? 2 : s->pslevel), TAG_DONE);
     pw.dest = NewObject(CHOOSER_GetClass(), NULL,
         GA_ID, PW_DEST, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
         CHOOSER_Labels, (ULONG)&pw.destlist,
@@ -394,10 +384,6 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
     pw.unit = NewObject(CHOOSER_GetClass(), NULL,
         GA_ID, PW_UNIT, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
         CHOOSER_Labels, (ULONG)&pw.unitlist, CHOOSER_Selected, u, TAG_DONE);
-    pw.density = NewObject(CHOOSER_GetClass(), NULL,
-        GA_ID, PW_DENSITY, GA_RelVerify, TRUE, CHOOSER_PopUp, TRUE,
-        CHOOSER_Labels, (ULONG)&pw.denslist,
-        CHOOSER_Selected, density_item(s->prdensity), TAG_DONE);
     pw.from = integer(PW_FROM, from, 1, 9999, 4);
     pw.to = integer(PW_TO, to, 0, 9999, 4);
     pw.copies = integer(PW_COPIES, 1, 1, 99, 2);
@@ -406,8 +392,7 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
         LAYOUT_AddChild, (ULONG)pw.dest,   FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_DEST)),
         LAYOUT_AddChild, (ULONG)pw.file,   FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_FILE)),
         LAYOUT_AddChild, (ULONG)pw.device, FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_DEVICE)),
-        LAYOUT_AddChild, (ULONG)pw.unit,    FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_PRINTER)),
-        LAYOUT_AddChild, (ULONG)pw.density, FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_DENSITY)),
+        LAYOUT_AddChild, (ULONG)pw.unit,   FIXED, CHILD_Label, (ULONG)label(S(MSG_PR_PRINTER)),
         LAYOUT_AddChild, (ULONG)NewObject(LAYOUT_GetClass(), NULL,
             LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
             LAYOUT_AddChild, (ULONG)pw.from,
@@ -488,8 +473,6 @@ static void read_gadgets(struct Settings *s, char *file, ULONG filesize, struct 
     s->prdevice[0] = 0;
     if ((str = (STRPTR)get(pw.device, STRINGA_TextVal))) strncat(s->prdevice, (const char *)str, sizeof(s->prdevice) - 1);
     s->prunit = u >= 0 && u < pw.nunits ? pw.units[u] : 0;
-    /* untouched: stays as it was (0 follows the printer settings) */
-    if (pw.denschosen) s->prdensity = get(pw.density, CHOOSER_Selected) + 1;
     s->paper = get(pw.paper, CHOOSER_Selected);
     for (i = 0; i < 4; i++) s->margins[i] = get(pw.margin[i], INTEGER_Number);
     s->prserif = get(pw.serif, CHOOSER_Selected) == 1;
@@ -565,17 +548,6 @@ int print_dialog(struct Settings *s, char *file, ULONG filesize, struct PrintJob
             case PW_DEST:
                 update_gadgets();
                 break;
-            case PW_UNIT: {             /* the densities of the other printer */
-                LONG u = get(pw.unit, CHOOSER_Selected), d = get(pw.density, CHOOSER_Selected) + 1;
-                SetGadgetAttrs((struct Gadget *)pw.density, pw.win, NULL, CHOOSER_Labels, ~0, TAG_DONE);
-                make_densities(u >= 0 && u < pw.nunits ? pw.units[u] : 0);
-                SetGadgetAttrs((struct Gadget *)pw.density, pw.win, NULL, CHOOSER_Labels, (ULONG)&pw.denslist,
-                               CHOOSER_Selected, density_item(pw.denschosen ? d : s->prdensity), TAG_DONE);
-                break;
-            }
-            case PW_DENSITY:
-                pw.denschosen = TRUE;
-                break;
             case PW_FILE:
                 gfRequestFile(pw.file, pw.win);
                 break;
@@ -595,7 +567,7 @@ out:
     if (pw.winobj) DisposeObject(pw.winobj);
     free_nodes(&pw.destlist);
     free_nodes(&pw.unitlist);
-    free_nodes(&pw.denslist);
+    free_nodes(&pw.modelist);
     memset(&pw, 0, sizeof(pw));
     return rc;
 }
@@ -667,18 +639,8 @@ struct BitmapPrint {
     struct TagItem       drtags[4];
     LONG                 paper_w, paper_h, sw, sh;
     LONG                 dw, dh;    /* the page in printer dots */
-    LONG                 density;   /* 1-7 */
-    LONG                 olddensity;/* of the printer settings, restored at the end */
+    LONG                 density;   /* 1-7, that of the printer settings */
     BOOL                 opened;
-    /* TurboPrint: the page in bands of RGB24 for PRD_TPEXTDUMPRPORT */
-    BOOL                 tp;
-    UBYTE               *tpbuf;     /* band rows * dw * 3 bytes */
-    ULONG               *tprow;     /* one row 0x00RRGGBB, dw pixels */
-    LONG                 band;      /* rows per band (dh: the whole page) */
-    LONG                 milw, rdpi;/* sheet width in 1/1000 inch, dots per inch of our page */
-    struct TPExtIODRP    ext;
-    struct RastPort      tprp;
-    struct BitMap        tpbm;
 };
 
 static void print_send(struct BitmapPrint *bp, LONG page)
@@ -819,7 +781,7 @@ static void wait_io(struct BitmapPrint *bp, struct Progress *pr, LONG printed)
     for (;;) {
         ULONG got = Wait(pr->sig | pr->mainsig | portsig | bp->src.sigmask);
 
-        if (!bp->tp && (got & bp->src.sigmask) && bp->dh > 0) {
+        if ((got & bp->src.sigmask) && bp->dh > 0) {
             LONG row = bp->src.row;
             if (row > bp->dh) row = bp->dh;
             progress_set(pr, NULL, printed * 100 + row * 100 / bp->dh);
@@ -832,75 +794,13 @@ static void wait_io(struct BitmapPrint *bp, struct Progress *pr, LONG printed)
     }
 }
 
-/* TurboPrint: rows y0..y0+h-1 of the page into the RGB24 band; FALSE
- * when stopped meanwhile                                              */
-static BOOL tp_fill(struct BitmapPrint *bp, struct Progress *pr, LONG printed, LONG y0, LONG h)
-{
-    struct DRPSourceMsg m;
-    UBYTE *d = bp->tpbuf;
-    LONG r, x;
-
-    for (r = 0; r < h; r++) {
-        m.x = 0;
-        m.y = y0 + r;
-        m.width = bp->dw;
-        m.height = 1;
-        m.buf = bp->tprow;
-        print_source(&bp->hook, NULL, &m);
-        for (x = 0; x < bp->dw; x++) {
-            ULONG v = bp->tprow[x];
-            *d++ = (UBYTE)(v >> 16);
-            *d++ = (UBYTE)(v >> 8);
-            *d++ = (UBYTE)v;
-        }
-        if (!(r & 31)) {
-            progress_set(pr, NULL, printed * 100 + (y0 + r) * 100 / bp->dh);
-            if (progress_input(pr, TRUE) || pr->stopped) return FALSE;
-        }
-    }
-    return TRUE;
-}
-
-/* TurboPrint: the band as a 24 bit RastPort; all bands of a page but
- * the last without form feed                                         */
-static void tp_send(struct BitmapPrint *bp, LONG y0, LONG h, BOOL more)
-{
-    struct IODRPTagsReq *io = bp->io;
-
-    InitBitMap(&bp->tpbm, 1, bp->dw, h);
-    bp->tpbm.BytesPerRow = bp->dw * 3;
-    bp->tpbm.Rows = h;
-    bp->tpbm.Planes[0] = bp->tpbuf;
-    InitRastPort(&bp->tprp);
-    bp->tprp.BitMap = &bp->tpbm;
-    memset(&bp->ext, 0, sizeof(bp->ext));
-    bp->ext.PixAspX = 1;
-    bp->ext.PixAspY = 1;
-    bp->ext.Mode = TPFMT_RGB24;
-    io->io_Command = PRD_TPEXTDUMPRPORT;
-    io->io_RastPort = &bp->tprp;
-    io->io_ColorMap = NULL;
-    io->io_Modes = (ULONG)&bp->ext;
-    io->io_SrcX = 0;
-    io->io_SrcY = 0;
-    io->io_SrcWidth = bp->dw;
-    io->io_SrcHeight = h;
-    /* in 1/1000 inch: TurboPrint scales to its resolution; the rows of
-     * the bands add up to the whole sheet                               */
-    io->io_DestCols = bp->milw;
-    io->io_DestRows = ((y0 + h) * 1000 + bp->rdpi / 2) / bp->rdpi - (y0 * 1000 + bp->rdpi / 2) / bp->rdpi;
-    io->io_Special = SPECIAL_MILCOLS | SPECIAL_MILROWS | (bp->density << 8) | (more ? SPECIAL_NOFORMFEED : 0);
-    io->io_TagList = NULL;
-    SendIO((struct IORequest *)io);
-}
-
 /* The pages one after the other with the progress window: the page being
  * printed, a gauge over all pages and copies, Stop. Returns the pages
  * printed, -1 when stopped, or the negative printer error - 1.        */
 static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copies)
 {
     struct Progress pr;
-    LONG page = first, copy = 0, printed = 0, total = (last - first + 1) * copies, err = 0, stripbit, y;
+    LONG page = first, copy = 0, printed = 0, total = (last - first + 1) * copies, err = 0, stripbit;
     char buf[100];
 
     snprintf(buf, sizeof(buf), S(MSG_PR_PRINTING), (long)last, (long)last);
@@ -913,21 +813,9 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
     for (;;) {
         snprintf(buf, sizeof(buf), S(MSG_PR_PRINTING), (long)page, (long)last);
         progress_set(&pr, buf, printed * 100);
-        if (!bp->tp) {
-            print_send(bp, page);
-            wait_io(bp, &pr, printed);
-            err = bp->io->io_Error;
-        } else {
-            bp->src.page = page;
-            bp->src.cached = -1;
-            for (y = 0; y < bp->dh && !pr.stopped && !err; y += bp->band) {
-                LONG h = bp->dh - y < bp->band ? bp->dh - y : bp->band;
-                if (!tp_fill(bp, &pr, printed, y, h)) break;
-                tp_send(bp, y, h, y + h < bp->dh);
-                wait_io(bp, &pr, printed);
-                err = bp->io->io_Error;
-            }
-        }
+        print_send(bp, page);
+        wait_io(bp, &pr, printed);
+        err = bp->io->io_Error;
         if (pr.stopped || err) break;
         printed++;
         if (++page > last) {
@@ -944,108 +832,45 @@ static LONG print_pages(struct BitmapPrint *bp, LONG first, LONG last, LONG copi
     return printed;
 }
 
-/* Sets a density: in io_Special as documented, and in printer.device's
- * copy of the printer settings, which some drivers (AmiAirPrint) use
- * instead. Returns the density of the settings before.               */
-static LONG set_density(struct IODRPTagsReq *io, LONG density)
-{
-    struct Preferences *pr = &((struct PrinterData *)io->io_Device)->pd_Preferences;
-    LONG old = pr->PrintDensity;
-    pr->PrintDensity = (UBYTE)density;
-    return old;
-}
-
 #define QUERYPLANE 4096
 
-static BOOL is_turboprint(struct IODRPTagsReq *io)
-{
-    struct PrinterData *pd = (struct PrinterData *)io->io_Device;
-    return ((ULONG *)pd->pd_OldStk)[2] == TPMATCHWORD && io->io_Device->dd_Library.lib_Version >= 39;
-}
-
-/* The resolution of a density: a dump with SPECIAL_NOPRINT sets the
- * density and updates XDotsInch/YDotsInch of the driver, without
- * printing (the printer settings are restored afterwards). The classic
- * PRD_DUMPRPORT with a small empty bitmap, which every printer.device
- * knows (TurboPrint's too). FALSE if it fails.                         */
-static BOOL density_dpi(struct IODRPTagsReq *io, LONG density, LONG *x, LONG *y)
+/* The resolution of the density of the printer settings: a dump with
+ * SPECIAL_NOPRINT makes the driver switch to it and updates XDotsInch/
+ * YDotsInch (before, they may be those of the last print). The classic
+ * PRD_DUMPRPORT with a small empty bitmap. Not for TurboPrint: any such
+ * dump through it left only chip memory for the programs afterwards
+ * (TurboPrint 7, OS 3.2). FALSE if it fails.                            */
+static BOOL printer_dpi(struct IODRPTagsReq *io, LONG density, LONG *x, LONG *y)
 {
     struct PrinterExtendedData *ped = &((struct PrinterData *)io->io_Device)->pd_SegmentData->ps_PED;
     struct RastPort rp;
     struct BitMap bm;
-    struct TPExtIODRP ext;
     PLANEPTR plane;
-    LONG old, err;
-    BOOL tp = is_turboprint(io);
+    LONG err;
 
     *x = *y = 0;
-    /* 32 (RGB24: 768) bytes would do; the reserve is for printer.devices
-     * that take more than the bitmap says: it must not hit other memory */
-    if (!(plane = AllocVec(QUERYPLANE, (tp ? MEMF_ANY : MEMF_CHIP) | MEMF_CLEAR))) return FALSE;
+    /* 32 bytes would do; the reserve is for printer.devices that take
+     * more than the bitmap says: it must not hit other chip memory     */
+    if (!(plane = AllocVec(QUERYPLANE, MEMF_CHIP | MEMF_CLEAR))) return FALSE;
     InitBitMap(&bm, 1, 16, 16);
     bm.Planes[0] = plane;
     InitRastPort(&rp);
     rp.BitMap = &bm;
-    if (tp) {
-        /* TurboPrint: its own command with RGB24 and no ColorMap */
-        bm.BytesPerRow = 16 * 3;
-        memset(&ext, 0, sizeof(ext));
-        ext.PixAspX = ext.PixAspY = 1;
-        ext.Mode = TPFMT_RGB24;
-        io->io_Command = PRD_TPEXTDUMPRPORT;
-        io->io_ColorMap = NULL;
-        io->io_Modes = (ULONG)&ext;
-    } else {
-        io->io_Command = PRD_DUMPRPORT;
-        io->io_ColorMap = gui.screen->ViewPort.ColorMap;
-        io->io_Modes = 0;
-    }
+    io->io_Command = PRD_DUMPRPORT;
     io->io_RastPort = &rp;
+    io->io_ColorMap = gui.screen->ViewPort.ColorMap;
+    io->io_Modes = 0;
     io->io_SrcX = io->io_SrcY = 0;
     io->io_SrcWidth = io->io_SrcHeight = 16;
     io->io_DestCols = io->io_DestRows = 1000;
     io->io_Special = SPECIAL_MILCOLS | SPECIAL_MILROWS | SPECIAL_NOPRINT | (density << 8);
     io->io_TagList = NULL;
-    old = set_density(io, density);
     err = DoIO((struct IORequest *)io);
-    set_density(io, old);
     FreeVec(plane);
     if (err || !ped->ped_XDotsInch || !ped->ped_YDotsInch) return FALSE;
     *x = ped->ped_XDotsInch;
     *y = ped->ped_YDotsInch;
     return TRUE;
-}
-
-/* density of the printer settings and the resolutions of 1-7 */
-static void query_unit(LONG unit, struct UnitInfo *ui)
-{
-    struct MsgPort *port;
-    struct IODRPTagsReq *io = NULL;
-    LONG d;
-
-    memset(ui, 0, sizeof(*ui));
-    if (!(port = CreateMsgPort())) return;
-    if ((io = (struct IODRPTagsReq *)CreateIORequest(port, sizeof(*io))) &&
-        !OpenDevice((STRPTR)"printer.device", unit, (struct IORequest *)io, 0)) {
-        ui->ok = TRUE;
-        ui->tp = is_turboprint(io);
-        ui->prefdensity = ((struct PrinterData *)io->io_Device)->pd_Preferences.PrintDensity;
-        if (!ui->tp)
-            for (d = 1; d <= 7; d++) density_dpi(io, d, &ui->dpi[d][0], &ui->dpi[d][1]);
-        else {
-            /* TurboPrint: no dumps (they damaged memory), only what it
-             * says for the density of its settings                      */
-            struct PrinterExtendedData *ped = &((struct PrinterData *)io->io_Device)->pd_SegmentData->ps_PED;
-            d = ui->prefdensity;
-            if (d >= 1 && d <= 7) {
-                ui->dpi[d][0] = ped->ped_XDotsInch;
-                ui->dpi[d][1] = ped->ped_YDotsInch;
-            }
-        }
-        CloseDevice((struct IORequest *)io);
-    }
-    if (io) DeleteIORequest((struct IORequest *)io);
-    DeleteMsgPort(port);
 }
 
 static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
@@ -1075,6 +900,11 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
         request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_NOMEM_CONVERT));
         goto out;
     }
+    /* TurboPrint: graphics are not printed through it (see TPMATCHWORD) */
+    if (turboprint_running(NULL)) {
+        request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_PR_TURBOPRINT));
+        goto out;
+    }
     if (OpenDevice((STRPTR)"printer.device", s->prunit, (struct IORequest *)bp.io, 0)) {
         DeleteIORequest((struct IORequest *)bp.io);
         bp.io = NULL;
@@ -1082,40 +912,22 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
         goto out;
     }
     bp.opened = TRUE;
-    bp.olddensity = ((struct PrinterData *)bp.io->io_Device)->pd_Preferences.PrintDensity;
 
-    /* the density chosen or that of the printer settings, and the sheet
-     * in the driver's dots at it; the gadget renders not finer than
-     * MAXRENDERDPI                                                     */
-    bp.density = s->prdensity >= 1 && s->prdensity <= 7 ? s->prdensity :
-                 ((struct PrinterData *)bp.io->io_Device)->pd_Preferences.PrintDensity;
+    /* The density is that of the printer settings; the sheet goes in the
+     * driver's dots at it. The gadget renders not finer than
+     * MAXRENDERDPI.                                                     */
+    bp.density = ((struct PrinterData *)bp.io->io_Device)->pd_Preferences.PrintDensity;
     if (bp.density < 1 || bp.density > 7) bp.density = 1;
     ped = &((struct PrinterData *)bp.io->io_Device)->pd_SegmentData->ps_PED;
-    if ((bp.tp = is_turboprint(bp.io))) {
-        /* TurboPrint: no queries (a dump with SPECIAL_NOPRINT through it
-         * damaged memory) and its settings stay untouched; our page has
-         * the resolution TurboPrint gives now, the sheet goes in 1/1000
-         * inch and TurboPrint scales it to the density                   */
+    if (!printer_dpi(bp.io, bp.density, &xdpi, &ydpi)) {
         xdpi = ped->ped_XDotsInch ? ped->ped_XDotsInch : 300;
-        if (xdpi > MAXRENDERDPI) xdpi = MAXRENDERDPI;
-        if (xdpi < 72) xdpi = 72;
-        bp.rdpi = dpi = xdpi;
-        bp.milw = tenthmm[s->paper][0] * 1000 / 254;
-        bp.dw = (tenthmm[s->paper][0] * xdpi + 127) / 254;
-        bp.dh = (tenthmm[s->paper][1] * xdpi + 127) / 254;
-    } else {
-        if (!density_dpi(bp.io, bp.density, &xdpi, &ydpi)) {
-            xdpi = ped->ped_XDotsInch ? ped->ped_XDotsInch : 300;
-            ydpi = ped->ped_YDotsInch ? ped->ped_YDotsInch : xdpi;
-        }
-        /* for the drivers that read the density from the settings */
-        bp.olddensity = set_density(bp.io, bp.density);
-        bp.dw = (tenthmm[s->paper][0] * xdpi + 127) / 254;
-        bp.dh = (tenthmm[s->paper][1] * ydpi + 127) / 254;
-        if (ped->ped_MaxXDots && bp.dw > (LONG)ped->ped_MaxXDots) bp.dw = ped->ped_MaxXDots;
-        if (ped->ped_MaxYDots && bp.dh > (LONG)ped->ped_MaxYDots) bp.dh = ped->ped_MaxYDots;
-        dpi = xdpi < MAXRENDERDPI ? xdpi : MAXRENDERDPI;
+        ydpi = ped->ped_YDotsInch ? ped->ped_YDotsInch : xdpi;
     }
+    bp.dw = (tenthmm[s->paper][0] * xdpi + 127) / 254;
+    bp.dh = (tenthmm[s->paper][1] * ydpi + 127) / 254;
+    if (ped->ped_MaxXDots && bp.dw > (LONG)ped->ped_MaxXDots) bp.dw = ped->ped_MaxXDots;
+    if (ped->ped_MaxYDots && bp.dh > (LONG)ped->ped_MaxYDots) bp.dh = ped->ped_MaxYDots;
+    dpi = xdpi < MAXRENDERDPI ? xdpi : MAXRENDERDPI;
 
     tags[0].ti_Data = dpi;
     tags[1].ti_Data = bp.paper_w;
@@ -1148,21 +960,6 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
     bp.src.sh = bp.sh;
     bp.src.dw = bp.dw;
     bp.src.dh = bp.dh;
-    /* TurboPrint: the page as RGB24, at once if the memory allows (1 MB
-     * stays free), else in bands of about 1 MB; PRINT_MAXMEM (KB) sets
-     * the limit instead                                                 */
-    if (bp.tp) {
-        ULONG rowbytes = bp.dw * 3, full = rowbytes * bp.dh, avail = AvailMem(MEMF_ANY | MEMF_LARGEST);
-        ULONG limit = s->prmaxmem > 0 ? (ULONG)s->prmaxmem * 1024 : avail > 1024 * 1024 ? avail - 1024 * 1024 : 0;
-        if (s->prmaxmem > 0 && limit > avail) limit = avail;
-        bp.band = full <= limit ? bp.dh : (LONG)((s->prmaxmem > 0 ? limit : 1024 * 1024) / rowbytes);
-        if (bp.band < 16) bp.band = 16;
-        if (bp.band > bp.dh) bp.band = bp.dh;
-        if (!(bp.tprow = AllocVec(bp.dw * 4, MEMF_ANY)) || !(bp.tpbuf = AllocVec(rowbytes * bp.band, MEMF_ANY))) {
-            request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)S(MSG_NOMEM_CONVERT));
-            goto out;
-        }
-    }
     InitRastPort(&bp.rp);
     bp.cmap = gui.screen->ViewPort.ColorMap;
     bp.hook.h_Entry = (ULONG (*)())print_source;
@@ -1187,14 +984,9 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
         gui_status((CONST_STRPTR)buf);
     }
 out:
-    if (bp.opened) {
-        if (!bp.tp) set_density(bp.io, bp.olddensity);
-        CloseDevice((struct IORequest *)bp.io);
-    }
+    if (bp.opened) CloseDevice((struct IORequest *)bp.io);
     if (bp.io) DeleteIORequest((struct IORequest *)bp.io);
     if (bp.src.rowbuf) FreeVec(bp.src.rowbuf);
-    if (bp.tpbuf) FreeVec(bp.tpbuf);
-    if (bp.tprow) FreeVec(bp.tprow);
     if (bp.port) DeleteMsgPort(bp.port);
     DoMethod(gui.html, HTMLM_PrintEnd);
     CloseLibrary(FuelGaugeBase);

@@ -62,8 +62,6 @@ struct Settings {
     BOOL  prpagenumbers;
     BOOL  prbackgrounds;
     LONG  prunit;                   /* printer.device unit 0-9 */
-    LONG  prdensity;                /* 1-7, 0 = as in the printer settings */
-    LONG  prmaxmem;                 /* KB for a page under TurboPrint, 0 = automatic (no gadget) */
     /* colours as 0xRRGGBB */
     ULONG colours[NUMCOLOURS];
 };

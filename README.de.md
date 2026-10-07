@@ -61,9 +61,9 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
   Inhaltsverzeichnisse funktionieren.
 * Drucken (*Project/Print...*, Amiga-P, Toolbar): auf den Drucker über
   printer.device (Grafik mit den Schriften der Vorschau; Auswahl unter den eingerichteten Druckern,
-  Units 0–9, und der Dichte 1–7 mit der Auflösung, die der Treiber ihr gibt; die Seite geht genau
-  in den Punkten des Druckers hinaus, htmlttf.gadget rendert sie mit bis zu 600 dpi; mit TurboPrint
-  über dessen 24-Bit-Schnittstelle),
+  Units 0–9; die Auflösung ist die der Dichte in den Druckereinstellungen, PrinterGfx oder die von
+  TurboPrint; die Seite geht genau in den Punkten des Druckers hinaus, htmlttf.gadget rendert sie
+  mit bis zu 600 dpi; mit TurboPrint druckt Kickdown stattdessen über PostScript nach `PS:`),
   als **PostScript** (Level 2, oder Level 1 für alte Drucker) in eine Datei, nach `PRT:`, `PS:` (TurboPrint) oder an ein Gerät, oder als
   **PDF**. Papierformat (A4, A5, Letter, Legal), Ränder, Schrift und Größe für PostScript/PDF,
   Seitenzahlen, Hintergrundfarben, Seitenbereich und Kopien. Der Drucker fügt eigene
@@ -99,9 +99,8 @@ Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen 
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
 `FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
 `PRINT_MODE=PRINTER|PS|PDF` (ohne: mit TurboPrint PostScript Level 2 nach `PS:`, sonst der
-Drucker), `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
-`MARGINS=links,oben,rechts,unten` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_UNIT=`, `PRINT_DENSITY=` (0 = wie in den Druckereinstellungen), `PRINT_MAXMEM=` (KB für
-eine gedruckte Seite unter TurboPrint, größere Seiten gehen in Streifen; 0 = automatisch), `NOPAGENUMBERS`,
+Drucker; mit TurboPrint immer PostScript), `PS_LEVEL=1|2`, `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
+`MARGINS=links,oben,rechts,unten` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `PRINT_UNIT=`, `NOPAGENUMBERS`,
 `NOPRINTBACKGROUNDS`,
 `COLOR_HEADING=RRGGBB` … `COLOR_HTML=`).
 

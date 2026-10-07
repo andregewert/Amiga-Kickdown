@@ -900,10 +900,6 @@ MSG_PR_DEVICE
 _Gerät 
 ; De_vice 
 ;
-MSG_PR_DENSITY
-Di_chte 
-; Densit_y 
-;
 MSG_PR_FROM
 Seiten _von 
 ; Pages fro_m 
@@ -1052,7 +1048,7 @@ MSG_PR_UNIT
 Unit %ld
 ; Unit %ld
 ;
-MSG_PR_DENSITY_DPI
-%ld: %ld × %ld dpi
-; %ld: %ld × %ld dpi
+MSG_PR_TURBOPRINT
+Mit TurboPrint druckt Kickdown über PostScript:\nPostScript wählen und PS: als Ziel.
+; With TurboPrint, Kickdown prints through PostScript:\nchoose PostScript and PS: as destination.
 ;

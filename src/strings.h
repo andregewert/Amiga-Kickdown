@@ -221,46 +221,45 @@
 #define MSG_PR_FILE                  216
 #define MSG_PR_FILE_TITLE            217
 #define MSG_PR_DEVICE                218
-#define MSG_PR_DENSITY               219
-#define MSG_PR_FROM                  220
-#define MSG_PR_TO                    221
-#define MSG_PR_COPIES                222
-#define MSG_PR_RANGE_NOTE            223
-#define MSG_PR_PAPER                 224
-#define MSG_PR_MARGINS               225
-#define MSG_PR_LEFT                  226
-#define MSG_PR_TOP                   227
-#define MSG_PR_RIGHT                 228
-#define MSG_PR_BOTTOM                229
-#define MSG_PR_FONT                  230
-#define MSG_PR_SANS                  231
-#define MSG_PR_SERIF                 232
-#define MSG_PR_SIZE                  233
-#define MSG_PR_PAGENUMBERS           234
-#define MSG_PR_BACKGROUNDS           235
-#define MSG_PR_MARGIN_NOTE           236
-#define MSG_PR_PRINT                 237
-#define MSG_PR_CANCEL                238
-#define MSG_PR_FOOTER                239
-#define MSG_PR_WRITING               240
-#define MSG_PR_PRINTING              241
-#define MSG_PR_PRINTED               242
-#define MSG_PR_WRITTEN               243
-#define MSG_PR_STOPPED               244
-#define MSG_PR_ERROR                 245
-#define MSG_PR_NODEVICE              246
-#define MSG_PR_NOPAGES               247
-#define MSG_PR_NEEDGADGET            248
-#define MSG_PR_PROGRESS_TITLE        249
-#define MSG_PR_STOP                  250
-#define MSG_PR_NOPS                  251
-#define MSG_PR_CANNOT_OPEN           252
-#define MSG_SET_FITIMAGES            253
-#define MSG_SET_FITIMAGES_NOTE       254
-#define MSG_PR_PRINTER               255
-#define MSG_PR_UNIT                  256
-#define MSG_PR_DENSITY_DPI           257
-#define MSG_COUNT                    258
+#define MSG_PR_FROM                  219
+#define MSG_PR_TO                    220
+#define MSG_PR_COPIES                221
+#define MSG_PR_RANGE_NOTE            222
+#define MSG_PR_PAPER                 223
+#define MSG_PR_MARGINS               224
+#define MSG_PR_LEFT                  225
+#define MSG_PR_TOP                   226
+#define MSG_PR_RIGHT                 227
+#define MSG_PR_BOTTOM                228
+#define MSG_PR_FONT                  229
+#define MSG_PR_SANS                  230
+#define MSG_PR_SERIF                 231
+#define MSG_PR_SIZE                  232
+#define MSG_PR_PAGENUMBERS           233
+#define MSG_PR_BACKGROUNDS           234
+#define MSG_PR_MARGIN_NOTE           235
+#define MSG_PR_PRINT                 236
+#define MSG_PR_CANCEL                237
+#define MSG_PR_FOOTER                238
+#define MSG_PR_WRITING               239
+#define MSG_PR_PRINTING              240
+#define MSG_PR_PRINTED               241
+#define MSG_PR_WRITTEN               242
+#define MSG_PR_STOPPED               243
+#define MSG_PR_ERROR                 244
+#define MSG_PR_NODEVICE              245
+#define MSG_PR_NOPAGES               246
+#define MSG_PR_NEEDGADGET            247
+#define MSG_PR_PROGRESS_TITLE        248
+#define MSG_PR_STOP                  249
+#define MSG_PR_NOPS                  250
+#define MSG_PR_CANNOT_OPEN           251
+#define MSG_SET_FITIMAGES            252
+#define MSG_SET_FITIMAGES_NOTE       253
+#define MSG_PR_PRINTER               254
+#define MSG_PR_UNIT                  255
+#define MSG_PR_TURBOPRINT            256
+#define MSG_COUNT                    257
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -484,7 +483,6 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "_File ",
     "Save as PostScript or PDF",
     "De_vice ",
-    "Densit_y ",
     "Pages fro_m ",
     "t_o ",
     "Cop_ies ",
@@ -522,7 +520,7 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Scaling big pictures takes time on slower Amigas.",
     "Print_er ",
     "Unit %ld",
-    "%ld: %ld \327 %ld dpi",
+    "With TurboPrint, Kickdown prints through PostScript:\nchoose PostScript and PS: as destination.",
 };
 #endif
 

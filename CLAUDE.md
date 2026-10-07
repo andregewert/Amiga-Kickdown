@@ -18,19 +18,18 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
   ab V47. Gadgets auf verdeckten Seiten mit `SetPageGadgetAttrs()` ändern.
 - `src/printwin.c`: Fenster „Drucken“ (auch PostScript/PDF) und die Ausgabe über das Vorschau-Gadget
   (html_gadget 1.2): PS/PDF mit `HTMLM_Export`, Bitmap-Druck mit `HTMLM_PrintBegin/Render` und
-  printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers. Die Auflösung hängt von der Dichte
-  1–7 ab (`SPECIAL_DENSITYn`, Standard aus den PrinterGfx-Prefs) und wird je Dichte mit `SPECIAL_NOPRINT` und
-  1000 × 1000 mils abgefragt; die Drucker sind die Units 0–9 (`ENV:Sys/Printer[N].prefs`, Chunks PTXT/PDEV). TurboPrint
-  (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht: dort RGB24 mit `PRD_TPEXTDUMPRPORT`, Blatt in
-  1/1000 Zoll (TurboPrint skaliert auf die Dichte), notfalls in Streifen mit `SPECIAL_NOFORMFEED` (`PRINT_MAXMEM`).
-  `struct TPExtIODRP` in voller Größe anlegen: TurboPrint schreibt die in `turboprint.h` nur auskommentierten
-  internen Felder (`Planes[8]`, `BytesPerRow`, `XOffset`); mit der 6-Byte-Struktur beschädigte es Speicher (kaputte
-  Checkbox-Bilder, Fast-RAM „weg“, alles im Chip-RAM, Absturz beim nächsten Start). Unter TurboPrint außerdem keine
-  Aufträge mit `SPECIAL_NOPRINT` und nichts in `PrinterData` schreiben,
-  ohne Skalierung durch printer.device (die staucht vertikal), der Hook skaliert selbst; asynchron
-  mit `SendIO()` hinter einem modalen Fortschrittsfenster mit fuelgauge.gadget, `progress_...()`). Beim
-  PS/PDF-Export läuft der Fortschritts-Hook auf dem Stack des Gadgets: dort nur das Fortschrittsfenster
-  bedienen, nicht das Hauptfenster (die Vorschau würde denselben Stack noch einmal benutzen). Seitenbereich und Kopien sind nicht Teil der Einstellungen.
+  printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers. Die Auflösung ist die
+  der Dichte aus den Druckereinstellungen; keine Auswahl der Dichte in Kickdown. Ohne TurboPrint fragt Kickdown
+  sie beim Druck einmal mit klassischem `PRD_DUMPRPORT`, `SPECIAL_NOPRINT` und 1000 × 1000 mils ab (vorher stehen in
+  `ped_X/YDotsInch` evtl. die Werte des letzten Drucks); die Drucker sind die Units 0–9 (`ENV:Sys/Printer[N].prefs`,
+  Chunks PTXT/PDEV). TurboPrint (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht, und sein
+  `PRD_TPEXTDUMPRPORT` mit RGB24 beschädigte hier Speicher (kaputte Checkbox-Bilder, nur noch Chip-RAM; auch
+  Abfragen mit `SPECIAL_NOPRINT` und Schreiben in `PrinterData`). Darum mit TurboPrint kein Grafikdruck, nur
+  PostScript (`PS:` ist TurboPrints Handler); der Druckdialog sperrt die Art „Drucker“. Schon `OpenDevice()`/
+  `CloseDevice()` von TurboPrints printer.device aus Kickdown beschädigte Speicher (vermutlich Units über 0): TurboPrint
+  daher ohne Öffnen erkennen (`turboprint_running()`: printer.device in der Geräteliste, `PrinterData` lesen,
+  unter `Forbid()`) und dann printer.device nie öffnen. TurboPrints printer.device
+  ist resident: nach einem Schaden nur nach Kaltstart testen. Seitenbereich und Kopien sind nicht Teil der Einstellungen.
 - `src/splash.c`: Startfenster, nur Intuition/graphics (öffnet vor den ReAction-Klassen);
   `splash_step()` an jeder Ladestufe, die Schrittzahl steht in `main()`.
 - Formatierung (Toolbar, Menü *Format*): `src/mdformat.c` ändert den Text (reines ANSI-C,
