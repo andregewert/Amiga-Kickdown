@@ -123,7 +123,7 @@ muss einen Rückfall haben oder gekennzeichnet sein.
 - Ein Wert, der zum Standard wird, bleibt als deaktivierter Eintrag `(KEY=Wert)` stehen. So zeigt
   das Icon weiter, was es einzustellen gibt.
 - Schalter heißen so, dass der Standard ohne Eintrag gilt (`NOSPLASH`, `NOSYNC`,
-  `NOFORMATBUTTONS`). Auswahlwerte sind Wörter (`TOOLBAR=IMAGES|BOTH|TEXT`), Farben `RRGGBB`.
+  `FORMATBUTTONS`). Auswahlwerte sind Wörter (`TOOLBAR=IMAGES|BOTH|TEXT`), Farben `RRGGBB`.
 - Jede neue Einstellung bekommt: ein Feld in der Struktur, einen Standardwert, Lesen und
   Schreiben der Tooltypes, ein Gadget, die Übernahme zur Laufzeit und einen Host-Test.
 
@@ -154,8 +154,10 @@ muss einen Rückfall haben oder gekennzeichnet sein.
 ## 6. Toolbar (speedbar.gadget)
 
 ### 6.1 Bilder
-- **AISS** über `TBIMAGES:` mit drei Varianten: `<name>`, `<name>_s` (gedrückt), `<name>_g`
-  (ausgegraut).
+- **AISS** über `TBIMAGES:` mit `<name>` und `<name>_g` (ausgegraut). `<name>_s` (gedrückt) wird
+  nicht geladen: Jedes AISS-Bild (PNG) kostet spürbar Startzeit.
+- **Selten gebrauchte Gruppen** (Formatierungsknöpfe) sind zunächst ausgeblendet und werden erst
+  beim ersten Einblenden geladen.
 - **Alternativen:** Ein Eintrag kann mehrere Namen haben (`"a|b"`), der erste vorhandene wird
   geladen. AISS 4 hat mehr Motive als AISS Classic. Nur Motive nehmen, die es in beiden gibt
   oder für die ein Ersatz eingetragen ist. Die Liste der Classic-Motive steht in der
@@ -167,8 +169,8 @@ muss einen Rückfall haben oder gekennzeichnet sein.
 ### 6.2 Aussehen und Zustände
 - **Flach:**
   - Kein Rahmen um die Leiste (`SPEEDBAR_BevelStyle BVS_NONE`).
-  - Knöpfe ohne Rahmen (`SPEEDBAR_ButtonBevelStyle BVS_NONE`, V47), beim Drücken erscheint das
-    `_s`-Bild (`SBH_IMAGE`).
+  - Knöpfe ohne Rahmen (`SPEEDBAR_ButtonBevelStyle BVS_NONE`, V47), beim Drücken erscheint der
+    Knopf vertieft (`SBH_RECESS`).
   - Rahmen um die Knöpfe gibt es als Einstellung.
 - **Knöpfe, die nichts bewirken würden, sind ausgegraut:** Speichern bei unverändertem
   Dokument, Rückgängig/Wiederholen ohne Schritte, Ausschneiden/Kopieren ohne Markierung.

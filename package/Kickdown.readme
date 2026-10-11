@@ -111,8 +111,10 @@ History
    printed page; needs html_gadget 1.2
  - menu check marks keep their state after iconifying and after changes
    in the settings window
- - "images and text" toolbar: pressed buttons show the AISS selected
-   image again
+ - toolbar: faster start; the AISS images for pressed buttons are no
+   longer loaded (pressed buttons look recessed), and the formatting
+   buttons are hidden by default and loaded when first shown (tool type
+   FORMATBUTTONS replaces NOFORMATBUTTONS)
  - settings window: the category list is as wide as its longest entry,
    a bar between list and page adjusts the split
 1.0 (03.10.2026)
@@ -167,8 +169,11 @@ Versionsgeschichte
    Seite verkleinert; braucht html_gadget 1.2
  - Menü-Häkchen behalten ihren Zustand nach dem Ikonifizieren und nach
    Änderungen im Einstellungsfenster
- - Toolbar "Bilder und Text": gedrückte Knöpfe zeigen wieder das
-   AISS-Bild für den gedrückten Zustand
+ - Toolbar: schnellerer Start; die AISS-Bilder für gedrückte Knöpfe
+   werden nicht mehr geladen (gedrückte Knöpfe erscheinen vertieft), und
+   die Formatierungsknöpfe sind zunächst ausgeblendet und werden erst
+   beim ersten Einblenden geladen (Tooltype FORMATBUTTONS statt
+   NOFORMATBUTTONS)
  - Einstellungsfenster: die Kategorienliste ist so breit wie ihr längster
    Eintrag, ein Balken zwischen Liste und Seite verschiebt die Aufteilung
 1.0 (03.10.2026)

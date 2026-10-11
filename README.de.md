@@ -46,8 +46,8 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
   Colours (Farben der Syntax-Hervorhebung), Window (Startgröße und -position, „Current“ übernimmt
   sie vom offenen Fenster) und Toolbar (Bilder, Bilder und Text oder nur Text, Rahmen um die
   Knöpfe; ab dem nächsten Start, nur Text startet schneller, weil keine Bilder geladen werden, mit
-  Texten erhalten die Formatierungsknöpfe eine zweite Zeile; die Formatierungsknöpfe lassen sich
-  ausblenden, auch sofort mit *Format/Show formatting buttons*). *Save* schreibt sie in die Tooltypes des
+  Texten erhalten die Formatierungsknöpfe eine zweite Zeile; die Formatierungsknöpfe sind zunächst
+  ausgeblendet, ihre Bilder werden erst beim Einblenden geladen, auch sofort mit *Format/Show formatting buttons*). *Save* schreibt sie in die Tooltypes des
   Kickdown-Icons, *Use* gilt für die laufende Sitzung; andere Tooltypes bleiben unverändert.
 * Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
   Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
@@ -99,7 +99,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|Co
 Die Einstellungen kommen aus den Tooltypes des Kickdown-Icons, auch beim Start aus der Shell;
 Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
-`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
+`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `FORMATBUTTONS`, `NOSPLASH`,
 `PRINT_MODE=PRINTER|PS|PDF` (ohne: mit TurboPrint PostScript Level 2 nach `PS:`, sonst der
 Drucker; mit TurboPrint immer PostScript), `PS_LEVEL=1|2`, `PRINT_IMAGEDPI=` (PostScript/PDF: Bilder mit höchstens so vielen dpi, 0 = wie im
 Bild), `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,

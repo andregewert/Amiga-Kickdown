@@ -146,7 +146,7 @@ int main(void)
     s.wintop = 24;
     s.tbmode = TBMODE_TEXT;
     s.tbframes = TRUE;
-    s.fmtbuttons = FALSE;
+    s.fmtbuttons = TRUE;
     s.splash = FALSE;
     s.fitimages = TRUE;
     s.prmode = PRMODE_PDF;
@@ -188,8 +188,8 @@ int main(void)
     check(i < nicon && !strcmp(icon[i], "TOOLBAR=BOTH"), "TOOLBAR=BOTH");
     for (i = 0; i < nicon && strcmp(icon[i], "(TOOLBARFRAMES)"); i++) ;
     check(i < nicon, "TOOLBARFRAMES disabled");
-    for (i = 0; i < nicon && strcmp(icon[i], "NOFORMATBUTTONS"); i++) ;
-    check(i < nicon, "NOFORMATBUTTONS kept");
+    for (i = 0; i < nicon && strcmp(icon[i], "FORMATBUTTONS"); i++) ;
+    check(i < nicon, "FORMATBUTTONS kept");
     for (i = 0; i < nicon && strcmp(icon[i], "NOSPLASH"); i++) ;
     check(i < nicon, "NOSPLASH kept");
     for (i = 0; i < nicon && strcmp(icon[i], "MARGINS=15,17,15,25"); i++) ;

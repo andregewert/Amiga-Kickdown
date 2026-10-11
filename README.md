@@ -46,7 +46,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
   highlighting), Window (start size and position, "Current" takes them from the open window) and
   Toolbar (images, images and text or text only, frames around the buttons; from the next start,
   text only starts faster as no images are loaded, with texts the formatting buttons get a second
-  row; the formatting buttons can be hidden, also at once with *Format/Show formatting buttons*). *Save* writes them into the tool types of the Kickdown icon, *Use* keeps them for
+  row; the formatting buttons are hidden by default and their images are only loaded when they are shown, also at once with *Format/Show formatting buttons*). *Save* writes them into the tool types of the Kickdown icon, *Use* keeps them for
   this session; other tool types of the icon are left alone.
 * Editor and preview scroll together (*Preview/Synchronize scrolling*, both directions). Headings
   are the fixed points, positions between them are interpolated.
@@ -90,7 +90,7 @@ Kickdown [FILE] <name.md> [TEMPLATE <file>] [CHARSET <name>] [DIALECT GitHub|Com
 The settings are read from the tool types of the Kickdown icon, also when Kickdown is started from
 the Shell; Shell arguments and the tool types of a project icon take precedence. The same options (`TEMPLATE=`, `CHARSET=`,
 `DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
-`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `NOFORMATBUTTONS`, `NOSPLASH`,
+`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `FORMATBUTTONS`, `NOSPLASH`,
 `PRINT_MODE=PRINTER|PS|PDF` (without it: with TurboPrint PostScript level 2 to `PS:`, else the
 printer; with TurboPrint always PostScript), `PS_LEVEL=1|2`, `PRINT_IMAGEDPI=` (PostScript/PDF: pictures at most this many dpi, 0 = as they
 are), `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,

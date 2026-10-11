@@ -30,7 +30,7 @@ struct Settings {
     /* toolbar, takes effect at the next start */
     LONG  tbmode;                   /* TBMODE_... */
     BOOL  tbframes;                 /* frames around the buttons */
-    BOOL  fmtbuttons;               /* formatting buttons shown (at once) */
+    BOOL  fmtbuttons;               /* formatting buttons shown (at once; loaded when first shown) */
     /* preview; ttf, fontset and fontsize take effect at the next start */
     BOOL  ttf;
     char  fontset[16];              /* "" = first one found */

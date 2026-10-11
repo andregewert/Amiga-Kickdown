@@ -53,10 +53,10 @@ struct GUI {
                                        hidden with one row) */
     BOOL rows;                      /* formatting buttons in a second row */
     BOOL tbframes;
-    struct Node *nodes[MAXTOOLS];   /* the node of each button */
+    LONG tbmode;                    /* TBMODE_... the buttons were made for */
+    struct Node *nodes[MAXTOOLS];   /* the node of each button, NULL: not made yet */
     Object *images[MAXTOOLS];       /* bitmap.image or label.image of the buttons */
     Object *ghosts[MAXTOOLS];       /* their ghosted variants (AISS <name>_g) */
-    Object *selimgs[MAXTOOLS];      /* pressed image and text (SBNA_SelImage) */
     char labels[MAXTOOLS][40];      /* texts of the label.images */
     struct DrawInfo *dri;
     LONG ghostpen;                  /* pen of ghosted texts, -1: not obtained */
@@ -99,7 +99,7 @@ void splash_status(CONST_STRPTR text);
 void splash_step(void);
 void splash_close(void);
 BOOL about_window(CONST_STRPTR iconname, CONST_STRPTR name, CONST_STRPTR version, const char *details);
-ULONG gui_tool_count(void);
+ULONG gui_tool_count(BOOL fmtbuttons);
 
 void format_apply(int kind);
 

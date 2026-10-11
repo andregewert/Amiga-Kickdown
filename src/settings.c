@@ -54,7 +54,6 @@ void settings_default(struct Settings *s)
 {
     memset(s, 0, sizeof(*s));
     s->highlight = TRUE;
-    s->fmtbuttons = TRUE;
     s->splash = TRUE;
     s->margins[0] = s->margins[1] = s->margins[2] = s->margins[3] = 20;
     s->prsize = 10;
@@ -119,7 +118,7 @@ void settings_from_tooltypes(struct Settings *s, CONST_STRPTR *tt, BPTR dir)
         for (i = 0; i < NUMTBMODES; i++)
             if (same_text((const char *)v, tbmode_names[i])) s->tbmode = i;
     if (FindToolType(tt, (STRPTR)"TOOLBARFRAMES")) s->tbframes = TRUE;
-    if (FindToolType(tt, (STRPTR)"NOFORMATBUTTONS")) s->fmtbuttons = FALSE;
+    if (FindToolType(tt, (STRPTR)"FORMATBUTTONS")) s->fmtbuttons = TRUE;
     if (FindToolType(tt, (STRPTR)"NOSPLASH")) s->splash = FALSE;
     if ((v = FindToolType(tt, (STRPTR)"PRINT_MODE")))
         for (i = 0; i < NUMPRMODES; i++) if (same_text((const char *)v, prmode_names[i])) s->prmode = i;
@@ -245,7 +244,7 @@ BOOL settings_save_icon(const struct Settings *s, CONST_STRPTR name)
     entry(&e[k++], "TOOLBAR", s->tbmode != TBMODE_IMAGES,
           tbmode_names[s->tbmode >= 0 && s->tbmode < NUMTBMODES ? s->tbmode : 0]);
     entry(&e[k++], "TOOLBARFRAMES", s->tbframes, NULL);
-    entry(&e[k++], "NOFORMATBUTTONS", !s->fmtbuttons, NULL);
+    entry(&e[k++], "FORMATBUTTONS", s->fmtbuttons, NULL);
     entry(&e[k++], "NOSPLASH", !s->splash, NULL);
     entry(&e[k++], "PRINT_MODE", s->prmode >= 0, prmode_names[s->prmode >= 0 && s->prmode < NUMPRMODES ? s->prmode : 0]);
     entry(&e[k++], "PS_LEVEL", s->pslevel != 2, s->pslevel == 1 ? "1" : "2");

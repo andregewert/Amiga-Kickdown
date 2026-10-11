@@ -878,7 +878,7 @@ int main(void)
     /* steps of the progress bar: the classes below, html.gadget, the
      * toolbar buttons and the window                                */
     if (set.splash) splash_open((CONST_STRPTR)iconname, (CONST_STRPTR)APPNAME,
-                                (CONST_STRPTR)VERSION_TEXT, 8 + 1 + gui_tool_count() + 1);
+                                (CONST_STRPTR)VERSION_TEXT, 8 + 1 + gui_tool_count(set.fmtbuttons) + 1);
     splash_status((CONST_STRPTR)S(MSG_SPLASH_CLASSES));
     if (!(AslBase = open_class((CONST_STRPTR)"asl.library", 39)) ||
         !(WindowBase = open_class((CONST_STRPTR)"window.class", 44)) ||

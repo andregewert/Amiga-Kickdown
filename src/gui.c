@@ -150,9 +150,11 @@ static void build_menus(const struct Settings *set, BOOL highlight)
 static struct HintInfo hints[MAXTOOLS + 2];   /* + the overflow chooser */
 
 /* Speedbar buttons. The images come from AISS (TBIMAGES:<name>, the
- * selected state from <name>_s, the ghosted one from <name>_g); "a|b"
+ * ghosted one from <name>_g; pressed buttons are recessed, the AISS
+ * selected images are not loaded: each one costs start time); "a|b"
  * takes the first one that exists (AISS 4 has more images than AISS
- * Classic).
+ * Classic). The formatting buttons (row 1) are only made when they are
+ * shown the first time (gui_show_format()).
  *
  * speedbar.gadget (47.10) stores SBNA_Text but never draws it, so
  * texts are label.images given as SBNA_Image: text alone, or the AISS
@@ -218,13 +220,11 @@ static BOOL exists(CONST_STRPTR name)
     return TRUE;
 }
 
-/* *hassel: there is a selected image as well; the ghosted image
- * (<name>_g) goes to *ghost, NULL if there is none; with 'selected' the
- * selected image also as an object of its own (for a label). 'names'
- * is a list of alternatives separated by '|'.                     */
-static Object *load_image(const char *names, BOOL *hassel, Object **ghost, Object **selected)
+/* The ghosted image (<name>_g) goes to *ghost, NULL if there is none.
+ * 'names' is a list of alternatives separated by '|'.               */
+static Object *load_image(const char *names, Object **ghost)
 {
-    char file[64], sel[64], name[40];
+    char file[64], name[40];
     const char *p = names;
 
     /* the first alternative that exists, else the last one */
@@ -246,22 +246,11 @@ static Object *load_image(const char *names, BOOL *hassel, Object **ghost, Objec
         BITMAP_Masking,    TRUE,
         TAG_DONE) : NULL;
     sprintf(file, "TBIMAGES:%s", name);
-    sprintf(sel, "TBIMAGES:%s_s", name);
-    *hassel = FALSE;
-    if (selected) *selected = NULL;
     if (!exists((CONST_STRPTR)file)) return NULL;
-    *hassel = exists((CONST_STRPTR)sel);
-    if (selected && *hassel)
-        *selected = NewObject(BITMAP_GetClass(), NULL,
-            BITMAP_SourceFile, (ULONG)sel,
-            BITMAP_Screen,     (ULONG)gui.screen,
-            BITMAP_Masking,    TRUE,
-            TAG_DONE);
     return NewObject(BITMAP_GetClass(), NULL,
-        BITMAP_SourceFile,       (ULONG)file,
-        *hassel ? BITMAP_SelectSourceFile : TAG_IGNORE, (ULONG)sel,
-        BITMAP_Screen,           (ULONG)gui.screen,
-        BITMAP_Masking,          TRUE,
+        BITMAP_SourceFile, (ULONG)file,
+        BITMAP_Screen,     (ULONG)gui.screen,
+        BITMAP_Masking,    TRUE,
         TAG_DONE);
 }
 
@@ -347,56 +336,70 @@ static LONG ghost_pen(void)
     return gui.ghostpen >= 0 ? gui.ghostpen : gui.dri->dri_Pens[TEXTPEN];
 }
 
+/* The node of button i with its images, added to the end of 'list';
+ * ghosted if its bit is set in gui.disabled. FALSE on failure.       */
+static BOOL make_button(ULONG i, struct List *list)
+{
+    LONG mode = gui.tbmode;
+    Object *bm = NULL, *ghost = NULL, *img;
+    struct Node *node;
+    BOOL off = (gui.disabled & TOOLBIT(tools[i].cmd)) != 0;
+
+    /* text only: no image is loaded at all */
+    if (mode != TBMODE_TEXT) bm = load_image(tools[i].image, &ghost);
+    if (mode == TBMODE_IMAGES && bm) {
+        img = bm;
+    } else {
+        /* the text, with the image above it if there is one; a
+         * missing image in image mode gives the text as well    */
+        img = make_label(i, mode == TBMODE_BOTH ? bm : NULL, gui.dri->dri_Pens[TEXTPEN]);
+        if (mode != TBMODE_BOTH && bm) DisposeObject(bm);
+        if (ghost && bm && mode == TBMODE_BOTH) ghost = make_label(i, ghost, ghost_pen());
+        else {
+            if (ghost) DisposeObject(ghost);
+            ghost = !bm || mode == TBMODE_TEXT ? make_label(i, NULL, ghost_pen()) : NULL;
+        }
+    }
+    gui.images[i] = img;
+    gui.ghosts[i] = ghost;
+    node = AllocSpeedButtonNode(tools[i].cmd,
+        img ? SBNA_Image : SBNA_Text, img ? (ULONG)(off && ghost ? ghost : img) : (ULONG)S(tools[i].label),
+        SBNA_Enabled,   TRUE,
+        SBNA_Disabled,  off,
+        SBNA_Spacing,   gui.rows && tools[i].row && !tools[i - 1].row ? 0 : tools[i].spacing,
+        SBNA_Highlight, SBH_RECESS,
+        TAG_DONE);
+    if (!node) return FALSE;
+    gui.nodes[i] = node;
+    AddTail(list, node);
+    return TRUE;
+}
+
+/* the formatting buttons into gui.buttons2, if not made yet */
+static BOOL make_format_buttons(void)
+{
+    ULONG i;
+    for (i = 0; i < NUMTOOLS; i++)
+        if (tools[i].row && !gui.nodes[i] && !make_button(i, &gui.buttons2)) return FALSE;
+    return TRUE;
+}
+
 static BOOL make_buttons(const struct Settings *set)
 {
-    BOOL rows = gui.rows = set->tbmode != TBMODE_IMAGES;     /* texts: two bars */
-    LONG text = gui.dri->dri_Pens[TEXTPEN];
     ULONG i;
 
+    gui.rows = set->tbmode != TBMODE_IMAGES;     /* texts: two bars */
+    gui.tbmode = set->tbmode;
     NewList(&gui.buttons);
     NewList(&gui.buttons2);
     if (set->tbmode == TBMODE_BOTH) gui.smallattr = small_font();
     for (i = 0; i < NUMTOOLS; i++) {
-        Object *bm = NULL, *ghost = NULL, *selbm = NULL, *selimg = NULL, *img;
-        BOOL sel = FALSE, second = tools[i].row && (rows || !set->fmtbuttons);
-        struct Node *node;
-
-        /* text only: no image is loaded at all */
-        if (set->tbmode != TBMODE_TEXT)
-            bm = load_image(tools[i].image, &sel, &ghost, set->tbmode == TBMODE_BOTH ? &selbm : NULL);
-        if (set->tbmode == TBMODE_IMAGES && bm) {
-            img = bm;
-        } else {
-            /* the text, with the image above it if there is one; a
-             * missing image in image mode gives the text as well    */
-            img = make_label(i, set->tbmode == TBMODE_BOTH ? bm : NULL, text);
-            if (set->tbmode != TBMODE_BOTH && bm) DisposeObject(bm);
-            if (ghost && bm && set->tbmode == TBMODE_BOTH) ghost = make_label(i, ghost, ghost_pen());
-            else {
-                if (ghost) DisposeObject(ghost);
-                ghost = !bm || set->tbmode == TBMODE_TEXT ? make_label(i, NULL, ghost_pen()) : NULL;
-            }
-            /* pressed: the label with the AISS selected image */
-            if (selbm && bm && img) selimg = make_label(i, selbm, text);
-            else if (selbm) DisposeObject(selbm);
-            sel = selimg != NULL;
+        /* formatting buttons: only when shown */
+        if (!tools[i].row || set->fmtbuttons) {
+            if (!make_button(i, tools[i].row && gui.rows ? &gui.buttons2 : &gui.buttons)) return FALSE;
+            splash_step();
         }
-        gui.images[i] = img;
-        gui.ghosts[i] = ghost;
-        gui.selimgs[i] = selimg;
-        splash_step();
-        /* pressed: the AISS selected image if there is one, else recessed */
-        node = AllocSpeedButtonNode(tools[i].cmd,
-            img ? SBNA_Image : SBNA_Text, img ? (ULONG)img : (ULONG)S(tools[i].label),
-            SBNA_Enabled,   TRUE,
-            SBNA_Spacing,   rows && tools[i].row && !tools[i - 1].row ? 0 : tools[i].spacing,
-            SBNA_Highlight, sel ? SBH_IMAGE : SBH_RECESS,
-            selimg ? SBNA_SelImage : TAG_IGNORE, (ULONG)selimg,
-            TAG_DONE);
-        if (!node) return FALSE;
-        gui.nodes[i] = node;
-        AddTail(second ? &gui.buttons2 : &gui.buttons, node);
-        hints[i].hi_GadgetID = rows && tools[i].row ? GID_TOOLBAR2 : GID_TOOLBAR;
+        hints[i].hi_GadgetID = gui.rows && tools[i].row ? GID_TOOLBAR2 : GID_TOOLBAR;
         hints[i].hi_Code = tools[i].cmd;
         hints[i].hi_Text = (STRPTR)S(tools[i].help);
         hints[i].hi_Flags = 0;
@@ -437,9 +440,13 @@ static void bars_window(struct Window *win)
         if (bars[i]) SetGadgetAttrs((struct Gadget *)bars[i], win, NULL, SPEEDBAR_Window, (ULONG)win, TAG_DONE);
 }
 
-ULONG gui_tool_count(void)
+/* the buttons made at the start (steps of the splash window) */
+ULONG gui_tool_count(BOOL fmtbuttons)
 {
-    return NUMTOOLS;
+    ULONG i, n = 0;
+    for (i = 0; i < NUMTOOLS; i++)
+        if (!tools[i].row || fmtbuttons) n++;
+    return n;
 }
 
 /* window size from the settings: at most the screen, 0 = default */
@@ -711,8 +718,6 @@ void gui_close(void)
         if (gui.images[i]) DisposeObject(gui.images[i]);
     for (i = 0; i < MAXTOOLS; i++)
         if (gui.ghosts[i]) DisposeObject(gui.ghosts[i]);
-    for (i = 0; i < MAXTOOLS; i++)
-        if (gui.selimgs[i]) DisposeObject(gui.selimgs[i]);
     if (gui.smallfont) CloseFont(gui.smallfont);   /* after the labels */
     if (DiskfontBase) CloseLibrary(DiskfontBase);
     DiskfontBase = NULL;
@@ -765,15 +770,23 @@ void gui_tools_disabled(ULONG mask)
     }
 }
 
-/* Shows or hides the formatting buttons. With one bar their nodes move
- * between the bar's list and gui.buttons2; the second bar is removed
- * from the layout (which disposes it) and made anew. Adding a child to
- * a layout needs layout.gadget V47: FALSE if it cannot be done now.  */
+/* Shows or hides the formatting buttons, made (images loaded) when
+ * shown the first time. With one bar their nodes move between the
+ * bar's list and gui.buttons2; the second bar is removed from the
+ * layout (which disposes it) and made anew. Adding a child to a layout
+ * needs layout.gadget V47: FALSE if it cannot be done now.           */
 BOOL gui_show_format(BOOL on)
 {
     ULONG i;
+    BOOL ok;
 
     if (!gui.toolbar) return FALSE;
+    if (on) {
+        gui_busy(TRUE);
+        ok = make_format_buttons();
+        gui_busy(FALSE);
+        if (!ok) return FALSE;
+    }
     if (gui.rows) {
         if (!on == !gui.toolbar2) return TRUE;
         if (on) {
