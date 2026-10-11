@@ -83,8 +83,8 @@ Contents
  C/mdtohtml           the Shell converter
  Example.md           Markdown example
  Template.html        example page template
- Docs/                documentation (English ReadMe.md, German
-                      LiesMich.md)
+ Docs/                documentation (English README.md, German
+                      README.de.md)
  Icons/               the archive's icons as GlowIcons and NewIcons (and
                       the classic ones); double click UseGlowIcons,
                       UseNewIcons or UseClassic to switch
@@ -113,6 +113,8 @@ History
    in the settings window
  - status line and find window show underscores in file names and texts
    (they were taken for a shortcut mark)
+ - Docs: README.md and README.de.md keep their names (were ReadMe.md and
+   LiesMich.md), so the links between them and to pictures work
  - toolbar: faster start; the AISS images for pressed buttons are no
    longer loaded (pressed buttons look recessed), and the formatting
    buttons are hidden by default and loaded when first shown (tool type
@@ -147,7 +149,7 @@ Bilder, Bilder und Text oder nur Text, Knöpfe, die nicht passen, stehen
 in einer Aufklappliste. Startfenster beim Programmstart (abschaltbar).
 Voraussetzungen: AmigaOS 3.2, html.gadget (Aminet dev/gui/html_gadget.lha)
 und AISS für die Toolbar-Bilder. Ausführliche deutsche Dokumentation:
-Docs/LiesMich.md. Installation mit dem Installer-Skript Install, das
+Docs/README.de.md. Installation mit dem Installer-Skript Install, das
 auch nach den gewünschten Sprachen fragt.
 
 Versionsgeschichte
@@ -173,6 +175,8 @@ Versionsgeschichte
    Änderungen im Einstellungsfenster
  - Statuszeile und Suchfenster zeigen Unterstriche in Dateinamen und
    Texten (sie galten als Markierung eines Tastenkürzels)
+ - Docs: README.md und README.de.md behalten ihre Namen (bisher ReadMe.md
+   und LiesMich.md), so funktionieren die Links untereinander und zu Bildern
  - Toolbar: schnellerer Start; die AISS-Bilder für gedrückte Knöpfe
    werden nicht mehr geladen (gedrückte Knöpfe erscheinen vertieft), und
    die Formatierungsknöpfe sind zunächst ausgeblendet und werden erst

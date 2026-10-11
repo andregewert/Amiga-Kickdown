@@ -54,13 +54,16 @@ def main():
 
     docs = os.path.join(PKG, 'Docs')
     os.makedirs(docs)
-    for src, dst in (('README.md', 'ReadMe.md'), ('README.de.md', 'LiesMich.md')):
-        with open(b(src), encoding='utf-8') as f:
+    # under their own names: they link to each other
+    for name in ('README.md', 'README.de.md'):
+        with open(b(name), encoding='utf-8') as f:
             text = to_latin1_text(f.read())
-        with open(os.path.join(docs, dst), 'wb') as f:
+        with open(os.path.join(docs, name), 'wb') as f:
             f.write(text)
-    # the READMEs show the screenshot
+    # what the READMEs show or link to, at the same relative paths
     copy(b('screenshot-amiga.png'), os.path.join(docs, 'screenshot-amiga.png'))
+    copy(b('icons', 'preview.png'), os.path.join(docs, 'icons', 'preview.png'))
+    copy(b('LICENSE'), os.path.join(docs, 'LICENSE'))
 
     # sources in the same layout as the repository, so "make" works there
     src = os.path.join(PKG, 'Source')
@@ -93,8 +96,8 @@ def main():
              ('Template.html', 'readme', WBPROJECT, dict(default_tool=mv)),
              (NAME + '.readme', 'readme', WBPROJECT, dict(default_tool=mv)),
              ('LICENSE', 'license', WBPROJECT, dict(default_tool=mv)),
-             ('Docs/ReadMe.md', 'markdown', WBPROJECT, dict(default_tool=mv)),
-             ('Docs/LiesMich.md', 'markdown', WBPROJECT, dict(default_tool=mv))]
+             ('Docs/README.md', 'markdown', WBPROJECT, dict(default_tool=mv)),
+             ('Docs/README.de.md', 'markdown', WBPROJECT, dict(default_tool=mv))]
     for d in ['C', 'Docs', 'Icons', 'Source', 'Catalogs'] + ['Catalogs/' + l for l in languages]:
         icons.append((d, 'drawer', WBDRAWER, {}))
     write_icon(PKG, 'Classic', 'drawer', WBDRAWER)
