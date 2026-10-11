@@ -113,6 +113,8 @@ History
    in the settings window
  - status line and find window show underscores in file names and texts
    (they were taken for a shortcut mark)
+ - synchronised scrolling: the other side follows when scrolling pauses
+   for a moment, so scrolling with the mouse wheel is faster
  - Docs: README.md and README.de.md keep their names (were ReadMe.md and
    LiesMich.md), so the links between them and to pictures work
  - toolbar: faster start; the AISS images for pressed buttons are no
@@ -175,6 +177,8 @@ Versionsgeschichte
    Änderungen im Einstellungsfenster
  - Statuszeile und Suchfenster zeigen Unterstriche in Dateinamen und
    Texten (sie galten als Markierung eines Tastenkürzels)
+ - synchrones Scrollen: die andere Seite folgt, sobald das Scrollen kurz
+   ruht, so scrollt das Mausrad schneller
  - Docs: README.md und README.de.md behalten ihre Namen (bisher ReadMe.md
    und LiesMich.md), so funktionieren die Links untereinander und zu Bildern
  - Toolbar: schnellerer Start; die AISS-Bilder für gedrückte Knöpfe

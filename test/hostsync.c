@@ -5,7 +5,9 @@
  *
  * Gadgets are replaced by stubs: the editor has a given number of rows,
  * the preview puts heading n at y = 100 * n. Prints the fixed points and
- * the mapping in both directions.
+ * the mapping in both directions, and checks sync_poll(): the other side
+ * follows only when the scrolled one has stopped for a tick (exit 2 if
+ * not).
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +25,7 @@ int main(int argc, char **argv)
     FILE *f;
     long size;
     ULONG i, row;
+    int rc = 0;
 
     if (argc < 2 || !(f = fopen(argv[1], "rb"))) return 1;
     fseek(f, 0, SEEK_END);
@@ -53,8 +56,32 @@ int main(int argc, char **argv)
                (long)(y_to_line(y) / FRAC), (long)(y_to_line(y) % FRAC * 1000 / FRAC),
                (unsigned long)line_to_row(y_to_line(y)));
     }
+
+    /* sync_poll(): no following while one side moves at every tick */
+    if (nknots >= 2 && stub_heading >= 2) {
+        ULONG f0, t0;
+        int bad = 0;
+        stub_first = stub_top = 0;
+        sync_reset();
+        sync_poll();
+        f0 = stub_first;
+        stub_top = 100; sync_poll();
+        stub_top = 200; sync_poll();
+        if (stub_first != f0) bad = 1;               /* followed while scrolling */
+        sync_poll();                                 /* stopped for a tick */
+        if (line_to_row(y_to_line(200)) != (LONG)f0 && stub_first == f0) bad = 2;
+        t0 = stub_top;
+        f0 = stub_first;
+        stub_first = f0 + 2; sync_poll();
+        stub_first = f0 + 4; sync_poll();
+        if (stub_top != t0) bad = 3;
+        sync_poll();
+        if (line_to_y(row_to_line(f0 + 4)) != (LONG)t0 && stub_top == t0) bad = 4;
+        if (bad) fprintf(stderr, "sync_poll: check %d failed\n", bad);
+        rc = bad ? 2 : 0;
+    }
     sync_free();
     mdconv_free(html);
     free(md);
-    return 0;
+    return rc;
 }

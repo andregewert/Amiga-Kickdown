@@ -32,7 +32,7 @@ struct GUI { Object *editor, *html, *escroll; struct Window *win; };
 static struct GUI gui = { (Object *)1, (Object *)2, (Object *)3, NULL };
 
 static ULONG stub_entries;          /* editor rows, 0: as many as lines */
-static ULONG stub_top, stub_heading;
+static ULONG stub_top, stub_heading, stub_first;
 static const char *stub_html;
 
 static APTR AllocVec(ULONG size, ULONG flags)
@@ -62,11 +62,13 @@ static void SetGadgetAttrs(struct Gadget *g, struct Window *w, void *r, ULONG ta
 {
     (void)g; (void)w; (void)r; (void)end;
     if (tag == HTML_Top) stub_top = data;
+    if (tag == GA_TEXTEDITOR_Prop_First) stub_first = data;
 }
 static ULONG GetAttr(ULONG tag, Object *o, ULONG *store)
 {
     (void)o;
     switch (tag) {
+    case GA_TEXTEDITOR_Prop_First:   *store = stub_first; break;
     case GA_TEXTEDITOR_Prop_Entries: *store = stub_entries; break;
     case HTML_Top:   *store = stub_top; break;
     case HTML_Total: *store = 100 * (stub_heading + 2); break;

@@ -40,6 +40,10 @@ static ULONG nknots;
 static BOOL valid;
 
 static LONG last_first = -1, last_top = -1;
+/* positions at the previous tick: the other side follows only when the
+ * scrolled one has stopped for a tick, both redrawing at every step of
+ * the mouse wheel made scrolling slow                                 */
+static LONG seen_first = -1, seen_top = -1;
 
 void sync_free(void)
 {
@@ -358,6 +362,13 @@ void sync_poll(void)
     GetAttr(HTML_Total, gui.html, &total);
     GetAttr(HTML_Visible, gui.html, &vis);
 
+    if (last_top >= 0) {
+        BOOL moving = ((LONG)first != last_first && (LONG)first != seen_first) ||
+                      ((LONG)top != last_top && (LONG)top != seen_top);
+        seen_first = first;
+        seen_top = top;
+        if (moving) return;
+    }
     if ((LONG)first != last_first || last_top < 0) {
         /* editor -> preview; at the editor's end the preview goes to its end */
         LONG y;
@@ -380,6 +391,6 @@ void sync_poll(void)
         }
         GetAttr(GA_TEXTEDITOR_Prop_First, gui.editor, &first);
     }
-    last_first = first;
-    last_top = top;
+    last_first = seen_first = first;
+    last_top = seen_top = top;
 }
