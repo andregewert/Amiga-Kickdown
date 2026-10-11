@@ -74,7 +74,11 @@ muss einen Rückfall haben oder gekennzeichnet sein.
     Weiß. Der Stift wird mit `ObtainBestPen` geholt und wieder freigegeben.
   - Rahmen `BVS_BUTTON` mit `LAYOUT_BevelState IDS_SELECTED`. Nicht `BVS_FIELD`, der wirkt
     nicht eingedrückt.
-- Dateinamen können `_` enthalten, deshalb `LABEL_Underscore 0` für Meldungstexte.
+- Dateinamen können `_` enthalten, deshalb `LABEL_Underscore 0` für Meldungstexte und
+  `GA_Underscore 0` bei schreibgeschützten Knöpfen, die solche Texte zeigen (Statuszeilen,
+  Druckername). button.gadget 47.7 wertet `GA_Underscore` aus, das Autodoc nennt es nicht.
+  Es muss in der Tagliste **vor** `GA_Text` stehen: Die Klasse sucht das Kürzel, sobald sie den
+  Text übernimmt.
 
 ### 3.3 Werkzeugfenster (nicht modal, z. B. Suchen/Ersetzen)
 - Das Fenster bleibt neben dem Hauptfenster offen. Dessen Signale werden in der Hauptschleife

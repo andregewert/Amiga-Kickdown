@@ -111,6 +111,8 @@ History
    printed page; needs html_gadget 1.2
  - menu check marks keep their state after iconifying and after changes
    in the settings window
+ - status line and find window show underscores in file names and texts
+   (they were taken for a shortcut mark)
  - toolbar: faster start; the AISS images for pressed buttons are no
    longer loaded (pressed buttons look recessed), and the formatting
    buttons are hidden by default and loaded when first shown (tool type
@@ -169,6 +171,8 @@ Versionsgeschichte
    Seite verkleinert; braucht html_gadget 1.2
  - Menü-Häkchen behalten ihren Zustand nach dem Ikonifizieren und nach
    Änderungen im Einstellungsfenster
+ - Statuszeile und Suchfenster zeigen Unterstriche in Dateinamen und
+   Texten (sie galten als Markierung eines Tastenkürzels)
  - Toolbar: schnellerer Start; die AISS-Bilder für gedrückte Knöpfe
    werden nicht mehr geladen (gedrückte Knöpfe erscheinen vertieft), und
    die Formatierungsknöpfe sind zunächst ausgeblendet und werden erst

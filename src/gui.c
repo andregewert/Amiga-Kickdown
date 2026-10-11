@@ -576,6 +576,10 @@ BOOL gui_open(Class *htmlclass, struct MsgPort *appport, struct Hook *apphook,
     gui.status = NewObject(BUTTON_GetClass(), NULL,
         GA_ID,                GID_STATUS,
         GA_ReadOnly,          TRUE,
+        /* file names may contain '_': no shortcut (GA_Underscore is not
+         * in the autodoc, button.gadget 47.7 takes it, seen in its code;
+         * it has to come before GA_Text)                                 */
+        GA_Underscore,        0,
         GA_Text,              (ULONG)"",
         BUTTON_Justification, BCJ_LEFT,
         TAG_DONE);

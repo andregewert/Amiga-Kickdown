@@ -108,7 +108,9 @@ static BOOL build(void)
     fw.backwards = checkbox(FG_BACKWARDS, S(MSG_FIND_BACKWARDS), fw.backwards_on);
     fw.wrap = checkbox(FG_WRAP, S(MSG_FIND_WRAP), fw.wrap_on);
     fw.status = NewObject(BUTTON_GetClass(), NULL,
-        GA_ID, FG_STATUS, GA_ReadOnly, TRUE, GA_Text, (ULONG)"",
+        GA_ID, FG_STATUS, GA_ReadOnly, TRUE,
+        GA_Underscore, 0,                   /* the search text may contain '_' */
+        GA_Text, (ULONG)"",
         BUTTON_Justification, BCJ_LEFT, BUTTON_BevelStyle, BVS_NONE,
         BUTTON_Transparent, TRUE,           /* the window's backfill shows through */
         TAG_DONE);

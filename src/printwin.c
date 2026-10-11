@@ -333,9 +333,11 @@ static Object *build(const struct Settings *s, const char *file, LONG from, LONG
         GA_ID, PW_DEVICE, GA_RelVerify, TRUE, GA_TabCycle, TRUE,
         STRINGA_TextVal, (ULONG)(s->prdevice[0] ? s->prdevice : "PAR:"),
         STRINGA_MaxChars, sizeof(s->prdevice) - 1, TAG_DONE);
-    /* only shown, like a label (style guide: read-only button.gadget) */
+    /* only shown, like a label (style guide: read-only button.gadget);
+     * driver names may contain '_'. GA_Underscore before GA_Text: the
+     * class looks for the shortcut when it takes the text.            */
     pw.printer = NewObject(BUTTON_GetClass(), NULL,
-        GA_ReadOnly, TRUE, GA_Text, (ULONG)pw.printername, BUTTON_Justification, BCJ_LEFT,
+        GA_ReadOnly, TRUE, GA_Underscore, 0, GA_Text, (ULONG)pw.printername, BUTTON_Justification, BCJ_LEFT,
         BUTTON_BevelStyle, BVS_NONE, BUTTON_Transparent, TRUE, TAG_DONE);
     pw.from = integer(PW_FROM, from, 1, 9999, 4);
     pw.to = integer(PW_TO, to, 0, 9999, 4);
@@ -648,7 +650,7 @@ static void progress_open(struct Progress *p, const char *widest, LONG max)
     if (strlen(S(MSG_PR_PREPARING)) > strlen(widest)) widest = S(MSG_PR_PREPARING);
     strncpy(p->buf, widest, sizeof(p->buf) - 1);
     p->text = NewObject(BUTTON_GetClass(), NULL,
-        GA_ReadOnly, TRUE, GA_Text, (ULONG)p->buf, BUTTON_BevelStyle, BVS_NONE,
+        GA_ReadOnly, TRUE, GA_Underscore, 0, GA_Text, (ULONG)p->buf, BUTTON_BevelStyle, BVS_NONE,
         BUTTON_Justification, BCJ_LEFT, TAG_DONE);
     p->gauge = NewObject(FUELGAUGE_GetClass(), NULL,
         FUELGAUGE_Min, 0, FUELGAUGE_Max, p->max, FUELGAUGE_Level, 0,
