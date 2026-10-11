@@ -801,3 +801,9 @@ As in the picture
 MSG_PR_PREPARING (//)
 Preparing ...
 ;
+MSG_PR_PRINTED1 (//)
+%ld page printed
+;
+MSG_PR_WRITTEN1 (//)
+%ld page written to %s
+;

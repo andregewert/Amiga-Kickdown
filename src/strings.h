@@ -261,7 +261,9 @@
 #define MSG_PR_IMAGEDPI              256
 #define MSG_PR_IMAGEDPI_ORIGINAL     257
 #define MSG_PR_PREPARING             258
-#define MSG_COUNT                    259
+#define MSG_PR_PRINTED1              259
+#define MSG_PR_WRITTEN1              260
+#define MSG_COUNT                    261
 
 /* the built-in (English) strings, defined where KICKDOWN_STRINGS is set */
 #ifdef KICKDOWN_STRINGS
@@ -525,6 +527,8 @@ static const char *const msg_builtin[MSG_COUNT] = {
     "Ima_ge resolution ",
     "As in the picture",
     "Preparing ...",
+    "%ld page printed",
+    "%ld page written to %s",
 };
 #endif
 

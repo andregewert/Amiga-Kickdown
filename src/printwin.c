@@ -946,7 +946,7 @@ static void print_bitmap(const struct Settings *s, const struct PrintJob *job)
         snprintf(buf, sizeof(buf), S(MSG_PR_ERROR), (long)(-n - 1));
         request((CONST_STRPTR)S(MSG_OK), (CONST_STRPTR)"%s", buf);
     } else {
-        snprintf(buf, sizeof(buf), S(MSG_PR_PRINTED), (long)n);
+        snprintf(buf, sizeof(buf), S(n == 1 ? MSG_PR_PRINTED1 : MSG_PR_PRINTED), (long)n);
         gui_status((CONST_STRPTR)buf);
     }
 out:
@@ -1068,7 +1068,7 @@ static void export_ps_pdf(const struct Settings *s, const char *file, const stru
         dos_error((CONST_STRPTR)S(MSG_WRITE_FAILED), (CONST_STRPTR)name);
         return;
     }
-    snprintf(buf, sizeof(buf), S(MSG_PR_WRITTEN), (long)n, (const char *)name);
+    snprintf(buf, sizeof(buf), S(n == 1 ? MSG_PR_WRITTEN1 : MSG_PR_WRITTEN), (long)n, (const char *)name);
     gui_status((CONST_STRPTR)buf);
 }
 
