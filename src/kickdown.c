@@ -80,6 +80,7 @@ static STRPTR template_text;
 static char curfile[PATHLEN];       /* "" for a new document */
 static BOOL modified;
 static int pending;                 /* ticks until the next automatic refresh */
+static BOOL stale;                  /* text changed since the preview was made */
 static ULONG cur_x = ~0UL, cur_y = ~0UL;
 static char lastdir[PATHLEN];
 static char dropped[PATHLEN];       /* set by the AppWindow hook */
@@ -217,6 +218,7 @@ static BOOL poll_changes(void)
     if (!changed) return FALSE;
     SetGadgetAttrs((struct Gadget *)gui.editor, gui.win, NULL,
                    GA_TEXTEDITOR_HasChanged, FALSE, TAG_DONE);
+    stale = TRUE;
     if (!modified) {
         modified = TRUE;
         update_title();
@@ -274,6 +276,7 @@ static void update_preview(void)
         gui_status((CONST_STRPTR)S(MSG_NOMEM_PREVIEW));
         return;
     }
+    stale = FALSE;
 
     /* relative <img> paths are resolved against the current directory
      * while the gadget loads the pictures                              */
@@ -650,7 +653,8 @@ static void print_document(void)
     }
     if (!print_dialog(&n, file, sizeof(file), &job)) return;
     set = n;
-    update_preview();
+    /* only if the text changed: a new preview jumps to the top first */
+    if (poll_changes() || stale) update_preview();
     print_run(&set, file, &job);
 }
 
