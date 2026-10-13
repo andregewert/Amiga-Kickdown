@@ -114,6 +114,48 @@ gi.MOTIFS['kickdown'] = m_kickdown
 gi.MOTIFS['markdown'] = m_markdown
 
 
+# ------------------------------------------------------- NewIcons motifs ---
+
+def n_kickdown(c, sel):
+    """ the monitor with the editor (white lines) and the preview;
+        selected: scrolled on, the cursor line yellow                     """
+    def screen(c, box, u0, u1, t0, t1, sel):
+        mid = (u0 + u1) // 2
+        lines = ((2, 6), (4, 4), (6, 6), (8, 3), (10, 5))
+        if sel:
+            lines = lines[1:] + ((12, 4),)
+        for i, (t, n) in enumerate(lines):
+            box.face_line(c, t0 + t - (2 if sel else 0), u0 + 1, u0 + n,
+                          gi.N_YELLOW if sel and i == 2 else WHITE)
+        if not sel:
+            box.face_line(c, t0 + 2, mid + 2, mid + 5, gi.N_YELLOW)
+        for t in ((2, 4, 6, 8) if sel else (4, 6, 8, 10)):
+            box.face_line(c, t0 + t, mid + 2, u1 - 1, gi.N_LBLUE)
+    gi.n_monitor(c, screen, sel)
+
+
+def n_badge(c, x, y):
+    """ the Markdown mark as a straight label, 15 x 9 """
+    c.rect(x, y, x + 14, y + 8, BLACK)
+    for i in range(5):                        # M
+        c.put(x + 2, y + 2 + i, WHITE)
+        c.put(x + 7, y + 2 + i, WHITE)
+    for dx, dy in ((3, 3), (4, 4), (5, 4), (6, 3)):
+        c.put(x + dx, y + dy, WHITE)
+    c.rect(x + 11, y + 2, x + 11, y + 5, WHITE)     # arrow
+    c.rect(x + 9, y + 5, x + 13, y + 5, WHITE)
+    c.rect(x + 10, y + 6, x + 12, y + 6, WHITE)
+
+
+def n_markdown(c, sel):
+    gi.n_sheet(c, sel)
+    n_badge(c, 19, 28)
+
+
+gi.NI_MOTIFS['kickdown'] = n_kickdown
+gi.NI_MOTIFS['markdown'] = n_markdown
+
+
 # ---------------------------------------------------------------- samples ---
 
 ROLES = ('drawer', 'kickdown', 'markdown', 'readme', 'license', 'tiles')

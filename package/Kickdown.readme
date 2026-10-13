@@ -115,6 +115,9 @@ History
    (they were taken for a shortcut mark)
  - synchronised scrolling: the other side follows when scrolling pauses
    for a moment, so scrolling with the mouse wheel is faster
+ - NewIcons drawn in the style of the NewIcons package (isometric, its
+   palette, objects on a platform); selected they show a changed picture
+   (open drawer, dog ear, ...) instead of a darker one
  - Docs: README.md and README.de.md keep their names (were ReadMe.md and
    LiesMich.md), so the links between them and to pictures work
  - toolbar: faster start; the AISS images for pressed buttons are no
@@ -179,6 +182,9 @@ Versionsgeschichte
    Texten (sie galten als Markierung eines Tastenkürzels)
  - synchrones Scrollen: die andere Seite folgt, sobald das Scrollen kurz
    ruht, so scrollt das Mausrad schneller
+ - NewIcons im Stil des NewIcons-Pakets gezeichnet (isometrisch, seine
+   Palette, Objekte auf einem Sockel); ausgewählt zeigen sie ein geändertes
+   Bild (offene Schublade, Eselsohr ...) statt eines dunkleren
  - Docs: README.md und README.de.md behalten ihre Namen (bisher ReadMe.md
    und LiesMich.md), so funktionieren die Links untereinander und zu Bildern
  - Toolbar: schnellerer Start; die AISS-Bilder für gedrückte Knöpfe
