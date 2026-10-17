@@ -93,7 +93,7 @@ Contents
 
 History
 -------
-1.1 (03.10.2026)
+1.1 (17.10.2026)
  - printing (Project/Print, Amiga-P, toolbar): to the printer through
    printer.device (graphics, the fonts of the preview; on the default printer,
    with the resolution of its settings), as PostScript to a file, PRT:, PS:
@@ -159,7 +159,7 @@ auch nach den gewünschten Sprachen fragt.
 
 Versionsgeschichte
 ------------------
-1.1 (03.10.2026)
+1.1 (17.10.2026)
  - Drucken (Projekt/Drucken, Amiga-P, Toolbar): auf den Drucker über
    printer.device (Grafik, mit den Schriften der Vorschau; auf dem
    Standarddrucker, mit der Auflösung aus seinen Einstellungen), als
