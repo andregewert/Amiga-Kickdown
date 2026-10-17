@@ -4,7 +4,7 @@
 
 Markdown-Werkzeuge für AmigaOS 3.2 in C:
 
-* **Kickdown** – ReAction-basierter Markdown-Editor mit Live-HTML-Vorschau
+* **Kickdown** – ReAction-basierter Markdown-Editor mit Live-HTML-Vorschau und PostScript-/PDF-Export sowie Bitmap-Druck
 * **mdtohtml** – Kommandozeilen-Konverter von Markdown nach HTML
 
 Beide nutzen denselben Konvertierungskern (`src/mdconv.c`) auf Basis von
@@ -25,6 +25,26 @@ aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
   werden durch Text-Buttons ersetzt.
 
 `mdtohtml` braucht nur die dos.library.
+
+Kickdown und mdtohtml sind darauf ausgelegt, auf echter Hardware und nicht nur im Emulator zu laufen. Ab einer 68030-CPU mit
+50 MHz scheint Kickdown recht ordentlich zu funktionieren, ab einem 68040 läuft er recht flüssig. Eine Grafikkarte ist
+empfohlen, aber auch auf AGA-Screens funktioniert die Anwendung. Wer große Grafiken einbettet, benötigt entsprechend viel RAM
+und eine schnelle CPU.
+
+Die besten Druck-Ergebnisse erhält man mit dem PostScript-Export oder beim Bitmap-Druck aus dem TrueType-Gadget heraus.
+
+Getestete Konfigurationen:
+- Amiga 1200 / TF1260 / P-Vision RTG
+- Amiga 1200 / Warp1240 / RTG
+- Amiga 1200 / Trinity 1260 / AGA
+- Amiga 1200 / PiStorm32 lite + CM4 / RTG
+- Amiga 2000 / TF536 (68030) / GBAPII++ RTG
+- Amiga 4000 / 68060 / ZZ9000 RTG (Treiberversion 1.13 - die neueren Treiber von BlitterStudio funktionieren bei mir gar nicht oder nur fehlerhaft!)
+
+Getestete Drucker:
+- Brother DCP-J1140DW via AmiAirPrint (Bitmap-Druck)
+- Canon BJC-250 via TurboPrint (PostScript)
+- Canon i560 via TurboPrint (PostScript)
 
 ## Kickdown
 
