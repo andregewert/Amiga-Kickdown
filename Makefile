@@ -17,6 +17,13 @@ MDDEFS  := -DMD4C_USE_ASCII -I$(MD4C) '-DMD4C_VERSION_STR="$(MD4CVER)"'
 # public headers of html.gadget (git submodule)
 HTMLINC := html_gadget/include
 
+# shared tools (git submodule): catalogs, icons, Aminet archive, charcheck
+DEVKIT  := amiga-devkit
+ifeq ($(wildcard $(DEVKIT)/make/charcheck.mk),)
+$(error $(DEVKIT) is missing: git submodule update --init)
+endif
+CATCOMP := $(DEVKIT)/tools/catcomp.py
+
 CFLAGS  := $(CPU) -Os -noixemul -fno-common -Wall -Wextra -Wno-unused-parameter \
            -Wno-pointer-sign -I$(HTMLINC) -Isrc $(MDDEFS)
 MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
@@ -34,12 +41,12 @@ all: charcheck $(O)/Kickdown $(O)/mdtohtml $(CATALOGS)
 
 # the built-in strings; src/strings.h is in git, so building needs no Python
 # as long as catalogs/Kickdown.cd is not changed
-src/strings.h: catalogs/Kickdown.cd tools/catcomp.py
-	python3 tools/catcomp.py header $< $@
+src/strings.h: catalogs/Kickdown.cd $(CATCOMP)
+	python3 $(CATCOMP) header $< $@
 
-$(O)/Catalogs/%/Kickdown.catalog: catalogs/%.ct catalogs/Kickdown.cd tools/catcomp.py
+$(O)/Catalogs/%/Kickdown.catalog: catalogs/%.ct catalogs/Kickdown.cd $(CATCOMP)
 	@mkdir -p $(dir $@)
-	python3 tools/catcomp.py catalog catalogs/Kickdown.cd $< $@
+	python3 $(CATCOMP) catalog catalogs/Kickdown.cd $< $@
 
 $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h:
 	@echo "*** submodules are missing: git submodule update --init"; exit 1
@@ -66,14 +73,13 @@ $(O)/mdtohtml: $(TOOLOBJ)
 	$(CC) $(CPU) -noixemul -Wl,-u,___stkinit -o $@.debug $(TOOLOBJ)
 	$(STRIP) -o $@ $@.debug
 
-# Amiga sources and texts must be ISO-8859-1: refuse UTF-8 sequences.
+# Amiga sources and texts must be ISO-8859-1: "make charcheck" refuses UTF-8
+# sequences (amiga-devkit/make/charcheck.mk).
 # Not checked: README*.md, CLAUDE.md, tools/*.py, test/utf8.* (UTF-8) and the
 # submodules.
 LATIN1  := $(filter-out test/utf8.%,$(wildcard src/*.c src/*.h catalogs/* test/*.md test/*.html test/*.expected test/*.hl \
            package/* LICENSE Makefile))
-charcheck:
-	@if LC_ALL=C grep -lP '[\xC2-\xF4][\x80-\xBF]' $(LATIN1); then \
-		echo "*** The files above contain UTF-8, please convert them to ISO-8859-1"; exit 1; fi
+include $(DEVKIT)/make/charcheck.mk
 
 # host test of the conversion (Linux/macOS): test/<name>.md must give
 # test/<name>.expected
@@ -138,4 +144,4 @@ dist: all
 clean:
 	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt
 
-.PHONY: all clean check check-update charcheck dist icons md4cversion
+.PHONY: all clean check check-update dist icons md4cversion

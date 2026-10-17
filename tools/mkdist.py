@@ -6,32 +6,19 @@
 # Creates dist/Kickdown/ with the programs, an example, the documentation
 # (README*.md converted to ISO-8859-1), the sources and icons (classic
 # icons next to the files, complete GlowIcons and NewIcons sets in Icons/,
-# see icons.py), then packs it with lha. Run "make dist".
+# see icons.py), then packs it with lha. The common parts come from
+# amiga-devkit/tools/distlib.py. Run "make dist".
 
-import os, shutil, subprocess, glob, sys
+import os, shutil, subprocess, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from icons import ROOT, STYLES, WBDRAWER, WBTOOL, WBPROJECT, write_icon  # noqa: E402
+from icons import ROOT, WBDRAWER, WBTOOL, WBPROJECT  # noqa: E402  (registers the motifs)
+from distlib import copy, copytree, copy_devkit, latin1_copy, package_icons, pack  # noqa: E402
 
 NAME = 'Kickdown'
 DRAWER_ICON = NAME + '-Drawer'      # Icons/<Style>/: icon of the package drawer
 DIST = os.path.join(ROOT, 'dist')
 PKG = os.path.join(DIST, NAME)
-
-
-def copy(src, dst):
-    os.makedirs(os.path.dirname(dst), exist_ok=True)
-    shutil.copy2(src, dst)
-
-
-def copytree(src, dst, ignore=()):
-    shutil.copytree(src, dst, ignore=shutil.ignore_patterns(*ignore), dirs_exist_ok=True)
-
-
-def to_latin1_text(md):
-    table = {'„': '"', '“': '"', '”': '"', '–': '-', '—': '-',
-             '…': '...', '→': '->', '≤': '<=', '≥': '>=', '’': "'"}
-    return ''.join(table.get(ch, ch) for ch in md).encode('latin-1', 'replace')
 
 
 def main():
@@ -53,13 +40,9 @@ def main():
     copy(b('test', 'template.html'), os.path.join(PKG, 'Template.html'))
 
     docs = os.path.join(PKG, 'Docs')
-    os.makedirs(docs)
     # under their own names: they link to each other
     for name in ('README.md', 'README.de.md'):
-        with open(b(name), encoding='utf-8') as f:
-            text = to_latin1_text(f.read())
-        with open(os.path.join(docs, name), 'wb') as f:
-            f.write(text)
+        latin1_copy(b(name), os.path.join(docs, name))
     # what the READMEs show or link to, at the same relative paths
     copy(b('screenshot-amiga.png'), os.path.join(docs, 'screenshot-amiga.png'))
     copy(b('icons', 'preview.png'), os.path.join(docs, 'icons', 'preview.png'))
@@ -79,8 +62,8 @@ def main():
     with open(os.path.join(src, 'md4c', 'VERSION'), 'w') as f:
         f.write(ver + '\n')
     copytree(b('html_gadget', 'include'), os.path.join(src, 'html_gadget', 'include'))
-    copy(b('html_gadget', 'tools', 'mkicons.py'), os.path.join(src, 'html_gadget', 'tools', 'mkicons.py'))
     copy(b('html_gadget', 'LICENSE'), os.path.join(src, 'html_gadget', 'LICENSE'))
+    copy_devkit(os.path.join(src, 'amiga-devkit'))
 
     # icons: classic ones next to the files, every style also in Icons/<Style>/
     mv = 'SYS:Utilities/MultiView'
@@ -100,38 +83,11 @@ def main():
              ('Docs/README.de.md', 'markdown', WBPROJECT, dict(default_tool=mv))]
     for d in ['C', 'Docs', 'Icons', 'Source', 'Catalogs'] + ['Catalogs/' + l for l in languages]:
         icons.append((d, 'drawer', WBDRAWER, {}))
-    write_icon(PKG, 'Classic', 'drawer', WBDRAWER)
-    for name, role, kind, kw in icons:
-        write_icon(os.path.join(PKG, name), 'Classic', role, kind, **kw)
-    for style in STYLES:
-        sets = os.path.join(PKG, 'Icons', style)
-        # The icon of the package drawer has a name of its own here: the
-        # drawer is called like the program, whose icon is Kickdown.info.
-        write_icon(os.path.join(sets, DRAWER_ICON), style, 'drawer', WBDRAWER)
-        for name, role, kind, kw in icons:
-            write_icon(os.path.join(sets, name), style, role, kind, **kw)
-        script = os.path.join(PKG, 'Icons', 'Use' + style)
-        with open(script, 'w', encoding='latin-1', newline='\n') as f:
-            f.write('; gives the files of %s the %s icons\n'
-                    '; (double click, IconX runs it in this drawer)\n'
-                    'Copy %s/~(%s.info) / ALL CLONE QUIET\n'
-                    'Copy %s/%s.info //%s.info CLONE QUIET\n'
-                    'Echo "%s icons copied. Close and reopen the drawers to see them."\n'
-                    % (NAME, style, style, DRAWER_ICON, style, DRAWER_ICON, NAME, style))
-        write_icon(script, style, 'tiles', WBPROJECT, default_tool='C:IconX')
+    # The icon of the package drawer has a name of its own in Icons/<Style>/:
+    # the drawer is called like the program, whose icon is Kickdown.info.
+    package_icons(PKG, NAME, icons, DRAWER_ICON)
 
-    # archive
-    arc = os.path.join(DIST, NAME + '.lha')
-    files = [NAME + '.info']
-    for dirpath, dirnames, filenames in os.walk(PKG):
-        dirnames.sort()
-        for fn in sorted(filenames):
-            files.append(os.path.relpath(os.path.join(dirpath, fn), DIST))
-    # an LhA that can create archives: jlha (Debian: jlha-utils) or lha for UNIX
-    tool = shutil.which('jlha') or 'lha'
-    subprocess.run([tool, 'ao5q', arc] + files, cwd=DIST, check=True)
-    shutil.copy2(os.path.join(PKG, NAME + '.readme'), os.path.join(DIST, NAME + '.readme'))
-    print('created', arc, os.path.getsize(arc), 'bytes')
+    pack(DIST, NAME)
 
 
 if __name__ == '__main__':

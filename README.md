@@ -153,7 +153,7 @@ Kickdown is localized through locale.library: English is built in, German comes 
 (`PROGDIR:Catalogs`) or in `LOCALE:Catalogs`; the Installer script copies the ones you select.
 
 `catalogs/Kickdown.cd` lists all strings, `catalogs/<language>.ct` are the translations, both in
-the format of CatComp and FlexCat. `tools/catcomp.py` (part of `make`) makes `src/strings.h` and
+the format of CatComp and FlexCat. `amiga-devkit/tools/catcomp.py` (part of `make`) makes `src/strings.h` and
 the catalogs and refuses translations whose format specifiers (`%s`, `%lu` …) differ from the
 original. For a new language add `catalogs/<language>.ct` (e.g. copied from `deutsch.ct`) and a
 choice in `package/Install`.
@@ -162,7 +162,7 @@ choice in `package/Install`.
 
 The archive comes with classic icons; complete sets in the **GlowIcons** and **NewIcons**
 style are in `Icons/` (double click `UseGlowIcons`, `UseNewIcons` or `UseClassic`).
-`tools/icons.py` draws them with the icon writer of html.gadget (`html_gadget/tools/mkicons.py`).
+`tools/icons.py` draws them with the shared icon writer (`amiga-devkit/tools/amigaicons.py`).
 
 ![Icon styles: classic, GlowIcons, NewIcons (normal and selected)](icons/preview.png)
 
@@ -181,8 +181,8 @@ make icons          # sample icons of all styles in icons/, preview in icons/pre
 ```
 
 All Amiga sources and test files are **ISO-8859-1** encoded; `make` refuses UTF-8 (`make charcheck`).
-md4c and the html.gadget headers come as git submodules (`md4c/`, `html_gadget/`), both pinned
-to a release tag.
+md4c, the html.gadget headers and the shared build tools come as git submodules (`md4c/`,
+`html_gadget/`, `amiga-devkit/`), all pinned to a release tag.
 
 ## License
 

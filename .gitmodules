@@ -4,3 +4,6 @@
 [submodule "html_gadget"]
 	path = html_gadget
 	url = https://github.com/andregewert/Amiga-HTML-Gadget.git
+[submodule "amiga-devkit"]
+	path = amiga-devkit
+	url = https://github.com/andregewert/Amiga-Devkit.git

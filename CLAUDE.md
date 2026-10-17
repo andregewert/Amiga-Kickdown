@@ -2,7 +2,12 @@
 
 Kickdown (ReAction-Markdown-Editor mit HTML-Vorschau) und mdtohtml (CLI) für AmigaOS 3.2,
 cross-kompiliert mit bebbos amiga-gcc. Überblick, Optionen und Build in `README.de.md`.
-Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
+Gestaltung und Arbeitsweise: `amiga-devkit/docs/ReAction-Styleguide.md` (verbindlich).
+
+Gemeinsame Regeln aller Amiga-Projekte (Zeichensatz, Bauen, Testen, Versionen, Aminet-Paket,
+Icons) kommen aus dem Submodule `amiga-devkit`:
+
+@amiga-devkit/docs/Amiga-Regeln.md
 
 ## Aufbau
 
@@ -48,17 +53,19 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 - `md4c/`: Git-Submodule, auf ein Release-Tag gepinnt. Nicht verändern; Anpassungen gehören
   nach `mdconv.c`. `src/entity_stub.c` ersetzt md4cs `entity.c` (Entities bleiben wörtlich
   stehen, `MD_HTML_FLAG_VERBATIM_ENTITIES`).
-- `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget); benutzt werden die Header aus
-  `html_gadget/include` und das Icon-Werkzeug `html_gadget/tools/mkicons.py`. Steht auf dem
+- `html_gadget/`: Git-Submodule (Amiga-HTML-Gadget); benutzt werden nur die Header aus
+  `html_gadget/include` (und `demo/boing.gif` fürs Archiv). Steht auf dem
   Tag `v1.2` (Kickdown 1.1). Braucht Kickdown neue Attribute, das Submodule auf
   ein neueres Tag/Commit setzen (`git -C html_gadget checkout <tag>`, dann `git add html_gadget`).
   Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
+- `amiga-devkit/`: Git-Submodule mit `catcomp.py`, dem Icon-Werkzeug, `distlib.py`,
+  `charcheck.mk` und den gemeinsamen Regeln (siehe oben).
 
 ## Übersetzungen (locale.library)
 
 - Kein sichtbarer Text fest im Code: jeder Text steht in `catalogs/Kickdown.cd` (Englisch, eingebaut)
   und in `catalogs/deutsch.ct`, im Code `S(MSG_...)` (`src/locale.c`). `src/strings.h` erzeugt
-  `make` aus der `.cd` (`tools/catcomp.py`); die Datei ist eingecheckt, nicht von Hand ändern.
+  `make` aus der `.cd` (`amiga-devkit/tools/catcomp.py`); die Datei ist eingecheckt, nicht von Hand ändern.
 - Neue Texte ans Ende der `.cd` oder an passender Stelle einfügen, die Nummern ergeben sich aus
   der Reihenfolge. Werden Texte entfernt oder umsortiert, `CATALOG_VERSION` in `locale.c` und die
   Version in allen `.ct` erhöhen, sonst lädt ein alter Katalog falsche Texte.
@@ -71,52 +78,33 @@ Gestaltung und Arbeitsweise: `docs/ReAction-Styleguide.md` (verbindlich).
 
 ## Zeichenkodierung: ISO-8859-1
 
-- Amiga-Quellen, Kataloge und Testdateien (`src/`, `catalogs/`, `test/`, `package/`, `Makefile`,
-  `LICENSE`) sind
-  **ISO-8859-1**. Ausnahmen (UTF-8): `README*.md`, `CLAUDE.md`, `docs/*.md` und `test/utf8.*` (testet die
+- ISO-8859-1 sind hier: `src/`, `catalogs/`, `test/`, `package/`, `Makefile`, `LICENSE`.
+  UTF-8: `README*.md`, `CLAUDE.md`, `tools/*.py` und `test/utf8.*` (testet die
   Zeichensatzerkennung).
-- Namen richtig schreiben, auch in C-Quellen: „André Gewert“ (é als ISO-8859-1 0xE9), nicht
-  „Andre“. Sonst in C-Kommentaren möglichst ASCII. Dateien mit Umlauten mit Python schreiben
-  (`encoding='latin-1'`) oder mit `iconv -f UTF-8 -t ISO-8859-1` umwandeln.
-- `make charcheck` (Teil von `make`) findet UTF-8-Sequenzen.
+- Der Claude-Code-Hook (`.claude/settings.json`) führt `make charcheck` nach jedem Write/Edit aus.
 
 ## Bauen und Testen
 
 - `make`: Cross-Build nach `bin/`. md4c wird mit `-DMD4C_USE_ASCII` übersetzt (byteweise,
   Latin-1 und UTF-8 laufen unverändert durch).
-- Stack: Beide Programme setzen `__stack` und linken mit `-Wl,-u,___stkinit`, damit libnix beim
-  Start auf einen größeren Stack wechselt. Von der Workbench gibt ein Projekt-Icon oft nur 4 KB,
-  zu wenig für ReAction, ASL und die Datatypes, die html.gadget auf unserem Stack aufruft.
-  Große Puffer (Pfade) trotzdem nicht unnötig auf den Stack legen.
-- Bibliotheksbasen explizit mit `= NULL` initialisieren (sonst COMMON-Symbole, die die
-  Auto-Open-Stubs aus libstubs.a nachziehen). Die Basis von texteditor.gadget heißt
-  `TextFieldBase`.
+- Stack: Beide Programme setzen `__stack` (siehe Amiga-Regeln); html.gadget ruft die Datatypes
+  auf unserem Stack auf. Die Basis von texteditor.gadget heißt `TextFieldBase`.
 - `make check`: Konverter auf dem Host (ASan/UBSan), vergleicht `test/<name>.md` mit
   `test/<name>.expected`. Zusätzlich läuft `test/hostsync` (bindet `src/sync.c` mit den
   Gadget-Attrappen aus `test/hoststubs.h` und den leeren Headern in `test/hostinc/` ein) und
   `test/hosthl` (Highlighting, Vergleich mit `test/<name>.hl`) und `test/hostset` (Schreiben und
   Lesen der Tooltypes: fremde Einträge und NewIcons-Block müssen erhalten bleiben) und
   `test/hostfmt` (Formatierungsbefehle).
-  Gewollte Änderungen mit `make check-update` übernehmen und den Diff prüfen. Neue
-  `test/*.md` werden automatisch mitgetestet.
-- Vor einem Commit: `make` und `make check`.
-- GUI-Tests auf dem Amiga (Amiberry) macht der Benutzer selbst; Amiberry nicht mit seiner
-  Konfiguration oder seinem Festplatten-Image starten. Ungetestete Annahmen über
-  ReAction-Klassen im Commit/Bericht kennzeichnen.
+  Neue `test/*.md` werden automatisch mitgetestet.
 
 ## Icons und Aminet-Paket
 
 - `tools/icons.py` registriert die Motive von Kickdown und Markdown-Dokumenten in
-  `html_gadget/tools/mkicons.py` (Stile, Dateiformat, Vorschau kommen von dort). Die Dateien in
-  `icons/` sind Beispiele und werden mit `make icons` erzeugt, nie von Hand bearbeitet.
+  `amiga-devkit/tools/amigaicons.py` (Stile, Dateiformat, Vorschau kommen von dort).
 - `tools/mkdist.py` (`make dist`) baut `dist/Kickdown.lha` samt Icons, Doku (README*.md nach
-  ISO-8859-1) und Quellen (inkl. md4c und html.gadget-Headern, `md4c/VERSION`). Die Quellen im
-  Archiv müssen ohne Git bauen.
-- `package/Kickdown.readme` ist die Aminet-Readme: ISO-8859-1, Zeilen höchstens 78 Zeichen.
-  Für Anwender sichtbare Änderungen englisch (`History`) und deutsch (`Versionsgeschichte`)
-  unter der Version aus `VERSION_TEXT` eintragen und `Version:` anpassen.
+  ISO-8859-1) und Quellen (inkl. md4c, html.gadget-Headern, `md4c/VERSION` und amiga-devkit).
+- Versionsgeschichte in `package/Kickdown.readme` unter der Version aus `VERSION_TEXT`.
 
 ## Versionen
 
 - `$VER` in `src/kickdown.c` (`VERSION_TEXT`) und `src/mdtohtml.c` bei Änderungen erhöhen.
-- Datumsangaben immer `TT.MM.JJJJ`, Tag und Monat zweistellig, z. B. `02.10.2026`.

@@ -3,23 +3,21 @@
 #
 # Copyright (c) 2026 André Gewert <agewert@ubergeek.de>, MIT License
 #
-# The icon writer (classic 4 colour icons, GlowIcons, NewIcons) comes from
-# html_gadget/tools/mkicons.py (git submodule). This file adds the motifs of
-# Kickdown and of Markdown documents and registers them there.
+# The icon writer (classic 4 colour icons, GlowIcons, NewIcons) and the
+# motifs drawer, readme, license, install and tiles come from
+# amiga-devkit/tools/amigaicons.py (git submodule). This file adds the
+# motifs of Kickdown and of Markdown documents and registers them there.
 #
 # Run directly (or "make icons") to write sample icons of all styles to
 # icons/<Style>/ and a preview picture icons/preview.png.
 
-import os, sys, importlib.util
+import os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_spec = importlib.util.spec_from_file_location(
-    'gadgeticons', os.path.join(ROOT, 'html_gadget', 'tools', 'mkicons.py'))
-gi = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(gi)
+sys.path.insert(0, os.path.join(ROOT, 'amiga-devkit', 'tools'))
+import amigaicons as gi  # noqa: E402
 
-from_gi = ('STYLES', 'WBDRAWER', 'WBTOOL', 'WBPROJECT', 'write_icon')
-STYLES, WBDRAWER, WBTOOL, WBPROJECT, write_icon = (getattr(gi, n) for n in from_gi)
+from amigaicons import STYLES, WBDRAWER, WBTOOL, WBPROJECT, write_icon  # noqa: E402,F401
 
 BLACK, WHITE, TEXT = gi.BLACK, gi.WHITE, gi.TEXT
 BLUE, GREY, PAPER = gi.BLUE, gi.GREY, gi.PAPER
@@ -65,10 +63,6 @@ def pic_markdown():
     return c
 
 
-gi.CLASSIC['kickdown'] = pic_kickdown
-gi.CLASSIC['markdown'] = pic_markdown
-
-
 # --------------------------------------------- GlowIcons / NewIcons motifs ---
 
 def mark(s, c, x, y):
@@ -110,10 +104,6 @@ def m_markdown(s, c):
     mark(s, c, 12, 23)
 
 
-gi.MOTIFS['kickdown'] = m_kickdown
-gi.MOTIFS['markdown'] = m_markdown
-
-
 # ------------------------------------------------------- NewIcons motifs ---
 
 def n_kickdown(c, sel):
@@ -152,8 +142,8 @@ def n_markdown(c, sel):
     n_badge(c, 19, 28)
 
 
-gi.NI_MOTIFS['kickdown'] = n_kickdown
-gi.NI_MOTIFS['markdown'] = n_markdown
+gi.register('kickdown', pic_kickdown, m_kickdown, n_kickdown)
+gi.register('markdown', pic_markdown, m_markdown, n_markdown)
 
 
 # ---------------------------------------------------------------- samples ---
@@ -168,18 +158,5 @@ SAMPLES = (('Drawer', 'drawer', WBDRAWER, {}),
            ('Script', 'tiles', WBPROJECT, {'default_tool': 'C:IconX'}))
 
 
-def main():
-    out = os.path.join(ROOT, 'icons')
-    for style in STYLES:
-        for name, role, kind, kw in SAMPLES:
-            write_icon(os.path.join(out, style, name), style, role, kind, **kw)
-    # the preview shows the roles registered in MOTIFS: only ours, in order
-    motifs = gi.MOTIFS
-    gi.MOTIFS = {r: motifs[r] for r in ROLES}
-    gi.preview(os.path.join(out, 'preview.png'))
-    gi.MOTIFS = motifs
-    print('icons written to', out)
-
-
 if __name__ == '__main__':
-    main()
+    gi.write_samples(os.path.join(ROOT, 'icons'), SAMPLES, ROLES)
