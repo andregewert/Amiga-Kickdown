@@ -23,18 +23,10 @@ Icons) kommen aus dem Submodule `amiga-devkit`:
   ab V47. Gadgets auf verdeckten Seiten mit `SetPageGadgetAttrs()` ändern.
 - `src/printwin.c`: Fenster „Drucken“ (auch PostScript/PDF) und die Ausgabe über das Vorschau-Gadget
   (html_gadget 1.2): PS/PDF mit `HTMLM_Export`, Bitmap-Druck mit `HTMLM_PrintBegin/Render` und
-  printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`, ganzes Blatt genau in den Punkten des Treibers. Die Auflösung ist die
-  der Dichte aus den Druckereinstellungen; keine Auswahl der Dichte in Kickdown. Ohne TurboPrint fragt Kickdown
-  sie beim Druck einmal mit klassischem `PRD_DUMPRPORT`, `SPECIAL_NOPRINT` und 1000 × 1000 mils ab (vorher stehen in
-  `ped_X/YDotsInch` evtl. die Werte des letzten Drucks). Nur der Standarddrucker (Unit 0); sein Treibername kommt
-  aus `ENV:Sys/Printer.prefs` (Chunk PTXT), der Dialog öffnet printer.device nicht. TurboPrint (`TPMATCHWORD` in `pd_OldStk[2]`) kennt `PRD_DUMPRPORTTAGS` nicht, und sein
-  `PRD_TPEXTDUMPRPORT` mit RGB24 beschädigte hier Speicher (kaputte Checkbox-Bilder, nur noch Chip-RAM; auch
-  Abfragen mit `SPECIAL_NOPRINT` und Schreiben in `PrinterData`). Darum mit TurboPrint kein Grafikdruck, nur
-  PostScript (`PS:` ist TurboPrints Handler); der Druckdialog sperrt die Art „Drucker“. Schon `OpenDevice()`/
-  `CloseDevice()` von TurboPrints printer.device aus Kickdown beschädigte Speicher (geöffnet wurden damals auch Units über 0, die es als Gerät aus OS-3.1-Zeiten nicht kennt): TurboPrint
-  daher ohne Öffnen erkennen (`turboprint_running()`: printer.device in der Geräteliste, `PrinterData` lesen,
-  unter `Forbid()`) und dann printer.device nie öffnen. TurboPrints printer.device
-  ist resident: nach einem Schaden nur nach Kaltstart testen. Seitenbereich und Kopien sind nicht Teil der Einstellungen.
+  printer.device (`PRD_DUMPRPORTTAGS`, `DRPA_SourceHook`). Verbindlich: Mit TurboPrint printer.device
+  nie öffnen (auch nicht `OpenDevice()`/`CloseDevice()`), keinen Grafikdruck, kein `SPECIAL_NOPRINT`,
+  nichts in `PrinterData` schreiben; TurboPrint nur mit `turboprint_running()` erkennen. Warum und wie
+  der Druck abläuft: `TECHNICAL.md`, „Printing and TurboPrint“.
 - `src/splash.c`: Startfenster, nur Intuition/graphics (öffnet vor den ReAction-Klassen);
   `splash_step()` an jeder Ladestufe, die Schrittzahl steht in `main()`.
 - Formatierung (Toolbar, Menü *Format*): `src/mdformat.c` ändert den Text (reines ANSI-C,
@@ -43,7 +35,7 @@ Icons) kommen aus dem Submodule `amiga-devkit`:
   `CMD_BOLD`…`CMD_QUOTE` (kickdown.h) entspricht `FMT_...` (mdformat.h).
 - Neue Einstellung: Feld in `struct Settings`, Standard in `settings_default()`, Tooltype in
   `settings_from_tooltypes()` und `settings_save_icon()`, Gadget in `prefswin.c`, Übernahme in
-  `apply_settings()` (kickdown.c), Test in `test/hostset.c`.
+  `apply_settings()` (kickdown.c), Test in `test/hostset.c`, Zeile in der Tooltype-Tabelle beider READMEs.
 - Syntax-Hook (`GA_TEXTEDITOR_HighlighterHook`, V47): läuft beim Tippen im input.device-Kontext,
   also kein DOS, kein malloc, wenig Stack. `HighlightSetFormat(obj, pos, end, style)`: `end`
   exklusiv, Stile werden verodert, eine Farbe (`TBSTYLE_SETCOLOR | n << 8`, n = Eintrag n-1 von
@@ -60,6 +52,27 @@ Icons) kommen aus dem Submodule `amiga-devkit`:
   Nicht im Submodule ändern; Gadget-Änderungen gehören ins Projekt `~/Dokumente/html_gadget`.
 - `amiga-devkit/`: Git-Submodule mit `catcomp.py`, dem Icon-Werkzeug, `distlib.py`,
   `charcheck.mk` und den gemeinsamen Regeln (siehe oben).
+
+## Technical notes
+
+`TECHNICAL.md` (englisch) hält, was mehrere Module betrifft; es wird nicht mit `@` geladen.
+Vor Änderungen den passenden Abschnitt lesen:
+
+- Öffnen der Klassen in `main()`, Mindestversionen oder Funktionen, die neuere Klassen brauchen:
+  „Class versions and fallbacks“;
+- `splash.c`, Ladestufen oder Toolbar (Modi, Formatierungsknöpfe, zweite Zeile): „Start, splash
+  window and toolbar“;
+- Aktualisieren der Vorschau, Überschriften-IDs in `mdconv.c`, Links oder `sync.c`: „Preview
+  refresh, anchors and scroll sync“;
+- Tooltypes, Shell-/Workbench-Start oder Speichern der Einstellungen: „Settings and their
+  precedence“;
+- `printwin.c`, printer.device, TurboPrint, PostScript/PDF: „Printing and TurboPrint“.
+
+Dokumentation gehört dorthin, wo sie gelesen wird (`amiga-devkit/docs/Dokumentation.md`, „Wohin
+welches Wissen gehört“): Für Anwender Sichtbares knapp in `README.md` und `README.de.md`
+(Stichpunkt, Zeile der Tooltype- oder Optionstabelle), was nur ein Modul betrifft in dessen
+Kopfkommentar (`@file`) oder an der Funktion, was mehrere Module übergreift in `TECHNICAL.md`.
+Keine Implementierungsdetails in die READMEs.
 
 ## Übersetzungen (locale.library)
 

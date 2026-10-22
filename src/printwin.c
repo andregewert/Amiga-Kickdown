@@ -1,5 +1,6 @@
-/*
- * Kickdown - printing (window "Print"), also as PostScript or PDF
+/**
+ * @file printwin.c
+ * @brief Kickdown - printing (window "Print"), also as PostScript or PDF
  *
  * Three kinds of output, all through the preview gadget (html.gadget or
  * htmlttf.gadget, V1.2):
@@ -14,7 +15,16 @@
  *  - PostScript: HTMLM_Export to a file, PRT:, PS: (the PostScript
  *    handler of TurboPrint) or any device.
  *  - PDF: HTMLM_Export to a file.
- * The options are part of the settings (tool types).
+ * The options are part of the settings (tool types), except page range
+ * and copies.
+ *
+ * Only the default printer (unit 0) is used, at the density of its
+ * settings (Prefs/PrinterGfx); the dialog shows its driver from
+ * ENV:Sys/Printer.prefs and does not open printer.device. htmlttf.gadget
+ * renders the page at the printer's resolution up to MAXRENDERDPI,
+ * html.gadget uses its bitmap fonts. With TurboPrint printer.device is
+ * never opened and only PostScript is offered (see TPMATCHWORD and
+ * TECHNICAL.md, "Printing and TurboPrint").
  *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.

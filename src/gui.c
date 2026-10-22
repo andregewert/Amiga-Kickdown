@@ -1,5 +1,17 @@
-/*
- * Kickdown - window, menus and speedbar
+/**
+ * @file gui.c
+ * @brief Kickdown - window, menus and speedbar
+ *
+ * The toolbar is made once in gui_open(), so the toolbar settings apply
+ * from the next start. TBMODE_TEXT loads no AISS images (fastest start);
+ * a missing image falls back to a text button as well. With texts
+ * (BOTH, TEXT) the formatting buttons are a second speedbar below the
+ * first (gui.rows), which gui_show_format() can only add later with
+ * layout.gadget V47. The formatting buttons and their images are made
+ * only when they are shown (make_format_buttons()). Every button made at
+ * the start is a step of the splash window, see gui_tool_count().
+ * Buttons that do not fit are listed in the overflow chooser
+ * (GID_OVERFLOW).
  *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.

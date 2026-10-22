@@ -7,10 +7,9 @@ Markdown-Werkzeuge für AmigaOS 3.2 in C:
 * **Kickdown** – ReAction-basierter Markdown-Editor mit Live-HTML-Vorschau und PostScript-/PDF-Export sowie Bitmap-Druck
 * **mdtohtml** – Kommandozeilen-Konverter von Markdown nach HTML
 
-Beide nutzen denselben Konvertierungskern (`src/mdconv.c`) auf Basis von
-[md4c](https://github.com/mity/md4c), einem schnellen, CommonMark-konformen Parser in C
-(als Git-Submodule eingebunden). Sie lösen den ARexx/MUI-Editor und das Free-Pascal-`mdtohtml`
-aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
+Beide nutzen denselben Konverter auf Basis von [md4c](https://github.com/mity/md4c), einem
+schnellen, CommonMark-konformen Parser in C. Sie lösen den ARexx/MUI-Editor und das
+Free-Pascal-`mdtohtml` aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
 
 ![Kickdown unter AmigaOS 3.2: Editor mit Syntax-Hervorhebung und HTML-Vorschau](screenshot-amiga.png)
 
@@ -18,13 +17,12 @@ aus [PubAmiga](https://github.com/andregewert/PubAmiga) ab.
 
 ## Voraussetzungen
 
-* AmigaOS 3.2 (ReAction-Klassen ab V44, `texteditor.gadget`, `speedbar.gadget`, `bitmap.image`)
-* [html.gadget](https://github.com/andregewert/Amiga-HTML-Gadget) in `SYS:Classes/Gadgets/` oder neben Kickdown
-  (optional `htmlttf.gadget`)
-* [AISS](http://masonicons.info/) für die Toolbar-Bilder (Assign `TBIMAGES:`). Fehlende Bilder
-  werden durch Text-Buttons ersetzt.
+* AmigaOS 3.2
+* [html.gadget](https://github.com/andregewert/Amiga-HTML-Gadget) 1.2 in `SYS:Classes/Gadgets/` oder neben Kickdown
+  (optional `htmlttf.gadget` für TrueType-Schriften)
+* [AISS](http://masonicons.info/) für die Toolbar-Bilder (Assign `TBIMAGES:`); ohne zeigen die Knöpfe Text
 
-`mdtohtml` braucht nur die dos.library.
+`mdtohtml` braucht nur die dos.library und läuft auf jedem AmigaOS ab 2.0.
 
 Kickdown und mdtohtml sind darauf ausgelegt, auf echter Hardware und nicht nur im Emulator zu laufen. Ab einer 68030-CPU mit
 50 MHz scheint Kickdown recht ordentlich zu funktionieren, ab einem 68040 läuft er recht flüssig. Eine Grafikkarte ist
@@ -48,84 +46,91 @@ Getestete Drucker:
 
 ## Kickdown
 
-```
-Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT] [LINENUMBERS]
-         [FONTSET Vera|DejaVu|Noto] [SIZE n]
-```
+### Funktionen
 
-* Links der Editor (`texteditor.gadget`, Festbreitenschrift), rechts die Vorschau (`html.gadget`),
-  dazwischen ein verschiebbarer Balken.
-* Die Vorschau folgt eine halbe Sekunde nach der letzten Eingabe (*Preview/Auto refresh*,
-  abschaltbar), *Preview/Refresh* (Amiga-R) aktualisiert sofort. Die Scrollposition bleibt erhalten.
-* Syntax-Hervorhebung im Editor (*Edit/Syntax highlighting*, braucht texteditor.gadget V47):
-  Überschriften, Hervorhebungen, Code (auch Codeblöcke), Zitate, Listenzeichen, Links, URLs,
-  Tabellen, HTML-Tags und Entities.
-* Zeilennummern im Editor einblendbar (*Edit/Line numbers*).
-* Einstellungsfenster (*Project/Settings...*) mit den Kategorien Editor, Preview (Renderer,
-  TrueType-Schriften, Aktualisierung, Scrollen), Markdown (Dialekt, Zeichensatz, Template),
-  Colours (Farben der Syntax-Hervorhebung), Window (Startgröße und -position, „Current“ übernimmt
-  sie vom offenen Fenster) und Toolbar (Bilder, Bilder und Text oder nur Text, Rahmen um die
-  Knöpfe; ab dem nächsten Start, nur Text startet schneller, weil keine Bilder geladen werden, mit
-  Texten erhalten die Formatierungsknöpfe eine zweite Zeile; die Formatierungsknöpfe sind zunächst
-  ausgeblendet, ihre Bilder werden erst beim Einblenden geladen, auch sofort mit *Format/Show formatting buttons*). *Save* schreibt sie in die Tooltypes des
-  Kickdown-Icons, *Use* gilt für die laufende Sitzung; andere Tooltypes bleiben unverändert.
-* Editor und Vorschau scrollen gemeinsam (*Preview/Synchronize scrolling*, in beide Richtungen).
-  Überschriften sind die Fixpunkte, dazwischen wird interpoliert.
-* Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
-* Die Vorschau zeigt Markdown ähnlich wie GitHub: dünne graue Linien in Tabellen, graue
-  Hintergründe für Codeblöcke und Inline-Code, ein grauer Balken bei Zitaten (auch beim Drucken).
-  Braucht html.gadget 1.2.
-* Auf Wunsch werden große Bilder auf die Breite der Vorschau verkleinert (Einstellungen, *Vorschau*;
-  Tooltype `FITIMAGES`, abgeschaltet, weil das Skalieren auf langsameren Amigas Zeit braucht); der
-  Druck übernimmt die Einstellung. Braucht html.gadget 1.2.
-* Links: `#anker` scrollen die Vorschau, Links auf `.md`-Dateien öffnen diese im Editor, andere
-  Links erscheinen in der Statuszeile.
+* Links der Editor (Festbreitenschrift), rechts die HTML-Vorschau, dazwischen ein verschiebbarer Balken.
+* Die Vorschau folgt eine halbe Sekunde nach der letzten Eingabe (*Preview/Auto refresh*),
+  *Preview/Refresh* (Amiga-R) aktualisiert sofort; die Scrollposition bleibt erhalten.
+* Editor und Vorschau scrollen gemeinsam, in beide Richtungen (*Preview/Synchronize scrolling*).
+* Syntax-Hervorhebung (*Edit/Syntax highlighting*): Überschriften, Hervorhebungen, Code (auch
+  Codeblöcke), Zitate, Listenzeichen, Links, URLs, Tabellen, HTML-Tags und Entities.
+  Zeilennummern (*Edit/Line numbers*).
+* Die Vorschau sieht ähnlich aus wie auf GitHub: dünne Linien in Tabellen, graue Hintergründe für
+  Code, ein Balken bei Zitaten (auch beim Drucken). Große Bilder lassen sich auf ihre Breite
+  verkleinern (`FITIMAGES`).
 * Überschriften erhalten Anker wie auf GitHub (`## Zwei Worte` → `#zwei-worte`), damit
   Inhaltsverzeichnisse funktionieren.
-* Drucken (*Project/Print...*, Amiga-P, Toolbar): auf den Drucker über
-  printer.device (Grafik mit den Schriften der Vorschau; auf dem Standarddrucker, mit der
-  Auflösung der Dichte in seinen Einstellungen, PrinterGfx; die Seite geht genau in den Punkten des Druckers hinaus, htmlttf.gadget rendert sie
-  mit bis zu 600 dpi; mit TurboPrint druckt Kickdown stattdessen über PostScript nach `PS:`),
-  als **PostScript** (Level 2, oder Level 1 für alte Drucker) in eine Datei, nach `PRT:`, `PS:` (TurboPrint) oder an ein Gerät, oder als
-  **PDF**. Papierformat (A4, A5, Letter, Legal), Ränder, Schrift und Größe für PostScript/PDF,
-  Seitenzahlen, Hintergrundfarben, Seitenbereich und Kopien. Der Drucker fügt eigene
-  Hardware-Ränder hinzu. Ein Fenster zeigt den Fortschritt des Drucks und der PostScript-/PDF-Ausgabe und kann sie abbrechen.
-  Braucht html.gadget 1.2.
+* Links: `#anker` scrollen die Vorschau, Links auf `.md`-Dateien öffnen diese im Editor, andere
+  Links erscheinen in der Statuszeile. Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
 * Öffnen, Speichern, Speichern als, HTML exportieren; Rückfrage vor dem Verwerfen von Änderungen
   und vor dem Überschreiben.
 * Ausschneiden/Kopieren/Einfügen/Rückgängig/Wiederholen, alles markieren; Markierungen in der
   Vorschau lassen sich ebenfalls kopieren.
-* Suchen und Ersetzen (*Edit/Find...*, Amiga-F): ein Fenster neben dem Editor mit Groß-/Klein-
-  schreibung, ganzen Wörtern, rückwärts und Umlauf; „Replace all“ ist ein Rückgängig-Schritt.
-  *Find next* (Amiga-G) wiederholt die letzte Suche.
-* Formatierung (Toolbar und Menü *Format*): Überschrift (jeder Klick eine Ebene mehr, bis
-  `###`), fett, kursiv, unterstrichen (`<u>`, Markdown kennt das nicht), Code (mehrere Zeilen werden ein Codeblock), Link, Bild, Aufzählung,
-  nummerierte Liste, Aufgabenliste, Zitat. Inline-Formate umschließen die Markierung oder werden
-  entfernt, wenn sie schon vorhanden sind; fett, kursiv und unterstrichen über mehrere Zeilen formatieren jede
-  Zeile einzeln hinter ihrem Listen-, Zitat- oder Überschriftenzeichen; Listenformate gelten für
-  alle markierten Zeilen. Jeder
-  Befehl ist ein Rückgängig-Schritt.
-* Knöpfe, die in ein schmales Fenster nicht hineinpassen, stehen in der Liste hinter dem Pfeil
-  am rechten Ende der Toolbar.
-* Toolbar-Knöpfe werden ausgegraut, wenn sie nichts bewirken würden (Speichern,
-  Rückgängig/Wiederholen, Ausschneiden/Kopieren); Hilfe-Bubbles an den Knöpfen.
-* Startfenster mit Icon, Version und Fortschrittsbalken, solange das Programm startet (abschaltbar
-  auf der Seite Window der Einstellungen).
-* Statuszeile mit Cursorposition, das Mausrad scrollt den Bereich unter dem Mauszeiger.
-* AppWindow: ein auf das Fenster gezogenes Icon wird geöffnet.
-* Ikonifizieren (Gadget in der Titelleiste oder *Project/Iconify*): Das Kickdown-Icon erscheint auf
-  der Workbench, ein Doppelklick oder ein darauf gezogenes Markdown-Icon öffnet das Fenster wieder.
+* Suchen und Ersetzen (*Edit/Find...*, Amiga-F) in einem Fenster neben dem Editor: Groß-/Klein-
+  schreibung, ganze Wörter, rückwärts, Umlauf; „Replace all“ ist ein Rückgängig-Schritt.
+  *Find next* (Amiga-G).
+* Formatierung (Toolbar und Menü *Format*): Überschrift (jeder Klick eine Ebene mehr, nach `###`
+  wieder Text), fett, kursiv, unterstrichen (`<u>`, Markdown kennt das nicht), Code (mehrere Zeilen werden ein Codeblock),
+  Link, Bild, Aufzählung, nummerierte Liste, Aufgabenliste, Zitat. Inline-Formate umschließen die
+  Markierung oder werden entfernt, wenn sie schon vorhanden sind; fett, kursiv und unterstrichen
+  über mehrere Zeilen formatieren jede Zeile einzeln hinter ihrem Listen-, Zitat- oder
+  Überschriftenzeichen; Listenformate gelten für alle markierten Zeilen. Jeder Befehl ist ein
+  Rückgängig-Schritt.
+* Drucken (*Project/Print...*, Amiga-P): auf den Standarddrucker als Grafik mit den Schriften der
+  Vorschau (Auflösung nach der Dichte in Prefs/PrinterGfx), als **PostScript** (Level 2, oder 1 für alte Drucker) in eine Datei, nach `PRT:`,
+  `PS:` (TurboPrint) oder an ein Gerät, oder als **PDF**. Papierformat, Ränder, Schrift und Größe
+  für PostScript/PDF, Seitenzahlen, Hintergrundfarben, Seitenbereich, Kopien; ein
+  Fortschrittsfenster kann abbrechen. Mit TurboPrint druckt Kickdown nur über PostScript.
+* Einstellungsfenster (*Project/Settings...*): Editor, Preview, Markdown, Colours, Window
+  („Current“ übernimmt die Größe des offenen Fensters) und Toolbar. *Save* schreibt sie in die
+  Tooltypes des Kickdown-Icons, *Use* gilt für die laufende Sitzung.
+* Toolbar mit Bildern, Bildern und Text oder nur Text; die Formatierungsknöpfe lassen sich
+  einblenden (*Format/Show formatting buttons*). Knöpfe werden ausgegraut, wenn sie nichts
+  bewirken würden (Speichern, Rückgängig/Wiederholen, Ausschneiden/Kopieren), haben Hilfe-Bubbles, und was nicht passt, steht hinter dem Pfeil am rechten Ende.
+* Startfenster, solange das Programm startet, Statuszeile mit Cursorposition, das Mausrad
+  scrollt den Bereich unter dem Mauszeiger.
+* AppWindow: ein auf das Fenster gezogenes Markdown-Icon wird geöffnet. Ikonifizieren
+  (Gadget in der Titelleiste oder *Project/Iconify*): ein Doppelklick auf das Kickdown-Icon oder
+  ein darauf gezogenes Markdown-Icon öffnet das Fenster wieder.
+
+### Aufruf
+
+```
+Kickdown [FILE] <name.md> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT GitHub|CommonMark] [TTF]
+         [FONTSET Vera|DejaVu|Noto] [SIZE n] [NOAUTOREFRESH] [NOSYNC] [NOHIGHLIGHT] [LINENUMBERS]
+```
+
+Kickdown als Standardprogramm der `.md`-Icons eintragen, dann öffnet ein Doppelklick sie.
+
+### Einstellungen (Tooltypes)
 
 Die Einstellungen kommen aus den Tooltypes des Kickdown-Icons, auch beim Start aus der Shell;
-Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Dieselben Optionen werden gelesen (`TEMPLATE=`, `CHARSET=`,
-`DIALECT=`, `TTF`, `NOAUTOREFRESH`, `NOSYNC`, `FITIMAGES`, `NOHIGHLIGHT`, `LINENUMBERS`,
-`FONTSET=`, `SIZE=`, `WIDTH=`, `HEIGHT=`, `LEFT=`, `TOP=`, `TOOLBAR=IMAGES|BOTH|TEXT`, `TOOLBARFRAMES`, `FORMATBUTTONS`, `NOSPLASH`,
-`PRINT_MODE=PRINTER|PS|PDF` (ohne: mit TurboPrint PostScript Level 2 nach `PS:`, sonst der
-Drucker; mit TurboPrint immer PostScript), `PS_LEVEL=1|2`, `PRINT_IMAGEDPI=` (PostScript/PDF: Bilder mit höchstens so vielen dpi, 0 = wie im
-Bild), `PRINT_TO=FILE|PRT|PS|DEVICE`, `PRINT_DEVICE=`, `PAPER=A4|A5|LETTER|LEGAL`,
-`MARGINS=links,oben,rechts,unten` (mm), `PRINT_SERIF`, `PRINT_SIZE=`, `NOPAGENUMBERS`,
-`NOPRINTBACKGROUNDS`,
-`COLOR_HEADING=RRGGBB` … `COLOR_HTML=`).
+Shell-Argumente und Tooltypes eines Projekt-Icons gehen vor. Beim Speichern bleiben andere
+Tooltypes des Icons unverändert.
+
+| Tooltype | Bedeutung |
+|---|---|
+| `TEMPLATE=datei` | HTML-Template für Vorschau und Export (siehe unten); relativ zur Schublade des Icons |
+| `CHARSET=name` | Zeichensatz, der in die Seite geschrieben wird (Standard: erkannt, siehe mdtohtml) |
+| `DIALECT=GitHub\|CommonMark` | Markdown-Dialekt (Standard GitHub) |
+| `TTF`, `FONTSET=Vera\|DejaVu\|Noto`, `SIZE=n` | Vorschau mit htmlttf.gadget, Schriftfamilie und -größe |
+| `NOAUTOREFRESH` | Vorschau nur mit *Preview/Refresh* |
+| `NOSYNC` | Editor und Vorschau scrollen getrennt |
+| `FITIMAGES` | Große Bilder auf die Breite der Vorschau verkleinern, auch beim Druck (abgeschaltet: braucht auf langsameren Amigas Zeit) |
+| `NOHIGHLIGHT`, `LINENUMBERS` | Keine Syntax-Hervorhebung; Zeilennummern zeigen |
+| `WIDTH=n`, `HEIGHT=n`, `LEFT=n`, `TOP=n` | Größe und Position des Fensters beim Start |
+| `TOOLBAR=IMAGES\|BOTH\|TEXT` | Toolbar-Knöpfe mit Bildern (Standard), Bildern und Text oder nur Text (ab dem nächsten Start) |
+| `TOOLBARFRAMES`, `FORMATBUTTONS` | Rahmen um die Knöpfe; Formatierungsknöpfe zeigen |
+| `NOSPLASH` | Kein Startfenster |
+| `PRINT_MODE=PRINTER\|PS\|PDF` | Art der Ausgabe (Standard: der Drucker; mit TurboPrint PostScript Level 2 nach `PS:`, nie der Drucker) |
+| `PS_LEVEL=1\|2` | PostScript-Level (Standard 2) |
+| `PRINT_IMAGEDPI=n` | PostScript/PDF: Bilder mit höchstens so vielen dpi (0 = wie im Bild) |
+| `PRINT_TO=FILE\|PRT\|PS\|DEVICE`, `PRINT_DEVICE=name` | Wohin PostScript geht |
+| `PAPER=A4\|A5\|LETTER\|LEGAL` | Papierformat (Standard A4) |
+| `MARGINS=links,oben,rechts,unten` | Ränder in mm (Standard 20); der Drucker fügt eigene hinzu |
+| `PRINT_SERIF`, `PRINT_SIZE=n` | PostScript/PDF: Serifenschrift, Schriftgröße (Standard 10) |
+| `NOPAGENUMBERS`, `NOPRINTBACKGROUNDS` | Ohne Seitenzahlen, ohne Hintergrundfarben drucken |
+| `COLOR_HEADING=RRGGBB` … | Farben der Syntax-Hervorhebung: `COLOR_HEADING`, `COLOR_CODE`, `COLOR_QUOTE`, `COLOR_MARKER`, `COLOR_LINK`, `COLOR_URL`, `COLOR_HTML` |
 
 ## mdtohtml
 
@@ -134,61 +139,57 @@ mdtohtml [FROM|FILE] <datei.md> [TO|OUTFILE <datei.html>] [TEMPLATE <datei>]
          [CHARSET|ENCODING <name>] [TITLE <text>] [DIALECT|MODE GitHub|CommonMark]
 ```
 
-* Ohne `FROM` wird von der Standardeingabe gelesen, ohne `TO` auf die Standardausgabe geschrieben.
-* `DIALECT`: `GitHub` (Standard; Tabellen, Durchstreichen, Aufgabenlisten, Autolinks, Fußnoten)
-  oder `CommonMark`.
-* `CHARSET` landet nur im `<meta>`-Tag, der Text wird nicht umkodiert. Standard: `UTF-8`, wenn
-  die Eingabe gültiges UTF-8 mit Nicht-ASCII-Zeichen ist, sonst `ISO-8859-1`.
-* `TITLE`: Standard ist die erste `#`-Überschrift, sonst der Dateiname.
-* Aufgabenpunkte erhalten `type="none"`: kein Aufzählungszeichen, das Kästchen steht an seiner
-  Stelle (Browser und html.gadget 1.1).
+| Option | Bedeutung |
+|---|---|
+| `FROM` | Markdown-Datei; ohne wird von der Standardeingabe gelesen (z. B. `mdtohtml <readme.md >readme.html`) |
+| `TO` | HTML-Datei; ohne geht die Seite auf die Standardausgabe |
+| `TEMPLATE` | HTML-Template (siehe unten) |
+| `CHARSET` | Zeichensatz, der in die Seite geschrieben wird; der Text wird nicht umkodiert. Standard: `UTF-8`, wenn die Eingabe gültiges UTF-8 mit Nicht-ASCII-Zeichen ist, sonst `ISO-8859-1` |
+| `TITLE` | Seitentitel; Standard ist die erste `#`-Überschrift, sonst der Dateiname (`Untitled` bei der Standardeingabe) |
+| `DIALECT` | `GitHub` (Standard, auch `GFM`: Tabellen, Durchstreichen, Aufgabenlisten, Autolinks, Fußnoten) oder `CommonMark` |
 
-Hinweis: Die Pascal-Version hatte Unix-Optionen (`-f`, `-o`, `-t` …). Diese Version benutzt die
-übliche AmigaDOS-Schablone; `FILE`, `OUTFILE`, `ENCODING` und `MODE` bleiben als Aliase erhalten.
+HTML im Markdown-Text wird unverändert übernommen. Die Pascal-Version hatte Unix-Optionen
+(`-f`, `-o`, `-t` …); `FILE`, `OUTFILE`, `ENCODING` und `MODE` bleiben als Aliase erhalten.
 
 ### Templates
 
-HTML-Datei mit den Platzhaltern `$title$`, `$encoding$` (oder `$charset$`) und `$body$`, siehe
-`test/template.html`. Kickdown verwendet das Template für Vorschau und Export.
+Ein Template ist eine HTML-Datei mit den Platzhaltern `$title$`, `$encoding$` (oder `$charset$`)
+und `$body$` (Groß-/Kleinschreibung egal), siehe `test/template.html`. Ohne Template wird ein
+minimaler HTML-4-Rahmen benutzt. Kickdown verwendet das Template für Vorschau und Export.
 
 ## Sprachen
 
-Kickdown ist über die locale.library übersetzbar: Englisch ist eingebaut, Deutsch kommt als Katalog
-(`Catalogs/deutsch/Kickdown.catalog`). Kickdown findet Kataloge neben dem Programm
-(`PROGDIR:Catalogs`) oder in `LOCALE:Catalogs`; das Installer-Skript kopiert die ausgewählten.
+Englisch ist eingebaut, Deutsch kommt als Katalog (`Catalogs/deutsch/Kickdown.catalog`).
+Kickdown findet Kataloge neben dem Programm (`PROGDIR:Catalogs`) oder in `LOCALE:Catalogs`; der
+Installer kopiert die ausgewählten.
 
-`catalogs/Kickdown.cd` enthält alle Texte, `catalogs/<sprache>.ct` die Übersetzungen, beide im
-Format von CatComp und FlexCat. `amiga-devkit/tools/catcomp.py` (Teil von `make`) erzeugt daraus
-`src/strings.h` und die Kataloge und lehnt Übersetzungen ab, deren Platzhalter (`%s`, `%lu` …)
-vom Original abweichen. Für eine neue Sprache `catalogs/<sprache>.ct` anlegen (z. B. als Kopie
-von `deutsch.ct`) und im `package/Install` eine Auswahl ergänzen.
+Eine neue Übersetzung ist eine Datei `catalogs/<sprache>.ct` zu `catalogs/Kickdown.cd` (Format von
+CatComp und FlexCat, z. B. als Kopie von `deutsch.ct`) und eine Auswahl in `package/Install`.
+`make` lehnt Übersetzungen ab, deren Platzhalter (`%s`, `%lu` …) vom Original abweichen.
 
 ## Icons
 
 Das Archiv hat klassische Icons; vollständige Sätze im **GlowIcons**- und **NewIcons**-Stil
 liegen in `Icons/` (Doppelklick auf `UseGlowIcons`, `UseNewIcons` oder `UseClassic`).
-`tools/icons.py` zeichnet sie mit dem gemeinsamen Icon-Werkzeug
-(`amiga-devkit/tools/amigaicons.py`).
 
 ![Icon-Stile: klassisch, GlowIcons, NewIcons (normal und ausgewählt)](icons/preview.png)
 
 ## Bauen
 
 Benötigt [bebbos amiga-gcc](https://codeberg.org/bebbo/amiga-gcc) unter `/opt/amiga` (mit NDK 3.2)
-und Python 3 für die Kataloge.
+und Python 3. md4c, die Header von html.gadget und die gemeinsamen Build-Werkzeuge
+([amiga-devkit](https://github.com/andregewert/Amiga-Devkit)) sind Git-Submodules.
 
 ```
-git submodule update --init
-make                # bin/Kickdown, bin/mdtohtml
-make check          # Konverter-, Scroll-Sync- und Highlighting-Tests auf dem Host (ASan)
-make check-update   # gewollte Ausgabeänderungen als neue Referenz übernehmen
-make dist           # Aminet-Archiv dist/Kickdown.lha (+ Kickdown.readme)
-make icons          # Beispiel-Icons aller Stile in icons/, Vorschau in icons/preview.png
+git clone --recursive <repository>     # oder: git submodule update --init
+make                # bin/Kickdown, bin/mdtohtml, Kataloge
+make check          # Tests auf dem Host
+make dist           # Aminet-Archiv dist/Kickdown.lha
+make icons          # Beispiel-Icons in icons/
 ```
 
-Alle Amiga-Quellen und Testdateien sind **ISO-8859-1** kodiert; `make` bricht bei UTF-8 ab.
-md4c, die Header von html.gadget und die gemeinsamen Build-Werkzeuge sind Git-Submodules
-(`md4c/`, `html_gadget/`, `amiga-devkit/`), alle auf ein Release-Tag gepinnt.
+Die Amiga-Quellen sind ISO-8859-1 kodiert. Technische Hinweise für Entwickler stehen in
+`TECHNICAL.md`, die Konventionen in `CLAUDE.md`.
 
 ## Lizenz
 

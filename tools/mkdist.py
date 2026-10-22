@@ -52,7 +52,7 @@ def main():
     src = os.path.join(PKG, 'Source')
     for d in ('src', 'test', 'tools', 'package', 'catalogs'):
         copytree(b(d), os.path.join(src, d), ignore=('__pycache__', 'hostconv', 'hostsync', 'hosthl', 'hostset', 'hostfmt'))
-    for f in ('Makefile', 'README.md', 'README.de.md', 'LICENSE', 'CLAUDE.md', 'screenshot-amiga.png'):
+    for f in ('Makefile', 'README.md', 'README.de.md', 'TECHNICAL.md', 'LICENSE', 'CLAUDE.md', 'screenshot-amiga.png'):
         copy(b(f), os.path.join(src, f))
     copy(b('icons', 'preview.png'), os.path.join(src, 'icons', 'preview.png'))
     copytree(b('md4c', 'src'), os.path.join(src, 'md4c', 'src'), ignore=('*.pc.in', '*.cmake', 'CMakeLists.txt'))
