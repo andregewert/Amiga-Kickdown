@@ -226,6 +226,42 @@ static void plain_task_items(struct buf *out, const char *html)
     buf_add(out, p, strlen(p));
 }
 
+/* Shows the addresses of "<a href" and "<img src" to the link function.
+ * md4c writes them just like this and "<" in code as "&lt;", so what is
+ * found here is a real link; raw HTML only in the same spelling.         */
+static void pass_links(struct buf *out, const char *html, const struct MDConvOptions *opt)
+{
+    static const char link[] = "<a href=\"", image[] = "<img src=\"";
+    struct buf url = { NULL, 0, 0, 0 };
+    const char *p = html, *q;
+
+    while ((q = strchr(p, '<'))) {
+        size_t n = 0;
+        const char *end, *replaced;
+        int is_image = 0;
+
+        if (!strncmp(q, link, sizeof(link) - 1)) n = sizeof(link) - 1;
+        else if (!strncmp(q, image, sizeof(image) - 1)) n = sizeof(image) - 1, is_image = 1;
+        if (!n || !(end = strchr(q + n, '"'))) {
+            buf_add(out, p, q + 1 - p);
+            p = q + 1;
+            continue;
+        }
+        buf_add(out, p, q + n - p);
+        url.len = 0;
+        buf_add(&url, "", 0);
+        buf_add(&url, q + n, end - (q + n));
+        if (url.failed) break;
+        replaced = opt->link_func(url.data, is_image, opt->link_user);
+        if (replaced) buf_add(out, replaced, strlen(replaced));
+        else buf_add(out, url.data, url.len);
+        p = end;
+    }
+    buf_add(out, p, strlen(p));
+    if (url.failed) out->failed = 1;
+    free(url.data);
+}
+
 /* Text of the first <h1> without tags, or NULL. Entities stay as they
  * are, they are valid in <title>.                                       */
 static char *first_heading(const char *html)
@@ -285,6 +321,16 @@ char *mdconv_html(const char *md, size_t size, const struct MDConvOptions *opt, 
         free(body.data);
         return NULL;
     }
+    if (opt->link_func) {
+        struct buf linked = { NULL, 0, 0, 0 };
+        pass_links(&linked, body.data, opt);
+        free(body.data);
+        if (linked.failed) {
+            free(linked.data);
+            return NULL;
+        }
+        body = linked;
+    }
     if (!opt->title) heading = first_heading(body.data);
 
     for (p = tmpl; *p; ) {
@@ -306,6 +352,9 @@ char *mdconv_html(const char *md, size_t size, const struct MDConvOptions *opt, 
         } else if (starts_with(p, "$charset$")) {
             add_escaped(&page, charset);
             p += 9;
+        } else if (starts_with(p, "$root$")) {
+            if (opt->root) buf_add(&page, opt->root, strlen(opt->root));
+            p += 6;
         } else if (starts_with(p, "$body$")) {
             buf_add(&page, body.data, body.len);
             p += 6;
@@ -329,4 +378,66 @@ char *mdconv_html(const char *md, size_t size, const struct MDConvOptions *opt, 
 void mdconv_free(char *html)
 {
     free(html);
+}
+
+static int hex_digit(int c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+int mdconv_url_decode(const char *s, size_t len, char *out, size_t size)
+{
+    const char *end = s + len;
+    size_t n = 0;
+
+    while (s < end) {
+        int c = (unsigned char)*s;
+        if (c == '%' && end - s >= 3 && hex_digit(s[1]) >= 0 && hex_digit(s[2]) >= 0) {
+            c = hex_digit(s[1]) * 16 + hex_digit(s[2]);
+            s += 3;
+        } else if (c == '&' && end - s >= 5 && !strncmp(s, "&amp;", 5)) {
+            s += 5;
+        } else {
+            s++;
+        }
+        if (n + 1 >= size || c == 0) return 0;
+        out[n++] = (char)c;
+    }
+    if (!size) return 0;
+    out[n] = 0;
+    return 1;
+}
+
+int mdconv_link_parts(const char *url, char *path, size_t path_size,
+                      char *anchor, size_t anchor_size)
+{
+    size_t len = strcspn(url, "#?");
+    char *r, *w;
+
+    if (!mdconv_url_decode(url, len, path, path_size)) return 0;
+    if (!anchor_size) return 0;
+    anchor[0] = 0;
+    if (url[len] == '#' && !mdconv_url_decode(url + len + 1, strlen(url + len + 1), anchor, anchor_size))
+        return 0;
+
+    /* part by part in place: it only gets shorter */
+    for (r = w = path; *r; ) {
+        size_t part = strcspn(r, "/");
+        size_t step = part + (r[part] == '/');
+        if (part == 1 && r[0] == '.') {
+            r += step;
+        } else if (part == 2 && r[0] == '.' && r[1] == '.') {
+            *w++ = '/';
+            r += step;
+        } else {
+            memmove(w, r, step);
+            w += step;
+            r += step;
+        }
+    }
+    *w = 0;
+    return 1;
 }

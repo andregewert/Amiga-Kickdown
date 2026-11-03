@@ -13,12 +13,20 @@
 
 #include <stddef.h>
 
+/* Called for each link and picture of the page, with the address as it
+ * stands in the HTML (%XX and &amp; encoded). Returns the address to write
+ * instead (copied at once) or NULL to keep it.                            */
+typedef const char *(*MDConvLinkFunc)(const char *url, int image, void *user);
+
 struct MDConvOptions {
     unsigned    flags;          /* md4c parser flags, see mdconv_dialect() */
     const char *title;          /* NULL: text of the first <h1>, else fallback_title */
     const char *fallback_title; /* NULL: "Untitled" */
     const char *charset;        /* NULL: "UTF-8" for valid UTF-8 input, else "ISO-8859-1" */
     const char *tmpl;           /* page template, NULL: built-in HTML 4 frame */
+    const char *root;           /* $root$ of the template, NULL: empty */
+    MDConvLinkFunc link_func;   /* NULL: the links stay as they are */
+    void       *link_user;      /* passed to link_func */
 };
 
 /* Parser flags of a dialect name ("GitHub", "CommonMark"; case is
@@ -30,13 +38,23 @@ int mdconv_dialect(const char *name, unsigned *flags);
 unsigned mdconv_default_flags(void);
 
 /* Converts 'size' bytes of Markdown into a complete HTML page. The
- * template may contain $title$, $encoding$ (or $charset$) and $body$
- * (case is ignored). Returns a NUL terminated string to be released with
+ * template may contain $title$, $encoding$ (or $charset$), $root$ and
+ * $body$ (case is ignored). Returns a NUL terminated string to be released with
  * mdconv_free(), NULL if out of memory. *len (optional) receives the
  * length without the NUL.                                                */
 char *mdconv_html(const char *md, size_t size, const struct MDConvOptions *opt, size_t *len);
 
 void mdconv_free(char *html);
+
+/* Decodes %XX and &amp; of the first len bytes of s, as links stand in
+ * HTML. Returns zero if it does not fit or would hold a NUL.              */
+int mdconv_url_decode(const char *s, size_t len, char *out, size_t size);
+
+/* Splits a relative link into an AmigaDOS path, relative to the page's
+ * drawer ("./" dropped, "../" becoming "/"), and its anchor; query parts
+ * are dropped. Returns zero if it does not fit.                           */
+int mdconv_link_parts(const char *url, char *path, size_t path_size,
+                      char *anchor, size_t anchor_size);
 
 /* "UTF-8" if the text contains non-ASCII bytes that form valid UTF-8,
  * otherwise "ISO-8859-1"                                                  */

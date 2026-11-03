@@ -65,6 +65,8 @@ apply from the next start:
   the fixed points of the scroll sync (`sync.c`, via `HTML_Anchor`).
 - Relative image paths in the preview are resolved against the drawer of
   the document.
+- A link to a Markdown file opens it and then sets `HTML_Anchor`; one to the
+  document at hand only scrolls, so unsaved text stays (`follow_link()`).
 
 ## Settings and their precedence
 

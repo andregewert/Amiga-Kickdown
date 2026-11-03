@@ -14,6 +14,10 @@ Icons) kommen aus dem Submodule `amiga-devkit`:
 - `src/mdconv.c`: gemeinsamer Konverter (reines ANSI-C, baut auch auf dem Host). Ruft md4c
   auf, vergibt Überschriften-IDs, setzt das Template zusammen.
 - `src/mdtohtml.c`: CLI (ReadArgs, dos.library). `src/fileio.c`: Datei-I/O für beide Programme.
+- `src/mdtree.c`: `mdtohtml ALL` (ganzer Verzeichnisbaum, Links, Prüfungen), reines ANSI-C gegen
+  die `mdfs_*`-Funktionen aus `mdtree.h`; `src/mdtree_dos.c` setzt sie mit der dos.library um,
+  `test/hosttree.c` mit POSIX. Nur mdtohtml bindet das ein, Kickdown nicht. Die Links kommen über
+  `MDConvOptions.link_func` aus `mdconv.c`; ohne diese Funktion bleibt die Ausgabe wie sie ist.
 - `src/kickdown.c`: Programmlogik des Editors, `src/gui.c`: Fenster, Menü, Speedbar,
   `src/sync.c`: Scroll-Synchronisation (Überschriften als Fixpunkte, Umbruch des Editors wird
   geschätzt und an `GA_TEXTEDITOR_Prop_Entries` kalibriert), `src/highlight.c`: Syntax-Hook,
@@ -107,7 +111,8 @@ Keine Implementierungsdetails in die READMEs.
   Gadget-Attrappen aus `test/hoststubs.h` und den leeren Headern in `test/hostinc/` ein) und
   `test/hosthl` (Highlighting, Vergleich mit `test/<name>.hl`) und `test/hostset` (Schreiben und
   Lesen der Tooltypes: fremde Einträge und NewIcons-Block müssen erhalten bleiben) und
-  `test/hostfmt` (Formatierungsbefehle).
+  `test/hostfmt` (Formatierungsbefehle) und `test/hosttree` (`mdtohtml ALL` auf einem kleinen
+  Baum unter `build/test/tree`).
   Neue `test/*.md` werden automatisch mitgetestet.
 
 ## Icons und Aminet-Paket

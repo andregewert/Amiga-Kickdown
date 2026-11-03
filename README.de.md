@@ -60,7 +60,8 @@ Getestete Drucker:
   verkleinern (`FITIMAGES`).
 * Überschriften erhalten Anker wie auf GitHub (`## Zwei Worte` → `#zwei-worte`), damit
   Inhaltsverzeichnisse funktionieren.
-* Links: `#anker` scrollen die Vorschau, Links auf `.md`-Dateien öffnen diese im Editor, andere
+* Links: `#anker` scrollen die Vorschau, Links auf `.md`-Dateien öffnen diese im Editor (`datei.md#anker`
+  springt auch zum Anker, `../` funktioniert), andere
   Links erscheinen in der Statuszeile. Relative Bildpfade beziehen sich auf die Schublade des Dokuments.
 * Öffnen, Speichern, Speichern als, HTML exportieren; Rückfrage vor dem Verwerfen von Änderungen
   und vor dem Überschreiben.
@@ -151,11 +152,35 @@ mdtohtml [FROM|FILE] <datei.md> [TO|OUTFILE <datei.html>] [TEMPLATE <datei>]
 HTML im Markdown-Text wird unverändert übernommen. Die Pascal-Version hatte Unix-Optionen
 (`-f`, `-o`, `-t` …); `FILE`, `OUTFILE`, `ENCODING` und `MODE` bleiben als Aliase erhalten.
 
+### Ganze Verzeichnisse
+
+```
+mdtohtml FROM <verzeichnis> ALL TO <verzeichnis> [TEMPLATE <datei>] [CHARSET <name>] [DIALECT <name>]
+```
+
+Mit `ALL` wird aus einem Baum von Markdown-Dateien ein Baum von HTML-Seiten mit denselben Namen
+und Verzeichnissen, zum Beispiel eine Hilfe für den HelpViewer. `TO` wird angelegt, wenn es fehlt;
+das übergeordnete Verzeichnis muss vorhanden sein.
+
+* `.md`- und `.markdown`-Dateien werden zu `.html`-Seiten, Titel ist die erste `#`-Überschrift,
+  sonst der Dateiname. Andere Dateien werden kopiert, auch fertige `.html`-Seiten. Icons (`.info`)
+  und Verzeichnisse, die mit einem Punkt beginnen (`.git`), bleiben außen vor.
+* Links zwischen den Dateien schreibt man wie gewohnt, `[Suchen](projekt/suchen.md#optionen)`;
+  danach führen sie auf die Seiten. Roh-HTML wird nur als `<a href="...">` und `<img src="...">`
+  erkannt, Links in kopierten `.html`-Seiten werden nicht angesehen.
+* Danach meldet das Programm tote Links und Anker sowie Dateien im Ziel ohne Quelle (etwa eine
+  umbenannte Seite). Das sind Warnungen (Rückgabewert 5). Gelöscht wird nie etwas, solche Dateien
+  entfernt man selbst.
+
 ### Templates
 
 Ein Template ist eine HTML-Datei mit den Platzhaltern `$title$`, `$encoding$` (oder `$charset$`)
 und `$body$` (Groß-/Kleinschreibung egal), siehe `test/template.html`. Ohne Template wird ein
 minimaler HTML-4-Rahmen benutzt. Kickdown verwendet das Template für Vorschau und Export.
+
+`$root$` ist für Bilder, die alle Seiten teilen, etwa `<img src="$root$img/logo.png">`: Mit `ALL`
+ist es der Weg von der Seite hinauf zur Wurzel des Baums (`../` je Verzeichnis), sonst, also auch
+in Kickdown, ist es leer.
 
 ## Sprachen
 

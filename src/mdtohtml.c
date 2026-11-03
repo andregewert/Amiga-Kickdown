@@ -3,9 +3,12 @@
  *
  *   mdtohtml [FROM] <file.md> [TO <file.html>] [TEMPLATE <file>]
  *            [CHARSET <name>] [TITLE <text>] [DIALECT GitHub|CommonMark]
+ *   mdtohtml FROM <drawer> ALL TO <drawer> [TEMPLATE <file>]
+ *            [CHARSET <name>] [DIALECT GitHub|CommonMark]
  *
  * Without FROM the Markdown text is read from standard input, without TO
- * the HTML page goes to standard output.
+ * the HTML page goes to standard output. With ALL a whole tree of Markdown
+ * files becomes a tree of HTML pages, see mdtree.h.
  *
  * Copyright (c) 2026 André Gewert <agewert@ubergeek.de>
  * Released under the MIT License, see LICENSE.
@@ -19,14 +22,15 @@
 
 #include "fileio.h"
 #include "mdconv.h"
+#include "mdtree.h"
 
 static const char version[] = "$VER: mdtohtml 1.0 (03.10.2026)";
 
 /* minimum stack, libnix swaps to a bigger one at startup if needed */
 unsigned long __stack = 32768;
 
-#define TEMPLATE "FROM=FILE,TO=OUTFILE/K,TEMPLATE/K,CHARSET=ENCODING/K,TITLE/K,DIALECT=MODE/K"
-enum { ARG_FROM, ARG_TO, ARG_TEMPLATE, ARG_CHARSET, ARG_TITLE, ARG_DIALECT, ARG_COUNT };
+#define TEMPLATE "FROM=FILE,TO=OUTFILE/K,TEMPLATE/K,CHARSET=ENCODING/K,TITLE/K,DIALECT=MODE/K,ALL/S"
+enum { ARG_FROM, ARG_TO, ARG_TEMPLATE, ARG_CHARSET, ARG_TITLE, ARG_DIALECT, ARG_ALL, ARG_COUNT };
 
 /* file name without path and extension as fallback title */
 static void base_name(CONST_STRPTR path, char *out, ULONG size)
@@ -60,6 +64,16 @@ int main(void)
         Printf((STRPTR)"mdtohtml: unknown dialect \"%s\" (GitHub, CommonMark)\n", args[ARG_DIALECT]);
         goto out;
     }
+    if (args[ARG_ALL]) {
+        if (!args[ARG_FROM] || !args[ARG_TO]) {
+            PutStr((STRPTR)"mdtohtml: ALL needs FROM and TO\n");
+            goto out;
+        }
+        if (args[ARG_TITLE]) {
+            PutStr((STRPTR)"mdtohtml: ALL takes each page's title from the page, not TITLE\n");
+            goto out;
+        }
+    }
     opt.title = (const char *)args[ARG_TITLE];
     opt.charset = (const char *)args[ARG_CHARSET];
 
@@ -69,6 +83,11 @@ int main(void)
             goto out;
         }
         opt.tmpl = (const char *)tmpl;
+    }
+
+    if (args[ARG_ALL]) {
+        rc = mdtree_convert((const char *)args[ARG_FROM], (const char *)args[ARG_TO], &opt);
+        goto out;
     }
 
     if (args[ARG_FROM]) {

@@ -57,8 +57,17 @@ goes to standard output. The title defaults to the first heading. The
 charset is only written into the page: UTF-8 if the text is valid UTF-8,
 otherwise ISO-8859-1. Raw HTML in the text is passed through.
 
+   mdtohtml FROM <drawer> ALL TO <drawer> [TEMPLATE <file>] [CHARSET <name>]
+            [DIALECT GitHub|CommonMark]
+
+With ALL a tree of Markdown files becomes a tree of HTML pages, for example
+a help for HelpViewer: links between the files lead to the pages, other files
+are copied, icons left out. Dead links and files of the target without a
+source are reported as warnings; nothing is deleted.
+
 A template is an HTML file with the placeholders $title$, $encoding$ and
-$body$, see Template.html.
+$body$, see Template.html. With ALL, $root$ is the way from a page up to the
+root of the tree, for pictures all pages share.
 
 Installation
 ------------
@@ -93,6 +102,13 @@ Contents
 
 History
 -------
+next version
+ - mdtohtml ALL converts a whole drawer tree into HTML pages: links between
+   the files lead to the pages, other files are copied, dead links and
+   leftovers in the target are reported; $root$ in the template leads from
+   a page to the root of the tree
+ - Kickdown: links to Markdown files scroll to their #anchor and follow ../
+
 1.1 (17.10.2026)
  - printing (Project/Print, Amiga-P, toolbar): to the printer through
    printer.device (graphics, the fonts of the preview; on the default printer,
@@ -159,6 +175,14 @@ auch nach den gewünschten Sprachen fragt.
 
 Versionsgeschichte
 ------------------
+nächste Version
+ - mdtohtml ALL wandelt einen ganzen Verzeichnisbaum in HTML-Seiten um: Links
+   zwischen den Dateien führen auf die Seiten, andere Dateien werden kopiert,
+   tote Links und Überbleibsel im Ziel werden gemeldet; $root$ im Template
+   führt von einer Seite zur Wurzel des Baums
+ - Kickdown: Links auf Markdown-Dateien springen zu ihrem #Anker und
+   folgen ../
+
 1.1 (17.10.2026)
  - Drucken (Projekt/Drucken, Amiga-P, Toolbar): auf den Drucker über
    printer.device (Grafik, mit den Schriften der Vorschau; auf dem

@@ -30,7 +30,7 @@ MD4CFLAGS := $(CPU) -Os -noixemul -fno-common -DMD4C_USE_ASCII
 
 CONVOBJ := $(B)/mdconv.o $(B)/md4c.o $(B)/md4c-html.o $(B)/entity_stub.o $(B)/fileio.o
 EDITOBJ := $(B)/kickdown.o $(B)/gui.o $(B)/sync.o $(B)/highlight.o $(B)/settings.o $(B)/prefswin.o $(B)/dialog.o $(B)/find.o $(B)/locale.o $(B)/format.o $(B)/mdformat.o $(B)/splash.o $(B)/printwin.o $(CONVOBJ)
-TOOLOBJ := $(B)/mdtohtml.o $(CONVOBJ)
+TOOLOBJ := $(B)/mdtohtml.o $(B)/mdtree.o $(B)/mdtree_dos.o $(CONVOBJ)
 
 # translations: catalogs/<language>.ct -> bin/Catalogs/<language>/Kickdown.catalog
 # (Kickdown finds them through PROGDIR:Catalogs, so bin/ works as it is)
@@ -59,7 +59,7 @@ $(B)/md4c-html.o: $(MD4C)/md4c-html.c $(MD4C)/md4c-html.h $(MD4C)/md4c.h
 	@mkdir -p $(B)
 	$(CC) $(MD4CFLAGS) -c $< -o $@
 
-$(B)/%.o: src/%.c src/kickdown.h src/strings.h src/settings.h src/mdconv.h src/mdformat.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
+$(B)/%.o: src/%.c src/kickdown.h src/strings.h src/settings.h src/mdconv.h src/mdformat.h src/mdtree.h src/fileio.h $(MD4C)/md4c.c $(HTMLINC)/gadgets/html.h
 	@mkdir -p $(B)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -104,9 +104,14 @@ test/hostset: test/hostset.c src/settings.c src/settings.h
 test/hostfmt: test/hostfmt.c src/mdformat.c src/mdformat.h
 	cc -g -Wall -Wextra -fsanitize=address,undefined -Isrc -o $@ test/hostfmt.c src/mdformat.c
 
+# host test of the directory mode (src/mdtree.c with POSIX file functions)
+test/hosttree: test/hosttree.c src/mdtree.c src/mdtree.h src/mdconv.c src/mdconv.h src/entity_stub.c $(MD4C)/md4c.c $(MD4C)/md4c-html.c
+	cc -g -Wall -fsanitize=address,undefined -Isrc $(MDDEFS) -o $@ \
+		test/hosttree.c src/mdtree.c src/mdconv.c src/entity_stub.c $(MD4C)/md4c.c $(MD4C)/md4c-html.c
+
 CHECKS  := $(wildcard test/*.md)
 
-check: test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt
+check: test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt test/hosttree
 	@mkdir -p $(B)/test; fail=0; \
 	for f in $(CHECKS); do n=$$(basename $$f .md); \
 		if ./test/hostconv $$f test/template.html > $(B)/test/$$n.out && \
@@ -121,6 +126,8 @@ check: test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt
 	if ./test/hostset > $(B)/test/settings.out; then echo "ok   settings in tool types"; \
 	else cat $(B)/test/settings.out; echo "FAIL settings in tool types"; fail=1; fi; \
 	./test/hostfmt || fail=1; \
+	rm -rf $(B)/test/tree; mkdir -p $(B)/test/tree; \
+	./test/hosttree $(B)/test/tree || fail=1; \
 	exit $$fail
 
 # accept the current output as reference after an intended change
@@ -142,6 +149,6 @@ dist: all
 	python3 tools/mkdist.py
 
 clean:
-	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt
+	rm -rf $(B) $(O) dist test/hostconv test/hostsync test/hosthl test/hostset test/hostfmt test/hosttree
 
 .PHONY: all clean check check-update dist icons md4cversion

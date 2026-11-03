@@ -57,7 +57,8 @@ Tested printers:
 * The preview looks much like GitHub: thin lines in tables, grey backgrounds for code, a bar
   for quotes (also when printing). Big pictures can be scaled down to its width (`FITIMAGES`).
 * Headings get GitHub style anchors (`## Two Words` → `#two-words`), so tables of contents work.
-* Links: `#anchors` scroll the preview, links to `.md` files open them in the editor, other
+* Links: `#anchors` scroll the preview, links to `.md` files open them in the editor (`file.md#anchor`
+  also scrolls to the anchor, `../` works), other
   links are shown in the status line. Relative image paths are relative to the document's drawer.
 * Open, Save, Save as, Export HTML; asks before discarding changes or replacing files.
 * Cut/Copy/Paste/Undo/Redo, select all; text selected in the preview can be copied, too.
@@ -144,11 +145,34 @@ mdtohtml [FROM|FILE] <file.md> [TO|OUTFILE <file.html>] [TEMPLATE <file>]
 Raw HTML in the Markdown text is passed through. The Free Pascal version used Unix style options
 (`-f`, `-o`, `-t` ...); `FILE`, `OUTFILE`, `ENCODING` and `MODE` are kept as aliases.
 
+### Whole drawers
+
+```
+mdtohtml FROM <drawer> ALL TO <drawer> [TEMPLATE <file>] [CHARSET <name>] [DIALECT <name>]
+```
+
+With `ALL` a tree of Markdown files becomes a tree of HTML pages with the same names and
+drawers, for example a help for HelpViewer. `TO` is made if it is missing, its parent must exist.
+
+* `.md` and `.markdown` files become `.html` pages, the first `#` heading is the title, otherwise
+  the file name. Other files are copied, also ready-made `.html` pages. Icons (`.info`) and drawers
+  starting with a dot (`.git`) are left out.
+* Links between the files are written as usual, `[Find](project/find.md#options)`, and lead to
+  the pages afterwards. Raw HTML is only recognised as `<a href="...">` and `<img src="...">`,
+  and links inside copied `.html` pages are not looked at.
+* Afterwards dead links and anchors are reported, and files of the target without a source
+  (a page that was renamed, for example). These are warnings (return code 5). Nothing is ever
+  deleted, remove such files yourself.
+
 ### Templates
 
 A template is an HTML file with the placeholders `$title$`, `$encoding$` (or `$charset$`) and
 `$body$` (case is ignored), see `test/template.html`. Without a template a minimal HTML 4 frame
 is used. Kickdown uses the template for the preview and the export.
+
+`$root$` is for pictures all pages share, such as `<img src="$root$img/logo.png">`: with `ALL` it
+is the way from the page up to the root of the tree (`../` per drawer), otherwise, and so also in
+Kickdown, it is empty.
 
 ## Languages
 

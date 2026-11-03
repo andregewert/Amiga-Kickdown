@@ -298,10 +298,44 @@ static BOOL same_text(const char *a, const char *b)
     return *a == *b;
 }
 
+/* The path of a link relative to the document's drawer. Not AddPart(): a
+ * rel like "/x.md" has to stay "drawer//x.md", the drawer's parent.      */
+static BOOL link_path(const char *rel, char *path, ULONG size)
+{
+    size_t len = 0;
+
+    path[0] = 0;
+    if (curfile[0]) {
+        len = PathPart((STRPTR)curfile) - (STRPTR)curfile;
+        if (len >= size) return FALSE;
+        memcpy(path, curfile, len);
+        path[len] = 0;
+    }
+    if (len + 1 + strlen(rel) + 1 > size) return FALSE;
+    if (len && path[len - 1] != ':') path[len++] = '/';
+    strcpy(path + len, rel);
+    return TRUE;
+}
+
+/* Does this path name the file being edited? */
+static BOOL is_current_document(const char *path)
+{
+    BPTR a, b;
+    BOOL same = FALSE;
+
+    if (!curfile[0] || !(a = Lock((STRPTR)path, ACCESS_READ))) return FALSE;
+    if ((b = Lock((STRPTR)curfile, ACCESS_READ))) {
+        same = SameLock(a, b) == LOCK_SAME;
+        UnLock(b);
+    }
+    UnLock(a);
+    return same;
+}
+
 static void follow_link(void)
 {
     STRPTR url = NULL;
-    char path[PATHLEN], msg[PATHLEN + 8], *hash, *ext;
+    char path[PATHLEN], rel[PATHLEN], anchor[PATHLEN], msg[PATHLEN + 8], *ext;
 
     GetAttr(HTML_LinkURL, gui.html, (ULONG *)&url);
     if (!url || url[0] == '#') return;         /* HTML_AutoAnchors scrolls */
@@ -309,16 +343,17 @@ static void follow_link(void)
     if (!strstr((const char *)url, "://") && strncmp((const char *)url, "mailto:", 7)) {
         /* a local file: Markdown documents are opened in the editor */
         if (!strncmp((const char *)url, "file:", 5)) url += 5;
-        if (curfile[0]) {
-            strcpy(path, curfile);
-            *PathPart((STRPTR)path) = 0;
-        } else path[0] = 0;
-        AddPart((STRPTR)path, url, sizeof(path));
-        if ((hash = strchr(path, '#'))) *hash = 0;
-        ext = strrchr(path, '.');
-        if (ext && (same_text(ext, ".md") || same_text(ext, ".markdown"))) {
-            open_document((CONST_STRPTR)path);
-            return;
+        if (mdconv_link_parts((const char *)url, rel, sizeof(rel), anchor, sizeof(anchor)) &&
+            link_path(rel, path, sizeof(path))) {
+            ext = strrchr(path, '.');
+            if (ext && (same_text(ext, ".md") || same_text(ext, ".markdown"))) {
+                /* the document at hand stays as it is, also with unsaved changes */
+                if (!is_current_document(path) && !open_document((CONST_STRPTR)path)) return;
+                if (anchor[0])
+                    SetGadgetAttrs((struct Gadget *)gui.html, gui.win, NULL,
+                                   HTML_Anchor, (ULONG)anchor, TAG_DONE);
+                return;
+            }
         }
     }
     snprintf(msg, sizeof(msg), S(MSG_LINK), (const char *)url);
