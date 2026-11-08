@@ -181,7 +181,11 @@ static BOOL card_init(struct Card *c, struct Screen *screen, CONST_STRPTR iconna
     if ((c->pen_title = obtain(cm, 0x0a2a8a)) >= 0 && c->pen_title != c->bg) c->title = (UWORD)c->pen_title;
 
     /* the program icon, laid out for this screen (icon.library V44) */
-    if (IconBase && IconBase->lib_Version >= 44 && (c->icon = GetDiskObjectNew((STRPTR)iconname))) {
+    /* GetDiskObjectNew() asks for the planar image only (seen in icon.library
+       47), which is the classic picture of a GlowIcon or NewIcon */
+    if (IconBase && IconBase->lib_Version >= 44 &&
+        (c->icon = GetIconTags((STRPTR)iconname, ICONGETA_FailIfUnavailable, FALSE,
+                               ICONGETA_RemapIcon, FALSE, TAG_END))) {
         LayoutIconA(c->icon, screen, NULL);
         if (GetIconRectangle(NULL, c->icon, NULL, &rect,
                              ICONDRAWA_Frameless, TRUE, ICONDRAWA_Borderless, TRUE, TAG_DONE)) {

@@ -941,7 +941,10 @@ int main(void)
     splash_close();
     /* the program icon stands for the iconified window */
     if (IconBase) {
-        struct DiskObject *dob = GetDiskObject((STRPTR)iconname);
+        /* with its colour image: GetDiskObject() gives only the planar one */
+        struct DiskObject *dob = IconBase->lib_Version >= 44
+                                 ? GetIconTags((STRPTR)iconname, TAG_END)
+                                 : GetDiskObject((STRPTR)iconname);
         if (dob) {
             dob->do_CurrentX = dob->do_CurrentY = NO_ICON_POSITION;
             gui_set_icon(dob);
