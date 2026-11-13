@@ -119,6 +119,11 @@ Keine Implementierungsdetails in die READMEs.
 
 - `tools/icons.py` registriert die Motive von Kickdown und Markdown-Dokumenten in
   `amiga-devkit/tools/amigaicons.py` (Stile, Dateiformat, Vorschau kommen von dort).
+- `icons/Masonicons/`: Ausnahme von „icons/ wird erzeugt“, von Hand gezeichnet von Martin
+  „Mason“ Merz (Erlaubnis, siehe `AUTHOR`), nicht ändern. Gleich aufgebaut wie die erzeugten
+  Sätze in `Icons/<Stil>/`; neue Dateien im Archiv brauchen dort ein Icon vom Benutzer.
+  `mkdist.py` kopiert den Satz und schreibt `UseMasonicons` (ohne `AUTHOR`); `make icons`
+  liest die Farbbilder für die Vorschau `icons/masonicons.png` (READMEs) aus.
 - `tools/mkdist.py` (`make dist`) baut `dist/Kickdown.lha` samt Icons, Doku (README*.md nach
   ISO-8859-1) und Quellen (inkl. md4c, html.gadget-Headern, `md4c/VERSION` und amiga-devkit).
 - Versionsgeschichte in `package/Kickdown.readme` unter der Version aus `VERSION_TEXT`.

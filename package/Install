@@ -7,6 +7,12 @@
 ; Catalogs/<language>/Kickdown.catalog in this archive; for a new one add
 ; its name to #langs and a choice to the language question below.
 ;
+; Icons: the user chooses one of the sets in Icons/<Style>/ (default: the
+; Masonicons, in the style of AmigaOS 3.2 by the same artist), the files are
+; copied without the classic icons next to them. Kickdown.info holds the
+; user's settings as tool types: if it is there already, the user chooses to
+; keep it or to take the one of the chosen set.
+;
 (set #l (if (= @language "deutsch") 1 0))
 (set @app-name "Kickdown")
 (set @default-dest "Work:")
@@ -23,14 +29,21 @@
             "html.gadget is not installed in SYS:Classes/Gadgets. Kickdown needs it for the preview: please install it from Aminet (dev/gui/html_gadget.lha), or put it next to Kickdown."
             "html.gadget ist nicht in SYS:Classes/Gadgets installiert. Kickdown braucht es für die Vorschau: bitte von Aminet installieren (dev/gui/html_gadget.lha) oder neben Kickdown legen.")))
 
-; copies one file of the archive (with its icon) to #dest
+; copies one file of the archive to #dest
 (procedure P_COPYFILE #file #prompt
     (copyfiles
         (prompt #prompt)
         (help @copyfiles-help)
         (source #file)
-        (dest #dest)
-        (infos)))
+        (dest #dest)))
+
+; copies the icon of #name (path in the archive) from the chosen set to #to
+(procedure P_ICON #name #to
+    (copyfiles
+        (prompt (select #l "Copying the icons" "Die Icons werden kopiert"))
+        (help @copyfiles-help)
+        (source (tackon #set (cat #name ".info")))
+        (dest #to)))
 
 (set #parts
     (askoptions
@@ -44,16 +57,39 @@
 
 (if (OR (IN #parts 0) (IN #parts 2))
     (
+        (set #style
+            (askchoice
+                (prompt (select #l "Which icons do you want? The Masonicons were made by Martin \"Mason\" Merz."
+                                   "Welche Icons möchten Sie? Die Masonicons stammen von Martin \"Mason\" Merz."))
+                (help @askchoice-help)
+                (choices "Classic" "GlowIcons" "NewIcons" "Masonicons")
+                (default 3)))
+        (set #set (tackon "Icons" (select #style "Classic" "GlowIcons" "NewIcons" "Masonicons")))
         (set #dest
             (askdir
                 (prompt (select #l "Where should Kickdown go? A drawer \"Kickdown\" will be created there."
                                    "Wohin soll Kickdown? Dort wird eine Schublade \"Kickdown\" angelegt."))
                 (help @askdir-help)
                 (default @default-dest)))
-        (set #dest (tackon #dest "Kickdown"))
+        ; for an update, the drawer itself may have been chosen
+        (if (<> (fileonly #dest) "Kickdown")
+            (set #dest (tackon #dest "Kickdown")))
         (if (= (exists #dest) 0)
-            (makedir #dest (infos)))
+            (makedir #dest))
         (set @default-dest #dest)))
+
+; an icon of Kickdown already there holds the user's settings
+(set #keep 0)
+(if (IN #parts 0)
+    (if (exists (tackon #dest "Kickdown.info"))
+        (set #keep
+            (askbool
+                (prompt (select #l
+                    "There is an icon of Kickdown in this drawer already. It holds your settings as tool types. Keep it, or replace it with the chosen icon?"
+                    "In dieser Schublade liegt bereits ein Icon von Kickdown. Es enthält Ihre Einstellungen als Tooltypes. Behalten oder durch das gewählte Icon ersetzen?"))
+                (help @askbool-help)
+                (choices (select #l "Keep" "Behalten") (select #l "Replace" "Ersetzen"))
+                (default 1)))))
 
 (if (IN #parts 0)
     (
@@ -61,6 +97,10 @@
         (P_COPYFILE "Template.html" (select #l "Copying the page template" "Das Seiten-Template wird kopiert"))
         (P_COPYFILE "Example.md" (select #l "Copying the example" "Das Beispiel wird kopiert"))
         (P_COPYFILE "boing.gif" (select #l "Copying the example" "Das Beispiel wird kopiert"))
+        (if (= #keep 0)
+            (P_ICON "Kickdown" #dest))
+        (P_ICON "Template.html" #dest)
+        (P_ICON "Example.md" #dest)
         ; the example opens with the installed Kickdown
         (tooltype
             (dest (tackon #dest "Example.md"))
@@ -83,8 +123,22 @@
             (help @copyfiles-help)
             (source "Docs")
             (dest (tackon #dest "Docs"))
-            (all)
-            (infos))))
+            (pattern "~(#?.info)"))
+        (P_ICON "Docs" #dest)
+        (P_ICON "Docs/README.md" (tackon #dest "Docs"))
+        (P_ICON "Docs/README.de.md" (tackon #dest "Docs"))))
+
+; the drawer's own icon: an update with kept settings leaves it where it is
+(if (OR (IN #parts 0) (IN #parts 2))
+    (
+        (set #parent (pathonly #dest))
+        (if (OR (= #keep 0) (= (exists (tackon #parent "Kickdown.info")) 0))
+            (copyfiles
+                (prompt (select #l "Copying the drawer's icon" "Das Icon der Schublade wird kopiert"))
+                (help @copyfiles-help)
+                (source (tackon #set "Kickdown-Drawer.info"))
+                (dest #parent)
+                (newname "Kickdown.info")))))
 
 ; catalogs: English is built in, the system language is preselected
 (set #langs

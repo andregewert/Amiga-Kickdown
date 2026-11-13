@@ -194,10 +194,15 @@ CatComp und FlexCat, z. B. als Kopie von `deutsch.ct`) und eine Auswahl in `pack
 
 ## Icons
 
-Das Archiv hat klassische Icons; vollständige Sätze im **GlowIcons**- und **NewIcons**-Stil
-liegen in `Icons/` (Doppelklick auf `UseGlowIcons`, `UseNewIcons` oder `UseClassic`).
+Der Installer fragt, welche Icons Sie möchten (vorgewählt: Masonicons, passend zu AmigaOS 3.2).
+Das Archiv hat klassische Icons; vollständige Sätze im **GlowIcons**- und **NewIcons**-Stil und
+die **Masonicons** von Martin „Mason“ Merz (mit freundlicher Genehmigung,
+[masonicons.info](http://www.masonicons.info/)) liegen in `Icons/` (Doppelklick auf
+`UseGlowIcons`, `UseNewIcons`, `UseMasonicons` oder `UseClassic`).
 
 ![Icon-Stile: klassisch, GlowIcons, NewIcons (normal und ausgewählt)](icons/preview.png)
+
+![Masonicons: Schublade, Kickdown, Markdown-Dokument, Template, Readme, Lizenz, Installer (normal und ausgewählt)](icons/masonicons.png)
 
 ## Bauen
 

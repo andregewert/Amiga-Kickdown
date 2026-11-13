@@ -73,7 +73,8 @@ Installation
 ------------
 Double click Install: it copies Kickdown with the page template and the
 example into a drawer of your choice, mdtohtml to C:, the documentation,
-and the catalogs of the languages you select to LOCALE:Catalogs. Kickdown
+and the catalogs of the languages you select to LOCALE:Catalogs, with the
+icons you choose (classic, GlowIcons, NewIcons or Masonicons). Kickdown
 also runs directly from the archive. html.gadget must be installed in
 SYS:Classes/Gadgets/ or lie next to Kickdown. Set the default tool of your
 Markdown icons to Kickdown to open them with a double click.
@@ -94,9 +95,10 @@ Contents
  Template.html        example page template
  Docs/                documentation (English README.md, German
                       README.de.md)
- Icons/               the archive's icons as GlowIcons and NewIcons (and
-                      the classic ones); double click UseGlowIcons,
-                      UseNewIcons or UseClassic to switch
+ Icons/               the archive's icons as GlowIcons, NewIcons and
+                      Masonicons (and the classic ones); double click
+                      UseGlowIcons, UseNewIcons, UseMasonicons or
+                      UseClassic to switch
  Source/              complete source code (C, cross compiled with
                       bebbo's amiga-gcc and NDK 3.2), including md4c
 
@@ -108,6 +110,11 @@ next version
    leftovers in the target are reported; $root$ in the template leads from
    a page to the root of the tree
  - Kickdown: links to Markdown files scroll to their #anchor and follow ../
+ - Masonicons: a set of icons by Martin "Mason" Merz (masonicons.info),
+   used with his kind permission
+ - the installer asks which icons to install (classic, GlowIcons, NewIcons,
+   Masonicons, preset as they match AmigaOS 3.2) and can keep the icon of
+   Kickdown with your settings
 
 1.1 (17.10.2026)
  - printing (Project/Print, Amiga-P, toolbar): to the printer through
@@ -182,6 +189,11 @@ nächste Version
    führt von einer Seite zur Wurzel des Baums
  - Kickdown: Links auf Markdown-Dateien springen zu ihrem #Anker und
    folgen ../
+ - Masonicons: ein Icon-Satz von Martin "Mason" Merz (masonicons.info),
+   mit freundlicher Genehmigung
+ - der Installer fragt, welche Icons installiert werden (klassisch,
+   GlowIcons, NewIcons, Masonicons, vorgewählt, da passend zu AmigaOS 3.2),
+   und kann das Icon von Kickdown mit Ihren Einstellungen behalten
 
 1.1 (17.10.2026)
  - Drucken (Projekt/Drucken, Amiga-P, Toolbar): auf den Drucker über

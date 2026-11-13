@@ -9,9 +9,10 @@
 # motifs of Kickdown and of Markdown documents and registers them there.
 #
 # Run directly (or "make icons") to write sample icons of all styles to
-# icons/<Style>/ and a preview picture icons/preview.png.
+# icons/<Style>/ and a preview picture icons/preview.png, and the preview
+# icons/masonicons.png of the hand drawn set in icons/Masonicons/.
 
-import os, sys
+import os, struct, sys, zlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'amiga-devkit', 'tools'))
@@ -158,5 +159,89 @@ SAMPLES = (('Drawer', 'drawer', WBDRAWER, {}),
            ('Script', 'tiles', WBPROJECT, {'default_tool': 'C:IconX'}))
 
 
+# ------------------------------------------------- Masonicons preview ---
+# The Masonicons (icons/Masonicons/, by Martin "Mason" Merz) are not drawn
+# here; their OS 3.5 colour images are read back for the README picture.
+
+MASON_PREVIEW = ('Kickdown-Drawer', 'Kickdown', 'Example.md', 'Template.html',
+                 'Kickdown.readme', 'LICENSE', 'Install')
+
+
+def unpack_rle(data, depth, count):
+    """ count values of depth bits from the run length coded data of an
+        IMAG chunk (byte n < 128: n+1 values follow, n > 128: the next
+        value 257-n times, 128: nothing)                                """
+    bits = ''.join(format(b, '08b') for b in data)
+    pos, out = 0, []
+
+    def take(n):
+        nonlocal pos
+        v = int(bits[pos:pos + n], 2)
+        pos += n
+        return v
+    while len(out) < count and pos + 8 <= len(bits):
+        n = take(8)
+        if n < 128:
+            out.extend(take(depth) for _ in range(n + 1))
+        elif n > 128:
+            out.extend([take(depth)] * (257 - n))
+    return out[:count]
+
+
+def colour_images(path):
+    """ the OS 3.5 images (FORM ICON, FACE and IMAG chunks) of a .info file
+        as rows of RGB or None (transparent): [normal, selected]         """
+    d = open(path, 'rb').read()
+    pos = d.find(b'FORM', 78) + 12
+    images, palette, w, h = [], None, 0, 0
+    while pos + 8 <= len(d):
+        cid, n = d[pos:pos + 4], struct.unpack('>I', d[pos + 4:pos + 8])[0]
+        c = d[pos + 8:pos + 8 + n]
+        if cid == b'FACE':
+            w, h = c[0] + 1, c[1] + 1
+        elif cid == b'IMAG':
+            trans, ncol, flags, ifmt, pfmt, depth = c[:6]
+            nimg, npal = struct.unpack('>HH', c[6:10])
+            img = c[10:10 + nimg + 1]
+            pix = unpack_rle(img, depth, w * h) if ifmt else list(img[:w * h])
+            if flags & 2:
+                raw = c[11 + nimg:12 + nimg + npal]
+                raw = bytes(unpack_rle(raw, 8, (ncol + 1) * 3)) if pfmt else raw
+                palette = [tuple(raw[i:i + 3]) for i in range(0, len(raw) - 2, 3)]
+            images.append([[None if (flags & 1 and v == trans) else palette[v]
+                            for v in pix[y * w:(y + 1) * w]] for y in range(h)])
+        pos += 8 + n + (n & 1)
+    return images
+
+
+def mason_preview(path, names=MASON_PREVIEW, scale=3):
+    """ a PNG like preview.png with the Masonicons, normal and selected """
+    pics = [colour_images(os.path.join(ROOT, 'icons', 'Masonicons', n + '.info')) for n in names]
+    gap = 10
+    cw = max(len(im[0]) for p in pics for im in p)
+    ch = max(len(im) for p in pics for im in p)
+    pw = gap + len(pics) * (2 * cw + 8 + gap)
+    ph = ch + 2 * gap
+    bg = gi.WB_PEN[0]
+    out = [[bg] * pw for _ in range(ph)]
+    for k, pic in enumerate(pics):
+        for sel, img in enumerate(pic[:2]):
+            ox = gap + k * (2 * cw + 8 + gap) + sel * (cw + 8) + (cw - len(img[0])) // 2
+            oy = gap + ch - len(img)
+            for y, row in enumerate(img):
+                for x, v in enumerate(row):
+                    if v is not None:
+                        out[oy + y][ox + x] = v
+    raw = b''.join(b'\0' + b''.join(bytes(c) * scale for c in row) for row in out for _ in range(scale))
+
+    def chunk(t, b):
+        return struct.pack('>I', len(b)) + t + b + struct.pack('>I', zlib.crc32(t + b) & 0xFFFFFFFF)
+    with open(path, 'wb') as f:
+        f.write(b'\x89PNG\r\n\x1a\n' +
+                chunk(b'IHDR', struct.pack('>IIBBBBB', pw * scale, ph * scale, 8, 2, 0, 0, 0)) +
+                chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
+
+
 if __name__ == '__main__':
     gi.write_samples(os.path.join(ROOT, 'icons'), SAMPLES, ROLES)
+    mason_preview(os.path.join(ROOT, 'icons', 'masonicons.png'))

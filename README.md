@@ -186,10 +186,15 @@ translations whose format specifiers (`%s`, `%lu` …) differ from the original.
 
 ## Icons
 
-The archive comes with classic icons; complete sets in the **GlowIcons** and **NewIcons**
-style are in `Icons/` (double click `UseGlowIcons`, `UseNewIcons` or `UseClassic`).
+The installer asks which icons you want (preset: Masonicons, matching AmigaOS 3.2). The archive
+comes with classic icons; complete sets in the **GlowIcons** and **NewIcons** style and the
+**Masonicons** by Martin "Mason" Merz (used with his kind permission,
+[masonicons.info](http://www.masonicons.info/)) are in `Icons/` (double click `UseGlowIcons`,
+`UseNewIcons`, `UseMasonicons` or `UseClassic`).
 
 ![Icon styles: classic, GlowIcons, NewIcons (normal and selected)](icons/preview.png)
+
+![Masonicons: drawer, Kickdown, Markdown document, template, readme, license, installer (normal and selected)](icons/masonicons.png)
 
 ## Building
 
