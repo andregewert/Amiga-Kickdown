@@ -2,7 +2,7 @@ Short:        Markdown editor with HTML preview
 Author:       André Gewert <agewert@ubergeek.de>
 Uploader:     André Gewert <agewert@ubergeek.de>
 Type:         text/edit
-Version:      1.1
+Version:      1.2
 Architecture: m68k-amigaos >= 3.2.0
 Requires:     AmigaOS 3.2, dev/gui/html_gadget.lha (1.2), AISS (toolbar)
 Distribution: Aminet
@@ -104,7 +104,7 @@ Contents
 
 History
 -------
-next version
+1.2 (13.11.2026)
  - mdtohtml ALL converts a whole drawer tree into HTML pages: links between
    the files lead to the pages, other files are copied, dead links and
    leftovers in the target are reported; $root$ in the template leads from
@@ -182,7 +182,7 @@ auch nach den gewünschten Sprachen fragt.
 
 Versionsgeschichte
 ------------------
-nächste Version
+1.2 (13.11.2026)
  - mdtohtml ALL wandelt einen ganzen Verzeichnisbaum in HTML-Seiten um: Links
    zwischen den Dateien führen auf die Seiten, andere Dateien werden kopiert,
    tote Links und Überbleibsel im Ziel werden gemeldet; $root$ im Template

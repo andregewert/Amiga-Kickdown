@@ -24,7 +24,7 @@
 #include "mdconv.h"
 #include "mdtree.h"
 
-static const char version[] = "$VER: mdtohtml 1.0 (03.10.2026)";
+static const char version[] = "$VER: mdtohtml 1.1 (13.11.2026)";
 
 /* minimum stack, libnix swaps to a bigger one at startup if needed */
 unsigned long __stack = 32768;
